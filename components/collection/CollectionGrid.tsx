@@ -43,7 +43,14 @@ export function CollectionGrid({
 
   // Filter products based on selected states
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = selectedCategory === null || !product.category || product.category === selectedCategory
+    const matchesCategory =
+      selectedCategory === null ||
+      !product.category ||
+      product.category.toLowerCase() === selectedCategory.toLowerCase() ||
+      (selectedCategory.toLowerCase() === "noyer" && product.category.toLowerCase() === "noir") ||
+      (selectedCategory.toLowerCase() === "noir" && product.category.toLowerCase() === "noyer") ||
+      (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
+
     const matchesType = selectedType === null || !product.type || product.type === selectedType
     const matchesShape = !selectedShape || (product.shape && product.shape.toLowerCase().includes(selectedShape))
     const matchesMaterial = !selectedMaterial || (product.material && product.material.toLowerCase().includes(selectedMaterial))

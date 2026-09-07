@@ -242,8 +242,8 @@ export function EditsCarousel() {
       {/* Bottom CTA to view full curated collection */}
       <div className="mt-10 flex justify-center">
         <Link
-          href="/collections"
-          className="inline-flex h-9 items-center justify-center border border-white/30 text-white px-6 text-[0.6875rem] uppercase tracking-[0.14em] transition-colors hover:bg-white hover:text-black hover:border-white font-medium"
+          href="/collections?category=edits"
+          className="inline-flex h-9 items-center justify-center border border-white/30 text-white px-6 text-[0.6875rem] uppercase tracking-[0.14em] transition-colors hover:bg-white hover:text-black hover:border-white font-medium cursor-pointer"
         >
           Explore All Curations
         </Link>

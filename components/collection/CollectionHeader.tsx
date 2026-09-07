@@ -52,7 +52,13 @@ export function CollectionHeader({
   }
 
   const filteredCount = collectionProducts.filter((product) => {
-    const matchesCategory = selectedCategory === null || product.category === selectedCategory
+    const matchesCategory =
+      selectedCategory === null ||
+      !product.category ||
+      product.category.toLowerCase() === selectedCategory.toLowerCase() ||
+      (selectedCategory.toLowerCase() === "noyer" && product.category.toLowerCase() === "noir") ||
+      (selectedCategory.toLowerCase() === "noir" && product.category.toLowerCase() === "noyer") ||
+      (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
     const matchesType = selectedType === null || product.type === selectedType
     return matchesCategory && matchesType
   }).length
@@ -66,6 +72,7 @@ export function CollectionHeader({
 
   const categories = [
     { value: null, label: "ALL" },
+    { value: "Edits", label: "EDITS" },
     { value: "Heritage", label: "HERITAGE" },
     { value: "Noyer", label: "NOYER" },
     { value: "Crystal", label: "CRYSTAL" },

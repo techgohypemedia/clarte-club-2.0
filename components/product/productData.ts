@@ -29,7 +29,7 @@ export type ProductCard = {
   gallery?: string[]
   name?: string
   price?: string
-  category?: "Heritage" | "Noyer" | "Crystal" | "Atelier"
+  category?: "Heritage" | "Noyer" | "Crystal" | "Atelier" | "Edits" | "Noir" | string
   type?: "Sunglasses" | "Optical"
   shape?: string
   material?: string

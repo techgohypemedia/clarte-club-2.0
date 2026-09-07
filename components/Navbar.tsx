@@ -45,9 +45,10 @@ const primaryNav: PrimaryNavItem[] = [
   { key: "collections", label: "Collections", href: "/collections" },
 ]
 
-const megaMenuFeatured = ["Noir Collection", "Heritage Collection", "Crystal Collection", "Atelier Collection"]
+const megaMenuFeatured = ["Curated Edits", "Noir Collection", "Heritage Collection", "Crystal Collection", "Atelier Collection"]
 
 const megaMenuCategories = [
+  "Curated Edits",
   "Noir",
   "Heritage",
   "Crystal",
@@ -889,8 +890,8 @@ export function Navbar({
                 <Link href="/collections" onClick={closeMenu} className="font-bold text-black hover:opacity-70 transition-opacity">
                   New Arrivals
                 </Link>
-                <Link href="/collections" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
-                  Bestseller Eyewear
+                <Link href="/collections?category=Edits" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
+                  Curated Edits
                 </Link>
                 <Link href="/collections?category=Heritage" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
                   Heritage Collection
@@ -1020,7 +1021,7 @@ export function Navbar({
                 {megaMenuCategories.map((cat) => (
                   <Link
                     key={cat}
-                    href="/collections"
+                    href={`/collections?category=${cat.toLowerCase().replace(/\s+/g, "-")}`}
                     onClick={() => {
                       setMobileMenuOpen(false)
                     }}

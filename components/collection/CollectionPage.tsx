@@ -25,7 +25,20 @@ function CollectionContent() {
     const filterParam = searchParams.get("filter")
 
     if (categoryParam) {
-      setSelectedCategory(categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1))
+      const paramLower = categoryParam.toLowerCase()
+      if (paramLower === "edits" || paramLower === "curated" || paramLower === "curations" || paramLower === "curated-edits") {
+        setSelectedCategory("Edits")
+      } else if (paramLower === "noir" || paramLower === "noyer") {
+        setSelectedCategory("Noyer")
+      } else if (paramLower === "heritage") {
+        setSelectedCategory("Heritage")
+      } else if (paramLower === "crystal") {
+        setSelectedCategory("Crystal")
+      } else if (paramLower === "atelier") {
+        setSelectedCategory("Atelier")
+      } else {
+        setSelectedCategory(categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1))
+      }
     } else {
       setSelectedCategory(null)
     }
