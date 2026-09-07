@@ -139,12 +139,20 @@ export default function ContactPage() {
                 <span className="col-span-4 text-xs font-semibold uppercase tracking-wider text-neutral-500">
                   Information
                 </span>
-                <div className="col-span-8 space-y-1 font-mono">
+                <div className="col-span-8 space-y-1.5 font-mono">
                   <p className="text-[#0F0F10] hover:text-[#C9B07A] transition-colors">
                     <a href="mailto:contact@clarte.club">contact@clarte.club</a>
                   </p>
-                  <p className="text-[#0F0F10]">[Phone Number]</p>
-                  <p className="text-[#0F0F10]">[WhatsApp Number]</p>
+                  <p className="text-[#0F0F10]">
+                    <a
+                      href="https://wa.me/919371083295?text=Hi%20Clart%C3%A9%20Club%2C%20I%20have%20an%20inquiry"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#0F0F10] hover:text-[#25D366] transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <span>+91 93710 83295 (WhatsApp) →</span>
+                    </a>
+                  </p>
                   <p className="text-[#0F0F10] hover:text-[#C9B07A] transition-colors font-sans">
                     <a href="https://instagram.com/clarteclub.official" target="_blank" rel="noopener noreferrer">@clarteclub.official</a>
                   </p>

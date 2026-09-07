@@ -1,41 +1,13 @@
-import Image from "next/image"
-import { Sunglasses3DCanvas } from "@/components/home/Sunglasses3DCanvas"
+"use client"
+
+import { ScrollVideoHero } from "./ScrollVideoHero"
 
 export function Hero() {
   return (
-    <section className="relative h-screen h-[100dvh] min-h-[100dvh] w-full overflow-hidden bg-black text-white flex flex-col justify-between">
-      {/* Background Editorial Image */}
-      <div className="absolute inset-0 size-full overflow-hidden pointer-events-none">
-        {/* Mobile View Image */}
-        <Image
-          src="/images/image copy.png"
-          alt="Clarté Club Eyewear Mobile"
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 size-full object-cover object-right block md:hidden brightness-[0.95] contrast-[1.02]"
-        />
-        {/* Desktop View Image */}
-        <Image
-          src="/images/ChatGPT Image Aug 6, 2026, 02_25_39 PM.png"
-          alt="Clarté Club Eyewear"
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 size-full object-cover object-center hidden md:block brightness-[0.95] contrast-[1.02]"
-        />
-        {/* Cinematic Vignette & Gradient Overlays */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/10 to-black/45" />
-        <div className="absolute inset-0 z-[1] bg-black/10" />
-      </div>
+    <div className="relative w-full bg-black text-white">
+      <ScrollVideoHero />
 
-      {/* Center Interactive 3D Model Container */}
-      <div className="relative z-10 w-full flex-1 flex flex-col items-center justify-center pt-8 md:pt-12">
-        <div className="w-full max-w-4xl h-[70vh] md:h-[78vh] relative">
-          <Sunglasses3DCanvas modelPath="/video/blender1.glb" className="w-full h-full" />
-        </div>
-      </div>
-
+      {/* Accessibility Anchors */}
       <span id="shop" className="sr-only">
         Shop
       </span>
@@ -48,6 +20,7 @@ export function Hero() {
       <span id="collections" className="sr-only">
         Collection
       </span>
-    </section>
+    </div>
   )
 }
+

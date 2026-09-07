@@ -388,10 +388,10 @@ export function ScrollVideoHero() {
                 >
                   <Link 
                     href="/collections" 
-                    className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-full bg-white/10 px-8 py-4 text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/20 hover:border-white/40 shadow-2xl"
+                    className="group relative flex items-center justify-center gap-1.5 sm:gap-2 overflow-hidden rounded-full bg-white/10 px-5 py-2.5 sm:px-7 sm:py-3.5 text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/20 hover:border-white/40 shadow-2xl active:scale-95"
                   >
-                    <span className="text-[0.75rem] font-medium tracking-[0.2em] uppercase relative z-10">Explore Collections</span>
-                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-1 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span className="text-[10px] sm:text-[0.75rem] font-medium tracking-[0.16em] sm:tracking-[0.2em] uppercase relative z-10">Explore Collections</span>
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </Link>

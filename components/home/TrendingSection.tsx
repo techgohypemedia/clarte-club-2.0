@@ -11,17 +11,20 @@ import {
   trendingProducts,
   type ProductCard,
 } from "@/components/product/productData"
-import { addToCart } from "@/lib/cart"
+import { addToCart, buyNow } from "@/lib/cart"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
 
 export function ProductCardView({
   product,
   expanded = false,
+  theme = "light",
 }: {
   product: ProductCard
   expanded?: boolean
+  theme?: "light" | "dark"
 }) {
+  const isDark = theme === "dark"
   const defaultGallery = [
     product.image || "/images/products/product1.png",
     "/images/products/product2.png",
@@ -33,6 +36,17 @@ export function ProductCardView({
   const [quickViewOpen, setQuickViewOpen] = useState(false)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [added, setAdded] = useState(false)
+  const [isBuying, setIsBuying] = useState(false)
+
+  useEffect(() => {
+    const resetBuying = () => setIsBuying(false)
+    window.addEventListener("pageshow", resetBuying)
+    window.addEventListener("focus", resetBuying)
+    return () => {
+      window.removeEventListener("pageshow", resetBuying)
+      window.removeEventListener("focus", resetBuying)
+    }
+  }, [])
 
   // Touch Swipe Gesture State for Homepage Cards
   const touchStartX = useRef<number | null>(null)
@@ -88,6 +102,7 @@ export function ProductCardView({
     e.preventDefault()
     addToCart({
       id: product.id,
+      merchandiseId: product.merchandiseId,
       image: product.image,
       alt: product.alt,
       title: product.name ?? "Signature Frame",
@@ -98,13 +113,42 @@ export function ProductCardView({
     setTimeout(() => setAdded(false), 1500)
   }
 
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (isBuying) return
+    setIsBuying(true)
+
+    const timer = setTimeout(() => {
+      setIsBuying(false)
+    }, 4000)
+
+    try {
+      await buyNow({
+        id: product.id,
+        merchandiseId: product.merchandiseId,
+        image: product.image,
+        alt: product.alt,
+        title: product.name ?? "Signature Frame",
+        size: "XS",
+        price: product.price ?? "₹ 4,500",
+      })
+    } catch (err) {
+      console.error("Buy Now error:", err)
+      clearTimeout(timer)
+      setIsBuying(false)
+    }
+  }
+
   const productHref = product.href || (product.handle ? `/product/${product.handle}` : (product.id ? `/product/${product.id}` : "/products"))
 
   return (
     <article className="group relative flex flex-col w-full cursor-pointer">
       {/* ── 1. Image Container (Taller Portrait Height aspect-[1/1.45] + rounded-[14px] Corners + Touch Pan-Y) ── */}
       <div
-        className="relative aspect-[1/1.45] w-full overflow-hidden rounded-[14px] bg-neutral-100 select-none shadow-xs touch-pan-y"
+        className={`relative aspect-[1/1.45] w-full overflow-hidden rounded-[14px] select-none shadow-xs touch-pan-y ${
+          isDark ? "bg-[#18181b]" : "bg-neutral-100"
+        }`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -137,12 +181,18 @@ export function ProductCardView({
           className={`absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-lg shadow-sm border transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
             isWishlisted
               ? "bg-black text-[#C9B07A] border-[#C9B07A]"
+              : isDark
+              ? "bg-black/70 text-white border-white/10 hover:bg-black hover:text-white"
               : "bg-white/90 text-neutral-800 border-black/10 hover:bg-white hover:text-black"
           }`}
         >
           <Heart
             className={`size-4 transition-colors duration-200 ${
-              isWishlisted ? "fill-[#C9B07A] text-[#C9B07A]" : "fill-white/80 text-black stroke-[1.8]"
+              isWishlisted
+                ? "fill-[#C9B07A] text-[#C9B07A]"
+                : isDark
+                ? "fill-transparent text-white/90 stroke-[1.8]"
+                : "fill-white/80 text-black stroke-[1.8]"
             }`}
           />
         </button>
@@ -203,18 +253,19 @@ export function ProductCardView({
           </div>
         ) : null}
 
-        {/* Quick View Button on Image Hover */}
+        {/* Buy Now Button on Image Hover */}
         <button
           type="button"
-          aria-label={`Quick view ${product.alt}`}
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            setQuickViewOpen(true)
-          }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/80 text-black backdrop-blur-md border border-black/10 text-[10px] font-semibold uppercase tracking-wider opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:bg-white hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+          aria-label={`Buy now ${product.name ?? product.alt}`}
+          disabled={isBuying}
+          onClick={handleBuyNow}
+          className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center px-5 py-2.5 rounded-full backdrop-blur-md text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-60 ${
+            isDark
+              ? "bg-white text-black hover:bg-[#C9B07A] hover:text-black border border-white/30"
+              : "bg-black/90 text-white hover:bg-black border border-white/20"
+          }`}
         >
-          Quick View
+          {isBuying ? "Processing..." : "Buy Now"}
         </button>
       </div>
 
@@ -222,11 +273,19 @@ export function ProductCardView({
       <div className="mt-2.5 flex items-center justify-between gap-2 px-0.5">
         <div className="min-w-0 flex-1">
           <Link href={productHref} className="block group/title">
-            <h3 className="text-xs sm:text-[13px] font-semibold text-black truncate transition-colors group-hover/title:text-[#C9B07A]">
+            <h3
+              className={`text-xs sm:text-[13px] font-semibold truncate transition-colors group-hover/title:text-[#C9B07A] ${
+                isDark ? "text-[#F6F2EA]" : "text-black"
+              }`}
+            >
               {product.name ?? "Signature Frame"}
             </h3>
           </Link>
-          <p className="mt-0.5 text-[11px] text-neutral-600 font-medium">
+          <p
+            className={`mt-0.5 text-[11px] font-medium ${
+              isDark ? "text-neutral-400" : "text-neutral-600"
+            }`}
+          >
             {product.price ? product.price.replace("₹", "RS.") : "RS. 4,500"}
           </p>
         </div>
@@ -236,15 +295,19 @@ export function ProductCardView({
           type="button"
           aria-label="Add to cart"
           onClick={handleAddToCart}
-          className={`flex shrink-0 items-center justify-center p-1.5 text-black hover:text-[#C9B07A] transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
-            added ? "text-emerald-600" : ""
+          className={`flex shrink-0 items-center justify-center p-1.5 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+            added
+              ? "text-emerald-500"
+              : isDark
+              ? "text-white/80 hover:text-[#C9B07A]"
+              : "text-black hover:text-[#C9B07A]"
           }`}
           title="Add to Cart"
         >
           {added ? (
-            <Check className="size-4 animate-in zoom-in-50 duration-200 text-emerald-600" />
+            <Check className="size-4 animate-in zoom-in-50 duration-200 text-emerald-500" />
           ) : (
-            <ShoppingBag className="size-4 stroke-[1.8] text-black/80 hover:text-black" />
+            <ShoppingBag className="size-4 stroke-[1.8]" />
           )}
         </button>
       </div>

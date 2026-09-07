@@ -423,8 +423,8 @@ export function Navbar({
 }) {
   const defaultNavKey: NavKey = "new_in"
   const pathname = usePathname()
-  const isTestHero = Boolean(pathname && (pathname === "/test-hero" || pathname.startsWith("/test-hero")))
-  const isOverlay = pathname === "/" || isTestHero
+  const isVideoHero = pathname === "/"
+  const isOverlay = pathname === "/"
 
   const safeClearHash = () => {
     if (typeof window !== "undefined" && window.location.hash) {
@@ -458,7 +458,7 @@ export function Navbar({
   const announcementHeightRef = useRef(0)
   const hasOpenMenu = Boolean(activeMenu)
   const isInteractiveSurface = isHovered || hasOpenMenu
-  const isLightSurface = !isOverlay || (isTestHero ? isPastHero : isScrolled) || isInteractiveSurface
+  const isLightSurface = !isOverlay || (isVideoHero ? isPastHero : isScrolled) || isInteractiveSurface
   const tone: "dark" | "light" = isLightSurface ? "dark" : "light"
   const isWishlistOpen = wishlistOpen
   const [cartCount, setCartCount] = useState(0)
@@ -618,7 +618,7 @@ export function Navbar({
       const nextIsScrolled = window.scrollY > announcementHeightRef.current
 
       const heroHeight = typeof window !== "undefined" ? window.innerHeight : 800
-      const heroThreshold = isTestHero ? heroHeight * 2.85 : announcementHeightRef.current
+      const heroThreshold = isVideoHero ? heroHeight * 2.85 : announcementHeightRef.current
       const nextIsPastHero = window.scrollY > heroThreshold
 
       setIsScrolled((current) =>
@@ -665,7 +665,7 @@ export function Navbar({
       window.removeEventListener("pageshow", syncScrollState)
       window.removeEventListener("resize", syncScrollState)
     }
-  }, [isOverlay, isTestHero, pathname])
+  }, [isOverlay, isVideoHero, pathname])
 
   const headerContent = (
     <header
