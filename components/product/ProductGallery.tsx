@@ -13,7 +13,18 @@ export function ProductGallery({
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  if (!images || images.length === 0) return null
+  if (!images || images.length === 0) {
+    return (
+      <div className="relative aspect-[4/5] w-full flex flex-col items-center justify-center p-8 text-center bg-[#F7F4EE] border border-black/5 rounded-[14px]">
+        <span className="font-heading text-sm tracking-[0.25em] uppercase font-bold text-black/40">
+          CLARTÉ CLUB
+        </span>
+        <span className="text-[10px] uppercase tracking-[0.15em] text-[#C9B07A] font-semibold mt-2">
+          Image Upload Pending in Shopify
+        </span>
+      </div>
+    )
+  }
 
   const activeImage = images[activeImageIndex]
 
@@ -51,10 +62,10 @@ export function ProductGallery({
               type="button"
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative aspect-[3/4] w-full overflow-hidden bg-[#efefef] transition-all duration-200 border cursor-pointer",
+                "relative aspect-[4/5] w-full overflow-hidden bg-[#F7F4EE] transition-all duration-200 border cursor-pointer rounded-sm",
                 isSelected
                   ? "border-black ring-1 ring-black"
-                  : "border-black/5 opacity-60 hover:opacity-100 hover:border-black/20"
+                  : "border-black/5 opacity-70 hover:opacity-100 hover:border-black/20"
               )}
             >
               <Image
@@ -62,7 +73,7 @@ export function ProductGallery({
                 alt={`View thumbnail ${index + 1}`}
                 fill
                 sizes="80px"
-                className="object-cover object-center"
+                className="object-contain object-center"
               />
             </button>
           )
@@ -70,7 +81,7 @@ export function ProductGallery({
       </div>
 
       {/* Mobile/Tablet Horizontal Swipeable Main Image Gallery (Hides on desktop) */}
-      <div className="relative w-full aspect-[3/4] lg:hidden overflow-hidden border border-black/5">
+      <div className="relative w-full aspect-[4/5] lg:hidden overflow-hidden border border-black/5 rounded-lg bg-[#F7F4EE]">
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
@@ -79,7 +90,7 @@ export function ProductGallery({
           {images.map((image, index) => (
             <div
               key={`${image.src}-main-mob-${index}`}
-              className="relative w-full h-full shrink-0 snap-start bg-[#efefef]"
+              className="relative w-full h-full shrink-0 snap-start bg-[#F7F4EE] flex items-center justify-center"
             >
               <Image
                 src={image.src}
@@ -92,7 +103,7 @@ export function ProductGallery({
                     ? { objectPosition: image.objectPosition }
                     : undefined
                 }
-                className="object-cover"
+                className="object-contain object-center"
               />
             </div>
           ))}
@@ -112,7 +123,7 @@ export function ProductGallery({
       </div>
 
       {/* Desktop Main Image View (Hides on mobile/tablet) */}
-      <figure className="hidden lg:block relative aspect-[3/4] w-full overflow-hidden bg-[#efefef] flex-1 border border-black/5">
+      <figure className="hidden lg:block relative aspect-[4/5] w-full overflow-hidden bg-[#F7F4EE] flex-1 border border-black/5 rounded-lg">
         <Image
           src={activeImage.src}
           alt={activeImage.alt}
@@ -124,7 +135,7 @@ export function ProductGallery({
               ? { objectPosition: activeImage.objectPosition }
               : undefined
           }
-          className="object-cover transition-all duration-300"
+          className="object-contain object-center transition-all duration-300"
         />
       </figure>
 
@@ -138,18 +149,18 @@ export function ProductGallery({
               type="button"
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative h-16 w-12 shrink-0 overflow-hidden bg-[#efefef] transition-all duration-200 border cursor-pointer",
+                "relative h-16 w-14 shrink-0 overflow-hidden bg-[#F7F4EE] transition-all duration-200 border cursor-pointer rounded-sm",
                 isSelected
                   ? "border-black ring-1 ring-black"
-                  : "border-black/5 opacity-60 hover:opacity-100"
+                  : "border-black/5 opacity-70 hover:opacity-100"
               )}
             >
               <Image
                 src={image.src}
                 alt={`View thumbnail ${index + 1}`}
                 fill
-                sizes="48px"
-                className="object-cover object-center"
+                sizes="56px"
+                className="object-contain object-center"
               />
             </button>
           )

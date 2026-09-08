@@ -137,7 +137,7 @@ export const curatedEditsProducts: ProductCard[] = [
 ]
 
 export function EditsCarousel() {
-  const [products, setProducts] = useState<ProductCard[]>(curatedEditsProducts)
+  const [products, setProducts] = useState<ProductCard[]>([])
   const [api, setApi] = useState<CarouselApi>()
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(true)
@@ -146,9 +146,9 @@ export function EditsCarousel() {
     let isMounted = true
     import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
       getShopifyProducts(16).then((liveProducts) => {
-        if (isMounted && liveProducts && liveProducts.length > 4) {
-          // Use subsequent products for curated edits to avoid overlap with new drops
-          const curatedSlice = liveProducts.slice(4, 12)
+        if (isMounted && liveProducts && liveProducts.length > 0) {
+          // Use products for curated edits
+          const curatedSlice = liveProducts.length > 4 ? liveProducts.slice(4) : liveProducts
           if (curatedSlice.length > 0) {
             setProducts(curatedSlice)
           }

@@ -1,37 +1,37 @@
 "use client"
 
 import Image from "next/image"
+import type { ProductImage } from "@/components/product/productData"
 
-type HighlightBlock = {
-  title: string
-  description: string
-  imageSrc: string
-  imageAlt: string
-  imagePosition?: string
+type ProductHighlightsProps = {
+  productTitle?: string
+  gallery?: ProductImage[]
 }
 
-const HIGHLIGHTS_DATA: HighlightBlock[] = [
-  {
-    title: "Precision Bio-Acetate",
-    description: "Meticulously sculpted from organically sourced bio-acetate, each frame undergoes a multi-day tumbling process and precision polishing. This creates a rich, lustrous finish with exceptional durability and lightweight, hypoallergenic comfort.",
-    imageSrc: "/images/products/product8.png",
-    imageAlt: "Close-up of premium polished acetate frame details",
-    imagePosition: "center 42%",
-  },
-  {
-    title: "Signature 5-Barrel Hinges",
-    description: "Reinforced custom metal hinges and wire temple cores provide structural longevity. Engineered to distribute weight evenly and balance the fit, ensuring the frames rest comfortably on your nose bridge without sliding.",
-    imageSrc: "/images/products/product4.png",
-    imageAlt: "Detail view of premium custom hinge construction and wire core craftsmanship",
-    imagePosition: "center 36%",
-  },
-]
+export function ProductHighlights({ productTitle = "Signature Frame", gallery = [] }: ProductHighlightsProps) {
+  const image1 = gallery[1]?.src || gallery[0]?.src || ""
+  const image2 = gallery[2]?.src || gallery[3]?.src || gallery[0]?.src || image1
 
-export function ProductHighlights() {
+  const highlightBlocks = [
+    {
+      title: "Precision Bio-Acetate",
+      description:
+        "Meticulously sculpted from organically sourced bio-acetate, each frame undergoes a multi-day tumbling process and precision polishing. This creates a rich, lustrous finish with exceptional durability and lightweight, hypoallergenic comfort.",
+      imageSrc: image1,
+      imageAlt: `${productTitle} - Precision Bio-Acetate Craftsmanship`,
+    },
+    {
+      title: "Signature 5-Barrel Hinges",
+      description:
+        "Reinforced custom metal hinges and wire temple cores provide structural longevity. Engineered to distribute weight evenly and balance the fit, ensuring the frames rest comfortably on your nose bridge without sliding.",
+      imageSrc: image2,
+      imageAlt: `${productTitle} - Custom Hardware & Hinge Construction`,
+    },
+  ]
+
   return (
     <section className="w-full bg-[#fcfbfa] border-t border-black/15 py-20 text-black">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        
         {/* Section Title */}
         <div className="text-center mb-16 space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/40">
@@ -45,11 +45,11 @@ export function ProductHighlights() {
 
         {/* Highlights List */}
         <div className="space-y-24 md:space-y-32">
-          {HIGHLIGHTS_DATA.map((block, index) => {
+          {highlightBlocks.map((block, index) => {
             const isEven = index % 2 === 0
-            
+
             return (
-              <div 
+              <div
                 key={block.title}
                 className={`flex flex-col md:flex-row items-center gap-10 md:gap-20 ${
                   isEven ? "" : "md:flex-row-reverse"
@@ -58,18 +58,24 @@ export function ProductHighlights() {
                 {/* Image Block */}
                 <div className="w-full md:w-1/2">
                   <figure className="relative aspect-[4/5] w-full overflow-hidden bg-[#efefef] border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
-                    <Image
-                      src={block.imageSrc}
-                      alt={block.imageAlt}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      style={
-                        block.imagePosition
-                          ? { objectPosition: block.imagePosition }
-                          : undefined
-                      }
-                      className="object-cover hover:scale-[1.02] transition-transform duration-700 ease-out"
-                    />
+                    {block.imageSrc ? (
+                      <Image
+                        src={block.imageSrc}
+                        alt={block.imageAlt}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover object-center hover:scale-[1.02] transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-[#F6F2EA]">
+                        <span className="font-heading text-xs tracking-[0.25em] uppercase font-bold text-black/40">
+                          CLARTÉ CLUB
+                        </span>
+                        <span className="text-[9px] uppercase tracking-[0.15em] text-[#C9B07A] font-semibold mt-1.5">
+                          {productTitle}
+                        </span>
+                      </div>
+                    )}
                   </figure>
                 </div>
 
@@ -87,7 +93,6 @@ export function ProductHighlights() {
             )
           })}
         </div>
-
       </div>
     </section>
   )

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useScroll, useTransform, motion, AnimatePresence } from "framer-motion"
+import { ArrowRight } from "lucide-react"
 
 const DESKTOP_TOTAL_FRAMES = 201
 const DESKTOP_PREFIX = "/video frame/video_frames_webp_1280x720/frame_"
@@ -388,12 +389,16 @@ export function ScrollVideoHero() {
                 >
                   <Link 
                     href="/collections" 
-                    className="group relative flex items-center justify-center gap-1.5 sm:gap-2 overflow-hidden rounded-full bg-white/10 px-5 py-2.5 sm:px-7 sm:py-3.5 text-white backdrop-blur-md transition-all hover:bg-white/20 border border-white/20 hover:border-white/40 shadow-2xl active:scale-95"
+                    className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-black/85 px-6 py-2.5 sm:px-9 sm:py-3.5 md:px-10 md:py-4 text-[#F6F2EA] backdrop-blur-xl border border-[#C9B07A]/50 transition-all duration-500 hover:border-[#C9B07A] active:scale-95 whitespace-nowrap"
                   >
-                    <span className="text-[10px] sm:text-[0.75rem] font-medium tracking-[0.16em] sm:tracking-[0.2em] uppercase relative z-10">Explore Collections</span>
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
+                    {/* Champagne Gold Shimmer Fill on Hover */}
+                    <span 
+                      className="absolute inset-0 -translate-x-full bg-gradient-to-r from-[#C9B07A] via-[#dfc893] to-[#C9B07A] transition-transform duration-500 ease-out group-hover:translate-x-0" 
+                    />
+                    
+                    <span className="relative z-10 font-heading text-[10px] sm:text-[11.5px] md:text-[12px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F6F2EA] transition-colors duration-300 group-hover:text-[#0A0A0B]">
+                      Explore Collections
+                    </span>
                   </Link>
                 </motion.div>
               )}

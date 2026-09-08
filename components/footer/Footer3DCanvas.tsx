@@ -3,217 +3,222 @@
 import React, { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
 interface Footer3DCanvasProps {
   className?: string
+  modelPath?: string
 }
 
-export function Footer3DCanvas({ className = "" }: Footer3DCanvasProps) {
+export function Footer3DCanvas({
+  className = "",
+  modelPath = "/untitled (2).glb",
+}: Footer3DCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
+    const canvas = canvasRef.current
+    if (!container || !canvas) return
 
     let animationFrameId: number
-    let renderer: THREE.WebGLRenderer | null = null
-    let scene: THREE.Scene | null = null
-    let camera: THREE.PerspectiveCamera | null = null
-    let modelGroup: THREE.Group | null = null
-
-    // Mouse tracking for subtle hover reaction
-    let mouseX = 0
-    let mouseY = 0
-    let targetRotationX = 0
-    let targetRotationY = 0
-
-    const width = container.clientWidth || 200
-    const height = container.clientHeight || 200
 
     // 1. Scene setup
-    scene = new THREE.Scene()
+    const scene = new THREE.Scene()
 
     // 2. Camera setup
-    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
-    camera.position.set(0, 0, 8)
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
+    camera.position.set(0, 0.3, 3.8)
 
     // 3. Renderer setup
-    renderer = new THREE.WebGLRenderer({
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
       alpha: true,
       antialias: true,
       powerPreference: "high-performance",
     })
-    renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.2
+    renderer.toneMappingExposure = 1.3
 
-    container.appendChild(renderer.domElement)
-
-    // 4. Lighting setup (Luxury warm studio lighting)
-    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.8)
+    // 4. Lighting setup (Premium studio lighting)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0)
     scene.add(ambientLight)
 
-    const mainLight = new THREE.DirectionalLight(0xfff5e6, 3.5)
-    mainLight.position.set(5, 8, 5)
-    scene.add(mainLight)
+    const keyLight = new THREE.DirectionalLight(0xfffbf0, 3.2)
+    keyLight.position.set(4, 6, 4)
+    scene.add(keyLight)
 
-    const fillLight = new THREE.DirectionalLight(0xc9b07a, 1.5)
-    fillLight.position.set(-5, -2, -3)
+    const fillLight = new THREE.DirectionalLight(0xf5eedc, 1.8)
+    fillLight.position.set(-4, 2, -2)
     scene.add(fillLight)
 
-    const rimLight = new THREE.PointLight(0xffffff, 2, 10)
-    rimLight.position.set(0, 4, -4)
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.5)
+    topLight.position.set(0, 8, 0)
+    scene.add(topLight)
+
+    const rimLight = new THREE.PointLight(0xc9b07a, 2.0, 15)
+    rimLight.position.set(0, 2, -3)
     scene.add(rimLight)
 
-    // 5. Load GLTF Model
+    // 5. Controls
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.target.set(0, 0, 0)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.08
+    controls.enableZoom = false
+    controls.enablePan = false
+    controls.rotateSpeed = 0.8
+    controls.minPolarAngle = Math.PI * 0.15
+    controls.maxPolarAngle = Math.PI * 0.85
+    controls.update()
+
+    let lastFrameTime = performance.now()
+    const startTime = performance.now()
+    let isUserInteracting = false
+    let lastInteractionTime = -10000
+
+    const onStart = () => {
+      isUserInteracting = true
+    }
+    const onEnd = () => {
+      isUserInteracting = false
+      lastInteractionTime = performance.now()
+    }
+
+    controls.addEventListener("start", onStart)
+    controls.addEventListener("end", onEnd)
+
+    // 6. Model Container Group
+    const modelGroup = new THREE.Group()
+    scene.add(modelGroup)
+
+    // 7. Load GLTF Model
     const loader = new GLTFLoader()
     loader.load(
-      "/3d/clarte.glb",
+      modelPath,
       (gltf) => {
-        modelGroup = gltf.scene
+        const rawObject = gltf.scene
 
-        // Compute bounding box to auto-center and auto-scale model
-        const box = new THREE.Box3().setFromObject(modelGroup)
+        // Center model geometry
+        rawObject.updateMatrixWorld(true)
+        const box = new THREE.Box3().setFromObject(rawObject)
         const center = box.getCenter(new THREE.Vector3())
         const size = box.getSize(new THREE.Vector3())
 
+        rawObject.position.sub(center)
+
         const maxDim = Math.max(size.x, size.y, size.z)
-        const scale = 3.2 / (maxDim || 1)
-        modelGroup.scale.set(scale, scale, scale)
+        const pivot = new THREE.Group()
+        pivot.add(rawObject)
 
-        // Re-center geometry
-        modelGroup.position.x = -center.x * scale
-        modelGroup.position.y = -center.y * scale
-        modelGroup.position.z = -center.z * scale
+        if (maxDim > 0) {
+          const targetScale = 2.1 / maxDim
+          pivot.scale.setScalar(targetScale)
+        }
 
-        // Adjust materials for premium look
-        modelGroup.traverse((child) => {
+        // Upright default orientation
+        pivot.rotation.set(0, 0, 0)
+
+        // Enhance materials
+        rawObject.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh
             if (mesh.material) {
-              if (Array.isArray(mesh.material)) {
-                mesh.material.forEach((m) => {
-                  m.side = THREE.DoubleSide
-                })
-              } else {
-                mesh.material.side = THREE.DoubleSide
-              }
+              const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+              mats.forEach((m) => {
+                m.side = THREE.DoubleSide
+                if (m instanceof THREE.MeshStandardMaterial || m instanceof THREE.MeshPhysicalMaterial) {
+                  m.roughness = Math.min(m.roughness, 0.6)
+                  m.needsUpdate = true
+                }
+              })
             }
           }
         })
 
-        // Wrap in parent pivot for continuous smooth rotation
-        const pivot = new THREE.Group()
-        pivot.add(modelGroup)
-        scene?.add(pivot)
-        modelGroup = pivot
-
+        modelGroup.add(pivot)
+        controls.target.set(0, 0, 0)
+        controls.update()
         setIsLoaded(true)
       },
       undefined,
       (error) => {
-        console.error("Error loading 3D model /3d/clarte.glb:", error)
+        console.error("Error loading 3D model:", error)
         setHasError(true)
       }
     )
 
-    // 6. Handle Mouse Movement
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const x = event.clientX - rect.left
-      const y = event.clientY - rect.top
-      mouseX = (x / rect.width - 0.5) * 2
-      mouseY = (y / rect.height - 0.5) * 2
-    }
-
-    const handleTouchMove = (event: TouchEvent) => {
-      if (event.touches.length > 0) {
-        const rect = container.getBoundingClientRect()
-        const touch = event.touches[0]
-        const x = touch.clientX - rect.left
-        const y = touch.clientY - rect.top
-        mouseX = (x / rect.width - 0.5) * 2
-        mouseY = (y / rect.height - 0.5) * 2
-      }
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-    container.addEventListener("touchmove", handleTouchMove, { passive: true })
-
-    // 7. Handle Resize
+    // 8. Resize Handler
     const handleResize = () => {
-      if (!container || !renderer || !camera) return
-      const newWidth = container.clientWidth
-      const newHeight = container.clientHeight
-      camera.aspect = newWidth / newHeight
+      if (!container) return
+      const width = container.clientWidth
+      const height = container.clientHeight
+      if (width === 0 || height === 0) return
+
+      camera.aspect = width / height
       camera.updateProjectionMatrix()
-      renderer.setSize(newWidth, newHeight)
+      renderer.setSize(width, height)
     }
 
     const resizeObserver = new ResizeObserver(() => handleResize())
     resizeObserver.observe(container)
+    handleResize()
 
-    // 8. Animation Render Loop
-    let clock = new THREE.Clock()
-
+    // 9. Animation Loop
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate)
 
-      const elapsedTime = clock.getElapsedTime()
+      const now = performance.now()
+      const delta = Math.min((now - lastFrameTime) / 1000, 0.1)
+      lastFrameTime = now
 
-      if (modelGroup) {
-        // Continuous auto 360 rotation
-        modelGroup.rotation.y = elapsedTime * 0.45
+      const isDragging = isUserInteracting || (now - lastInteractionTime < 1500)
 
-        // Smooth interactive mouse tilt
-        targetRotationX = mouseY * 0.35
-        targetRotationY = mouseX * 0.35
+      // Lock position stably in place (no floating up/down)
+      modelGroup.position.set(0, 0, 0)
 
-        modelGroup.rotation.x += (targetRotationX - modelGroup.rotation.x) * 0.05
-        modelGroup.rotation.z += (-targetRotationY - modelGroup.rotation.z) * 0.05
-
-        // Subtle floating bob effect
-        modelGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.12
+      if (!isDragging) {
+        // Smooth default 360 rotation in place
+        modelGroup.rotation.y += 0.45 * delta
       }
 
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera)
-      }
+      controls.update()
+      renderer.render(scene, camera)
     }
 
     animate()
 
-    // Clean up
+    // 10. Cleanup
     return () => {
-      cancelAnimationFrame(animationFrameId)
-      window.removeEventListener("mousemove", handleMouseMove)
-      container.removeEventListener("touchmove", handleTouchMove)
       resizeObserver.disconnect()
-
-      if (renderer && renderer.domElement) {
-        renderer.dispose()
-        if (renderer.domElement.parentElement === container) {
-          container.removeChild(renderer.domElement)
-        }
-      }
+      controls.removeEventListener("start", onStart)
+      controls.removeEventListener("end", onEnd)
+      cancelAnimationFrame(animationFrameId)
+      renderer.dispose()
+      scene.clear()
     }
-  }, [])
+  }, [modelPath])
 
   if (hasError) return null
 
   return (
-    <div className={`relative ${className}`}>
-      <div
-        ref={containerRef}
-        className="w-full h-full cursor-grab active:cursor-grabbing relative z-10"
+    <div
+      ref={containerRef}
+      className={`relative w-full h-[220px] sm:h-[240px] md:h-[220px] flex items-center justify-center select-none ${className}`}
+    >
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full cursor-grab active:cursor-grabbing focus:outline-none"
+        title="Clarté Club 3D Shopping Bag - Drag to rotate"
       />
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="size-4 rounded-full border border-white/20 border-t-white/80 animate-spin" />
+          <div className="size-5 rounded-full border border-white/20 border-t-[#C9B07A] animate-spin" />
         </div>
       )}
     </div>

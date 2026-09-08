@@ -253,32 +253,25 @@ export function ProductSummary({
 
         {/* DESCRIPTION BLOCK */}
         <section className="space-y-2">
-          <p className="text-[14px] sm:text-[16px] md:text-[18px] font-bold uppercase tracking-wider text-black">
+          <p className="text-[13px] sm:text-[14px] md:text-[15px] font-bold uppercase tracking-wider text-black">
             Description:
           </p>
-          <p className="max-w-[36rem] font-sans text-[13px] sm:text-[15px] font-normal leading-[1.7] text-black/68">
-            {isDescExpanded || product.description.length <= 130
+          <p className="max-w-[38rem] font-sans text-[13.5px] sm:text-[15px] font-normal leading-[1.75] text-black/75">
+            {isDescExpanded || product.description.length <= 220
               ? product.description
-              : `${product.description.slice(0, 130)}... `}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                setIsDescExpanded((prev) => !prev)
-                const element = document.getElementById("details")
-                if (element) {
-                  if ((window as any).lenis) {
-                    ;(window as any).lenis.scrollTo(element, { offset: -100 })
-                  } else {
-                    const top = element.getBoundingClientRect().top + window.scrollY - 100
-                    window.scrollTo({ top, behavior: "smooth" })
-                  }
-                }
-              }}
-              className="font-semibold text-black underline underline-offset-4 transition-opacity hover:opacity-70 cursor-pointer inline-block ml-1"
-            >
-              {isDescExpanded ? "See Less" : "See More..."}
-            </button>
+              : `${product.description.slice(0, 220)}... `}
+            {product.description.length > 220 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setIsDescExpanded((prev) => !prev)
+                }}
+                className="font-semibold text-black underline underline-offset-4 transition-opacity hover:opacity-70 cursor-pointer inline-block ml-1"
+              >
+                {isDescExpanded ? "See Less" : "See More..."}
+              </button>
+            )}
           </p>
         </section>
 
@@ -447,7 +440,7 @@ export function ProductSummary({
             <div
               className={cn(
                 "overflow-hidden transition-all duration-300 ease-in-out",
-                activeAccordion === "care" ? "max-h-60 mt-3" : "max-h-0"
+                activeAccordion === "care" ? "max-h-[500px] mt-3" : "max-h-0"
               )}
             >
               <ul className="list-disc pl-5 space-y-1.5 text-[15px] font-normal leading-relaxed text-black/68">
@@ -470,7 +463,7 @@ export function ProductSummary({
             <div
               className={cn(
                 "overflow-hidden transition-all duration-300 ease-in-out",
-                activeAccordion === "shipping" ? "max-h-60 mt-3" : "max-h-0"
+                activeAccordion === "shipping" ? "max-h-[500px] mt-3" : "max-h-0"
               )}
             >
               <ul className="list-disc pl-5 space-y-1.5 text-[15px] font-normal leading-relaxed text-black/68">

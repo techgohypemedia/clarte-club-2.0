@@ -20,23 +20,7 @@ import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckou
 
 const promoStripText = "Additional Discount on Pre-paid | Free Return and Exchange"
 
-const recommendations = [
-  {
-    id: "recommendation-1",
-    image: trendingProducts[0].image,
-    alt: trendingProducts[0].alt,
-  },
-  {
-    id: "recommendation-2",
-    image: trendingProducts[0].image,
-    alt: trendingProducts[0].alt,
-  },
-  {
-    id: "recommendation-3",
-    image: trendingProducts[0].image,
-    alt: trendingProducts[0].alt,
-  },
-]
+const recommendations: Array<{ id: string; image: string; alt: string }> = []
 
 function CartItemRow({ item }: { item: CartItem }) {
   return (

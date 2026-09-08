@@ -12,6 +12,7 @@ import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckou
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [recommendedProducts, setRecommendedProducts] = useState<ProductCard[]>([])
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   useEffect(() => {
@@ -22,7 +23,20 @@ export default function CartPage() {
     }
 
     window.addEventListener("cart-updated", handleCartUpdated)
-    return () => window.removeEventListener("cart-updated", handleCartUpdated)
+
+    let isMounted = true
+    import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
+      getShopifyProducts(4).then((products) => {
+        if (isMounted && products && products.length > 0) {
+          setRecommendedProducts(products)
+        }
+      })
+    })
+
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdated)
+      isMounted = false
+    }
   }, [])
 
   const handleCheckout = async () => {
@@ -273,7 +287,7 @@ export default function CartPage() {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {trendingProducts.slice(0, 4).map((product) => (
+              {recommendedProducts.map((product) => (
                 <ProductCardView key={product.id} product={product} />
               ))}
             </div>

@@ -55,9 +55,9 @@ export function ProductPage({
           </div>
         </div>
       </section>
-      <ProductHighlights />
+      <ProductHighlights productTitle={product.title} gallery={product.gallery} />
       <ProductReviews productSlug={product.slug} />
-      <YouMayAlsoLikeSection />
+      <YouMayAlsoLikeSection currentHandle={product.slug} />
       <LookbookCarousel />
     </main>
   )

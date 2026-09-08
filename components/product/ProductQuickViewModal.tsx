@@ -139,7 +139,7 @@ export function ProductQuickViewModal({
       await buyNow({
         id: product.slug,
         merchandiseId: product.merchandiseId,
-        image: product.gallery[0]?.src || "/images/products/product1.png",
+        image: product.gallery[0]?.src || "",
         alt: product.gallery[0]?.alt || product.title,
         title: product.title,
         size: selectedSize || "XS",
@@ -228,16 +228,27 @@ export function ProductQuickViewModal({
         </DialogDescription>
 
         <div className="grid h-[min(88dvh,520px)] grid-cols-1 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-          <div className="relative min-h-[360px] bg-[#111] lg:min-h-0">
-            <Image
-              key={`${activeImage ?? ""}-${activeImageIndex}`}
-              src={activeImage ?? product.gallery[0]?.src ?? ""}
-              alt={product.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 46vw"
-              className="object-cover object-center"
-            />
+          <div className="relative min-h-[360px] bg-[#F6F2EA] lg:min-h-0 flex items-center justify-center">
+            {activeImage || product.gallery[0]?.src ? (
+              <Image
+                key={`${activeImage ?? ""}-${activeImageIndex}`}
+                src={activeImage ?? product.gallery[0]?.src ?? ""}
+                alt={product.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 46vw"
+                className="object-contain object-center p-4"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 text-center">
+                <span className="font-heading text-sm tracking-[0.25em] uppercase font-bold text-black/40">
+                  CLARTÉ CLUB
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.15em] text-[#C9B07A] font-semibold mt-1">
+                  Media Pending in Shopify
+                </span>
+              </div>
+            )}
 
             {galleryImages.length > 1 ? (
               <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-3 text-white">

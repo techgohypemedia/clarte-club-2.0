@@ -25,13 +25,9 @@ export function ProductCardView({
   theme?: "light" | "dark"
 }) {
   const isDark = theme === "dark"
-  const defaultGallery = [
-    product.image || "/images/products/product1.png",
-    "/images/products/product2.png",
-    "/images/products/product3.png",
-    "/images/products/product4.png",
-  ]
-  const gallery = product.gallery && product.gallery.length > 1 ? product.gallery : defaultGallery
+  const gallery = product.gallery && product.gallery.length > 0 
+    ? product.gallery 
+    : (product.image ? [product.image] : [])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [quickViewOpen, setQuickViewOpen] = useState(false)
   const [isWishlisted, setIsWishlisted] = useState(false)
@@ -52,8 +48,8 @@ export function ProductCardView({
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
-  const activeImage = gallery[activeImageIndex] ?? product.image
-  const hasGalleryControls = true
+  const activeImage = gallery[activeImageIndex] ?? product.image ?? ""
+  const hasGalleryControls = gallery.length > 1
 
   const handlePreviousImage = () => {
     setActiveImageIndex(
@@ -144,23 +140,34 @@ export function ProductCardView({
 
   return (
     <article className="group relative flex flex-col w-full cursor-pointer">
-      {/* ── 1. Image Container (Taller Portrait Height aspect-[1/1.45] + rounded-[14px] Corners + Touch Pan-Y) ── */}
+      {/* ── 1. Image Container (4/5 Aspect Ratio Matching Shopify Photos + rounded-[14px] Corners + Touch Pan-Y) ── */}
       <div
-        className={`relative aspect-[1/1.45] w-full overflow-hidden rounded-[14px] select-none shadow-xs touch-pan-y ${
-          isDark ? "bg-[#18181b]" : "bg-neutral-100"
+        className={`relative aspect-[4/5] w-full overflow-hidden rounded-[14px] select-none shadow-xs touch-pan-y ${
+          isDark ? "bg-[#18181b]" : "bg-[#F7F4EE]"
         }`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <Link href={productHref} className="absolute inset-0 cursor-pointer z-0">
-          <Image
-            key={`${product.id}-${activeImageIndex}`}
-            src={activeImage}
-            alt={product.alt}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-          />
+          {activeImage ? (
+            <Image
+              key={`${product.id}-${activeImageIndex}`}
+              src={activeImage}
+              alt={product.alt || product.name || "Product"}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#F7F4EE] dark:bg-[#18181b]">
+              <span className="font-heading text-[11px] sm:text-[13px] tracking-[0.22em] uppercase font-bold text-black/40 dark:text-white/40">
+                CLARTÉ CLUB
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.15em] text-[#C9B07A] font-semibold mt-1">
+                {product.name || "Signature Frame"}
+              </span>
+            </div>
+          )}
         </Link>
 
         {/* Badge */}
@@ -316,7 +323,51 @@ export function ProductCardView({
         key={`${product.id}-${quickViewOpen ? "open" : "closed"}-${activeImageIndex}`}
         open={quickViewOpen}
         onOpenChange={setQuickViewOpen}
-        product={featuredProduct}
+        product={{
+          id: product.id,
+          merchandiseId: product.merchandiseId,
+          slug: product.handle || product.id,
+          editLabel: product.category?.toUpperCase() || "CLARTÉ CLUB",
+          title: product.name?.toUpperCase() || "SIGNATURE FRAME",
+          breadcrumb: [
+            { label: "Homepage", href: "/" },
+            { label: "Collections", href: "/collections" },
+            { label: product.name || "Product" },
+          ],
+          originalPrice: "",
+          price: product.price || "₹ 4,500",
+          sold: "1,238 Sold Today",
+          rating: "4.8",
+          description:
+            product.alt ||
+            "An architectural frame sculpted from premium bio-acetate with custom hardware and signature wire cores.",
+          detailsBody:
+            product.alt ||
+            "Precision-sculpted bio-acetate frame with 100% UV400 protective lenses.",
+          careNotes: [
+            "Wipe lenses with the microfiber cleaning cloth.",
+            "Store in the provided leather protective case.",
+            "Avoid leaving in direct high heat.",
+          ],
+          shippingNotes: [
+            "Standard delivery in 2-4 business days.",
+            "Free exchange within 14 days.",
+          ],
+          colorName: "Glossy Black",
+          colors: [
+            { name: "Glossy Black", value: "#000000" },
+            { name: "Royal Tortoise", value: "#6f5639" },
+          ],
+          sizes: product.sizes || [],
+          gallery: gallery.map((src) => ({ src, alt: product.name || "Product" })),
+          deliveryPerks: [
+            { label: "Fast delivery", detail: "2-4 days", icon: "truck" },
+            { label: "Easy exchange", detail: "14 days", icon: "exchange" },
+            { label: "Secure checkout", detail: "COD available", icon: "shield" },
+            { label: "Tracked shipping", detail: "Live updates", icon: "card" },
+          ],
+          completeLook: gallery.slice(0, 3).map((src) => ({ src, alt: product.name || "Product" })),
+        }}
         gallery={gallery}
         initialImageIndex={activeImageIndex}
       />
@@ -325,7 +376,7 @@ export function ProductCardView({
 }
 
 export function TrendingSection() {
-  const [products, setProducts] = useState<ProductCard[]>(trendingProducts)
+  const [products, setProducts] = useState<ProductCard[]>([])
 
   useEffect(() => {
     let isMounted = true

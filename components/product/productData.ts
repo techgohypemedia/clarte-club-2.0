@@ -62,112 +62,7 @@ export type ProductDetail = {
   completeLook: ProductImage[]
 }
 
-export const trendingProducts: ProductCard[] = [
-  {
-    id: "product-1",
-    image: "/images/products/product1.png",
-    alt: "Model wearing Heritage Oval sunglasses in glossy black frame",
-    badge: "NEW ARRIVAL",
-    swatches: ["#000000", "#6f5639", "#ebe8e1"],
-    gallery: [
-      "/images/products/product1.png",
-      "/images/products/product5.png",
-      "/images/products/product9.png",
-      "/images/products/product13.png",
-    ],
-  },
-  {
-    id: "product-2",
-    image: "/images/products/product2.png",
-    alt: "Model wearing Heritage Aviator sunglasses with dark metal frame",
-    swatches: ["#5b82ab", "#111722"],
-    gallery: [
-      "/images/products/product2.png",
-      "/images/products/product6.png",
-      "/images/products/product10.png",
-      "/images/products/product14.png",
-    ],
-  },
-  {
-    id: "product-3",
-    image: "/images/products/product3.png",
-    alt: "Model wearing Noyer Square clear acetate optical frames",
-    badge: "BESTSELLER",
-    swatches: ["#ebe8e1", "#6f5639"],
-    gallery: [
-      "/images/products/product3.png",
-      "/images/products/product7.png",
-      "/images/products/product11.png",
-      "/images/products/product15.png",
-    ],
-  },
-  {
-    id: "product-4",
-    image: "/images/products/product4.png",
-    alt: "Model wearing Noyer D-Frame acetate sunglasses in tortoiseshell",
-    swatches: ["#6f5639", "#000000"],
-    gallery: [
-      "/images/products/product4.png",
-      "/images/products/product8.png",
-      "/images/products/product12.png",
-      "/images/products/product5-white.png",
-    ],
-  },
-  {
-    id: "product-5-featured",
-    image: "/images/products/product4.png",
-    alt: "Model wearing Noyer D-Frame acetate sunglasses in tortoiseshell",
-    featured: true,
-    swatches: ["#6f5639", "#000000"],
-    gallery: [
-      "/images/products/product4.png",
-      "/images/products/product8.png",
-      "/images/products/product12.png",
-      "/images/products/product5-white.png",
-    ],
-  },
-  {
-    id: "product-6",
-    image: "/images/products/product3.png",
-    alt: "Model wearing Noyer Square clear acetate optical frames",
-    swatches: ["#ebe8e1", "#6f5639"],
-    gallery: [
-      "/images/products/product3.png",
-      "/images/products/product7.png",
-      "/images/products/product11.png",
-      "/images/products/product15.png",
-    ],
-  },
-  {
-    id: "product-7",
-    image: "/images/products/product1.png",
-    alt: "Model wearing Heritage Oval sunglasses in glossy black frame",
-    swatches: ["#000000", "#6f5639", "#ebe8e1"],
-    gallery: [
-      "/images/products/product1.png",
-      "/images/products/product5.png",
-      "/images/products/product9.png",
-      "/images/products/product13.png",
-    ],
-  },
-  {
-    id: "product-8",
-    image: "/images/products/product2.png",
-    alt: "Model wearing Heritage Aviator sunglasses with dark metal frame",
-    swatches: ["#5b82ab", "#111722"],
-    gallery: [
-      "/images/products/product2.png",
-      "/images/products/product6.png",
-      "/images/products/product10.png",
-      "/images/products/product14.png",
-    ],
-  },
-]
-
-const sharedChairPose = {
-  src: "/images/products/product4.png",
-  alt: "Premium tortoiseshell D-frame sunglasses styled next to protective leather case",
-}
+export const trendingProducts: ProductCard[] = []
 
 export const featuredProduct: ProductDetail = {
   id: "gid://shopify/Product/7683302916155",
@@ -208,14 +103,7 @@ export const featuredProduct: ProductDetail = {
     { name: "Midnight Blue", value: "#111722" },
   ],
   sizes: [],
-  gallery: [
-    { src: "/images/products/product1.png", alt: "Model wearing Classic Heritage Oval sunglasses in glossy black frame", objectPosition: "center 36%" },
-    { src: "/images/products/product5.png", alt: "Detail view of the premium acetate frame and custom wire core", objectPosition: "center 44%" },
-    { src: "/images/products/product9.png", alt: "Model posing in Heritage Oval sunglasses with matching blazer", objectPosition: "center 28%" },
-    { src: "/images/products/product13.png", alt: "Studio portrait highlighting front profile of Heritage Oval", objectPosition: "center 32%" },
-    { src: "/images/products/product1.png", alt: "Model posing in sunglasses and matching look", objectPosition: "center 30%" },
-    { src: "/images/products/product5.png", alt: "Premium acetate frame hinge and bevel details", objectPosition: "center 34%" },
-  ],
+  gallery: [],
   deliveryPerks: [
     {
       label: "Fast delivery",
@@ -238,10 +126,6 @@ export const featuredProduct: ProductDetail = {
       icon: "card",
     },
   ],
-  completeLook: [
-    { ...sharedChairPose, objectPosition: "center 32%" },
-    { ...sharedChairPose, objectPosition: "center 40%" },
-    { ...sharedChairPose, objectPosition: "center 28%" },
-  ],
+  completeLook: [],
 }
 

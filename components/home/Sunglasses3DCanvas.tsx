@@ -86,10 +86,11 @@ export function Sunglasses3DCanvas({
 
     controls.update()
 
-    const clock = new THREE.Clock()
+    let lastFrameTime = performance.now()
+    const startTime = performance.now()
     let autoTime = 0
     let isInteracting = false
-    let lastInteractionTime = -10
+    let lastInteractionTime = -10000
 
     const handleControlStart = () => {
       setHasInteracted(true)
@@ -100,7 +101,7 @@ export function Sunglasses3DCanvas({
 
     const handleControlEnd = () => {
       isInteracting = false
-      lastInteractionTime = clock.getElapsedTime()
+      lastInteractionTime = performance.now()
     }
 
     controls.addEventListener("start", handleControlStart)
@@ -243,10 +244,11 @@ export function Sunglasses3DCanvas({
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate)
 
-      const delta = Math.min(clock.getDelta(), 0.1)
-      const time = clock.getElapsedTime()
+      const now = performance.now()
+      const delta = Math.min((now - lastFrameTime) / 1000, 0.1)
+      lastFrameTime = now
 
-      const isUserActive = isInteracting || (time - lastInteractionTime < 2)
+      const isUserActive = isInteracting || (now - lastInteractionTime < 2000)
 
       if (!isUserActive) {
         autoTime += delta

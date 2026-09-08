@@ -3,6 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { Footer3DCanvas } from "@/components/footer/Footer3DCanvas"
+
 function FacebookIcon(props: React.ComponentProps<"svg">) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -29,13 +31,6 @@ function WhatsAppIcon(props: React.ComponentProps<"svg">) {
   )
 }
 
-function YoutubeIcon(props: React.ComponentProps<"svg">) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-    </svg>
-  )
-}
 
 const clarteClubLinks = [
   { label: "Our Story", href: "/about" },
@@ -53,7 +48,7 @@ export function FooterSection() {
       <div className="w-full px-6 md:px-12 2xl:px-24 mx-auto relative z-10">
         <div className="grid grid-cols-2 gap-8 mb-8 relative z-10 md:grid-cols-12">
 
-          {/* Column 1: Brand Logo & Short Desc */}
+          {/* Column 1: Brand Logo, Desc & Social */}
           <div className="col-span-2 md:col-span-3">
             <Link href="/" className="block w-32 sm:w-36 md:w-44 -ml-4 -mt-8 -mb-8 sm:-mt-10 sm:-mb-10 hover:opacity-80 transition-opacity">
               <Image
@@ -68,6 +63,26 @@ export function FooterSection() {
               Clarté Club is the destination for premium eyewear and future fashion.
               Elevating your lifestyle through vision.
             </p>
+            <div className="flex items-center gap-3 mt-5">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
+              >
+                <FacebookIcon className="size-4" />
+              </a>
+              <a
+                href="https://instagram.com/clarteclub.official"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
+              >
+                <InstagramIcon className="size-4" />
+              </a>
+            </div>
           </div>
 
           {/* Column 2: CLARTÉ CLUB */}
@@ -118,57 +133,9 @@ export function FooterSection() {
             </div>
           </div>
 
-          {/* Column 4: Newsletter & Social */}
-          <div className="col-span-2 md:col-span-3">
-            <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#E2DDD3] leading-relaxed mb-3">
-              SUBSCRIBE FOR PRIVATE DROP ANNOUNCEMENTS
-            </p>
-
-            <form className="flex flex-col space-y-2" onSubmit={(e) => e.preventDefault()}>
-              <div className="relative flex items-center border-b border-[#E2DDD3]/40 pb-2 focus-within:border-[#C9B07A] transition-colors">
-                <input
-                  type="email"
-                  required
-                  placeholder="ENTER YOUR EMAIL"
-                  className="w-full bg-transparent text-xs text-[#F6F2EA] placeholder:text-[#A8A092] uppercase tracking-wider outline-none pr-12 py-1"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-0 text-xs font-bold uppercase tracking-wider text-[#F6F2EA] hover:text-[#C9B07A] transition-colors cursor-pointer"
-                >
-                  JOIN
-                </button>
-              </div>
-              <p className="text-[9px] uppercase tracking-wider text-[#B8B0A2] pt-1">
-                BY SUBSCRIBING, YOU AGREE TO OUR TERMS & PRIVACY POLICY.
-              </p>
-            </form>
-
-            <div className="mt-5">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[#B8B0A2] mb-2">
-                FOLLOW CLARTÉ CLUB
-              </p>
-              <div className="flex items-center gap-3">
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
-                >
-                  <FacebookIcon className="size-4" />
-                </a>
-                <a
-                  href="https://instagram.com/clarteclub.official"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
-                >
-                  <InstagramIcon className="size-4" />
-                </a>
-              </div>
-            </div>
+          {/* Column 4: 3D Shopping Bag Model */}
+          <div className="col-span-2 md:col-span-3 flex flex-col items-center md:items-start justify-center">
+            <Footer3DCanvas className="w-full h-[200px] sm:h-[220px]" />
           </div>
 
         </div>

@@ -3,6 +3,8 @@ import { ProductPage } from "@/components/product/ProductPage"
 import { featuredProduct } from "@/components/product/productData"
 import { getShopifyProductByHandle } from "@/lib/shopify-adapter"
 
+export const dynamic = "force-dynamic"
+
 export async function generateMetadata({
   params,
 }: {

@@ -24,32 +24,13 @@ type WishlistItem = {
   inStock: boolean
 }
 
-const mockWishlistItems: WishlistItem[] = [
-  {
-    id: "wishlist-item-1",
-    image: trendingProducts[1].image,
-    alt: trendingProducts[1].alt,
-    title: "Heritage Aviator",
-    price: "₹ 8,999",
-    inStock: true,
-  },
-  {
-    id: "wishlist-item-2",
-    image: trendingProducts[3].image,
-    alt: trendingProducts[3].alt,
-    title: "Noyer D-Frame",
-    price: "₹ 7,500",
-    inStock: false,
-  },
-]
-
 type WishlistSidebarProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function WishlistSidebar({ open, onOpenChange }: WishlistSidebarProps) {
-  const [items, setItems] = useState<WishlistItem[]>(mockWishlistItems)
+  const [items, setItems] = useState<WishlistItem[]>([])
 
   useEffect(() => {
     if (open) {

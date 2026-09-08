@@ -21,7 +21,7 @@ export function CollectionGrid({
   selectedColor?: string | null
   sortBy: string
 }) {
-  const [products, setProducts] = useState<ProductCard[]>(collectionProducts)
+  const [products, setProducts] = useState<ProductCard[]>([])
 
   useEffect(() => {
     let isMounted = true

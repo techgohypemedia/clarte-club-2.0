@@ -39,6 +39,7 @@ export function CartRecommendationsCarousel({
   items,
   dark = true,
 }: CartRecommendationsCarouselProps & { dark?: boolean }) {
+  if (!items || items.length === 0) return null
   const slides = [...items, ...items]
 
   return (

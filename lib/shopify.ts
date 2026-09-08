@@ -730,6 +730,19 @@ const ALL_PRODUCTS_QUERY = `#graphql
           }
         }
         collections(first: 10) { nodes { id handle title } }
+        metafields(identifiers: [
+          { namespace: "custom", key: "shipping_and_payment" },
+          { namespace: "custom", key: "shipping_payment" },
+          { namespace: "custom", key: "shipping" },
+          { namespace: "custom", key: "details_and_care" },
+          { namespace: "custom", key: "details_care" },
+          { namespace: "custom", key: "care" }
+        ]) {
+          key
+          namespace
+          type
+          value
+        }
       }
     }
   }
@@ -917,13 +930,37 @@ export async function fetchProductByHandle(handle: string) {
         { namespace: "theme",   key: "sub-heading" },
         { namespace: "theme",   key: "tagline" },
 
+        { namespace: "custom",  key: "shipping_and_payment" },
+        { namespace: "custom",  key: "shipping_payment" },
+        { namespace: "custom",  key: "shipping-and-payment" },
+        { namespace: "custom",  key: "shipping_and_delivery" },
+        { namespace: "custom",  key: "shipping_delivery" },
+        { namespace: "custom",  key: "shipping_policy" },
+        { namespace: "custom",  key: "shipping" },
+        { namespace: "custom",  key: "payment" },
+        { namespace: "custom",  key: "delivery" },
+        { namespace: "details", key: "shipping_and_payment" },
+        { namespace: "details", key: "shipping_payment" },
+        { namespace: "details", key: "shipping" },
+
+        { namespace: "custom",  key: "details_and_care" },
+        { namespace: "custom",  key: "details_care" },
+        { namespace: "custom",  key: "details-and-care" },
+        { namespace: "custom",  key: "details-care" },
+        { namespace: "custom",  key: "care_and_details" },
+        { namespace: "custom",  key: "care_details" },
+        { namespace: "custom",  key: "care_instructions" },
+        { namespace: "custom",  key: "care" },
+        { namespace: "custom",  key: "details" },
+        { namespace: "details", key: "details_and_care" },
+        { namespace: "details", key: "details_care" },
+        { namespace: "details", key: "care" },
+
         { namespace: "custom",  key: "materials" },
         { namespace: "custom",  key: "material" },
         { namespace: "custom",  key: "fabric_weight" },
         { namespace: "custom",  key: "weight" },
-        { namespace: "custom",  key: "care" },
         { namespace: "custom",  key: "wash_care" },
-        { namespace: "custom",  key: "shipping" },
         { namespace: "custom",  key: "size_chart_json" },
         { namespace: "custom",  key: "size_chart" },
         { namespace: "custom",  key: "sizechart" },
