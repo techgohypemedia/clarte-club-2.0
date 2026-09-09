@@ -7,7 +7,7 @@ import { ArrowLeft, Check, X, ShieldCheck, Truck, RefreshCw, Loader2, ShoppingBa
 
 import { ProductCardView } from "@/components/home/TrendingSection"
 import { CartOfferProgress } from "@/components/cart/CartOfferProgress"
-import { trendingProducts } from "@/components/product/productData"
+import { trendingProducts, type ProductCard } from "@/components/product/productData"
 import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckout, type CartItem } from "@/lib/cart"
 
 export default function CartPage() {
