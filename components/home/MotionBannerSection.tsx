@@ -4,7 +4,7 @@ export function MotionBannerSection() {
   return (
     <section className="relative w-full aspect-video lg:aspect-auto lg:h-screen lg:h-[100dvh] lg:min-h-[100dvh] overflow-hidden bg-black">
       <video
-        src="/video/Create_a_second_cinematic_b.mp4"
+        src="/video/WhatsApp%20Video%202026-09-09%20at%2012.39.26%20PM.mp4"
         autoPlay
         loop
         muted

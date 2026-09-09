@@ -260,13 +260,13 @@ export function ProductCardView({
           </div>
         ) : null}
 
-        {/* Buy Now Button on Image Hover */}
+        {/* Buy Now Button on Image Hover (Desktop Only) */}
         <button
           type="button"
           aria-label={`Buy now ${product.name ?? product.alt}`}
           disabled={isBuying}
           onClick={handleBuyNow}
-          className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center px-5 py-2.5 rounded-full backdrop-blur-md text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-60 ${
+          className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-10 hidden md:inline-flex items-center justify-center px-5 py-2.5 rounded-full backdrop-blur-md text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-60 ${
             isDark
               ? "bg-white text-black hover:bg-[#C9B07A] hover:text-black border border-white/30"
               : "bg-black/90 text-white hover:bg-black border border-white/20"

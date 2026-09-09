@@ -117,9 +117,9 @@ export function FooterSection() {
                   href="https://wa.me/919371083295?text=Hi%20Clart%C3%A9%20Club%2C%20I%20have%20an%20inquiry"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1.5 inline-flex items-center gap-2 rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#25D366] transition-all hover:bg-[#25D366] hover:text-black hover:border-[#25D366] cursor-pointer"
+                  className="mt-1.5 inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-[#25D366]/40 bg-[#25D366]/10 px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[8.5px] sm:text-[10px] font-semibold uppercase tracking-tight sm:tracking-wider text-[#25D366] transition-all hover:bg-[#25D366] hover:text-black hover:border-[#25D366] cursor-pointer whitespace-nowrap"
                 >
-                  <WhatsAppIcon className="size-3.5 fill-current" />
+                  <WhatsAppIcon className="size-3 sm:size-3.5 shrink-0 fill-current" />
                   <span>Chat on WhatsApp</span>
                 </a>
               </div>
