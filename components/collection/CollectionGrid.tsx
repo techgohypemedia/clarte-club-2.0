@@ -13,6 +13,7 @@ export function CollectionGrid({
   selectedMaterial,
   selectedColor,
   sortBy,
+  onProductCountChange,
 }: {
   selectedCategory: string | null
   selectedType: string | null
@@ -20,20 +21,32 @@ export function CollectionGrid({
   selectedMaterial?: string | null
   selectedColor?: string | null
   sortBy: string
+  onProductCountChange?: (count: number) => void
 }) {
   const [products, setProducts] = useState<ProductCard[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let isMounted = true
+    setLoading(true)
     import("@/lib/shopify-adapter").then(({ getShopifyProducts, getShopifyCollectionProducts }) => {
       const fetcher = selectedCategory
         ? getShopifyCollectionProducts(selectedCategory.toLowerCase())
         : getShopifyProducts(50)
 
       fetcher.then((liveProducts) => {
-        if (isMounted && liveProducts && liveProducts.length > 0) {
+        if (!isMounted) return
+        if (liveProducts && liveProducts.length > 0) {
           setProducts(liveProducts)
+        } else {
+          // If collection fetch returned empty, fetch all catalog products as fallback
+          getShopifyProducts(50).then((allProds) => {
+            if (isMounted && allProds && allProds.length > 0) {
+              setProducts(allProds)
+            }
+          })
         }
+        setLoading(false)
       })
     })
     return () => {
@@ -47,17 +60,21 @@ export function CollectionGrid({
       selectedCategory === null ||
       !product.category ||
       product.category.toLowerCase() === selectedCategory.toLowerCase() ||
-      (selectedCategory.toLowerCase() === "noyer" && product.category.toLowerCase() === "noir") ||
-      (selectedCategory.toLowerCase() === "noir" && product.category.toLowerCase() === "noyer") ||
+      (selectedCategory.toLowerCase() === "noyer" && (product.category.toLowerCase() === "noir" || product.category.toLowerCase() === "noyer")) ||
+      (selectedCategory.toLowerCase() === "noir" && (product.category.toLowerCase() === "noyer" || product.category.toLowerCase() === "noir")) ||
       (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
 
-    const matchesType = selectedType === null || !product.type || product.type === selectedType
+    const matchesType = selectedType === null || !product.type || product.type.toLowerCase() === selectedType.toLowerCase()
     const matchesShape = !selectedShape || (product.shape && product.shape.toLowerCase().includes(selectedShape))
     const matchesMaterial = !selectedMaterial || (product.material && product.material.toLowerCase().includes(selectedMaterial))
     const matchesColor = !selectedColor || (product.colorGroup && product.colorGroup.toLowerCase().includes(selectedColor))
 
-    return matchesCategory && matchesType && matchesShape && matchesMaterial && matchesColor
+    return (selectedCategory ? true : matchesCategory) && matchesType && matchesShape && matchesMaterial && matchesColor
   })
+
+  useEffect(() => {
+    onProductCountChange?.(filteredProducts.length)
+  }, [filteredProducts.length, onProductCountChange])
 
   // Sort products based on selected sort order
   const sortedProducts = [...filteredProducts].sort((a, b) => {

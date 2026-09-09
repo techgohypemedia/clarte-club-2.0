@@ -85,9 +85,39 @@ function DenimSlideCard({ slide }: { slide: DenimSlide }) {
 }
 
 export function DenimCarousel() {
+  const [slides, setSlides] = useState<DenimSlide[]>(denimSlides)
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    let isMounted = true
+    import("@/lib/shopify-adapter").then(({ getShopifyCollectionBanners }) => {
+      getShopifyCollectionBanners().then((liveBanners) => {
+        if (!isMounted || !liveBanners || liveBanners.length === 0) return
+        setSlides((prev) =>
+          prev.map((defaultSlide) => {
+            const match = liveBanners.find(
+              (b) => b.categorySlug.toLowerCase() === defaultSlide.categorySlug.toLowerCase()
+            )
+            if (match && match.image) {
+              return {
+                ...defaultSlide,
+                image: match.image,
+                alt: match.alt || defaultSlide.alt,
+                title: match.title || defaultSlide.title,
+                subtitle: match.subtitle || defaultSlide.subtitle,
+              }
+            }
+            return defaultSlide
+          })
+        )
+      })
+    })
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!api) return
@@ -127,7 +157,7 @@ export function DenimCarousel() {
           aria-label="Eyewear collection carousel"
         >
           <CarouselContent className="-ml-1.5">
-            {denimSlides.map((slide) => (
+            {slides.map((slide) => (
               <CarouselItem
                 key={slide.title}
                 className="basis-[92%] pl-1.5 sm:basis-[72%] md:basis-[48%] lg:basis-1/3"

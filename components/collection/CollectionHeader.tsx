@@ -14,6 +14,7 @@ export function CollectionHeader({
   setSelectedType,
   sortBy,
   setSortBy,
+  productCount,
 }: {
   selectedCategory: string | null
   setSelectedCategory: (cat: string | null) => void
@@ -21,6 +22,7 @@ export function CollectionHeader({
   setSelectedType: (type: string | null) => void
   sortBy: string
   setSortBy: (sort: string) => void
+  productCount?: number
 }) {
   const [sortOpen, setSortOpen] = useState(false)
   const [typeOpen, setTypeOpen] = useState(false)
@@ -307,7 +309,7 @@ export function CollectionHeader({
 
         {/* Right-aligned Frames Counter */}
         <div className="flex justify-end text-[10px] font-semibold tracking-[0.18em] text-black/45 uppercase -mt-3.5">
-          ({filteredCount} {filteredCount === 1 ? 'Frame' : 'Frames'} Available)
+          ({typeof productCount === "number" ? productCount : filteredCount} {(typeof productCount === "number" ? productCount : filteredCount) === 1 ? 'Frame' : 'Frames'} Available)
         </div>
       </div>
     </header>

@@ -1,6 +1,7 @@
 import {
   fetchAllProducts,
   fetchCollectionByHandle,
+  fetchCollections,
   fetchProductByHandle,
   formatMoney,
   toProductCard,
@@ -88,9 +89,23 @@ export function shopifyProductToCard(node: any, index = 0): ProductCard {
   const priceVal = node.priceRange?.minVariantPrice?.amount || node.price || (node.variants?.nodes?.[0]?.price?.amount) || "4500"
   const currency = node.priceRange?.minVariantPrice?.currencyCode || node.currencyCode || "INR"
   const formattedPrice = formatMoney(priceVal, currency)
-
   const productType = (node.productType || tagType || (tags.some((t: string) => t.toLowerCase().includes("sunglass")) ? "Sunglasses" : "Optical")) as "Sunglasses" | "Optical"
-  const category = (node.vendor || node.productType || "Signature").replace(/Frames|Collective/i, "").trim()
+
+  const collectionHandles = (Array.isArray(node.collections) ? node.collections : (node.collections?.nodes || [])).map((c: any) => (c.handle || c.title || "").toLowerCase())
+  let category = ""
+  if (collectionHandles.some((h: string) => h.includes("noir") || h.includes("noyer")) || tags.some((t: string) => t.toLowerCase().includes("noir") || t.toLowerCase().includes("noyer"))) {
+    category = "Noyer"
+  } else if (collectionHandles.some((h: string) => h.includes("crystal")) || tags.some((t: string) => t.toLowerCase().includes("crystal"))) {
+    category = "Crystal"
+  } else if (collectionHandles.some((h: string) => h.includes("atelier")) || tags.some((t: string) => t.toLowerCase().includes("atelier") || t.toLowerCase().includes("geometric") || t.toLowerCase().includes("metal"))) {
+    category = "Atelier"
+  } else if (collectionHandles.some((h: string) => h.includes("heritage")) || tags.some((t: string) => t.toLowerCase().includes("heritage") || t.toLowerCase().includes("round") || t.toLowerCase().includes("cat-eye") || t.toLowerCase().includes("aviator"))) {
+    category = "Heritage"
+  } else if (collectionHandles.some((h: string) => h.includes("edit") || h.includes("curated"))) {
+    category = "Edits"
+  } else {
+    category = (node.vendor || node.productType || "Signature").replace(/Frames|Collective/i, "").trim()
+  }
 
   return {
     id: node.id || handle || `product-${index}`,
@@ -375,7 +390,25 @@ export async function getShopifyProducts(limit = 50): Promise<ProductCard[]> {
 
 export async function getShopifyCollectionProducts(handle: string, limit = 50): Promise<ProductCard[]> {
   try {
-    const collection = await fetchCollectionByHandle(handle, limit)
+    let collection = await fetchCollectionByHandle(handle, limit)
+    
+    // Fallback handle checks (e.g., noyer <-> noir, edits <-> the-collection)
+    if (!collection?.products?.length) {
+      const fallbackMap: Record<string, string[]> = {
+        noyer: ["noir", "the-collection"],
+        noir: ["noyer", "the-collection"],
+        edits: ["the-collection", "frontpage"],
+      }
+      const alternates = fallbackMap[handle.toLowerCase()] || []
+      for (const altHandle of alternates) {
+        const altCol = await fetchCollectionByHandle(altHandle, limit)
+        if (altCol?.products?.length) {
+          collection = altCol
+          break
+        }
+      }
+    }
+
     if (collection?.products?.length) {
       console.log(`🛍️ [Shopify API] Loaded ${collection.products.length} products for collection '${handle}'`)
       return collection.products.map((p: any, i: number) => shopifyProductToCard(p, i))
@@ -420,4 +453,50 @@ export async function getShopifyProductByHandle(handle: string): Promise<Product
     console.warn(`❌ [Shopify API] Failed to fetch product '${handle}' from Shopify API:`, error)
   }
   return null
+}
+
+export type CollectionBanner = {
+  title: string
+  subtitle: string
+  categorySlug: string
+  image: string
+  alt: string
+}
+
+export async function getShopifyCollectionBanners(): Promise<CollectionBanner[]> {
+  try {
+    const collections = await fetchCollections(20)
+    if (!collections || collections.length === 0) return []
+
+    const banners: CollectionBanner[] = []
+    const handleMap: Record<string, { slug: string; defaultTitle: string; defaultSub: string }> = {
+      noir: { slug: "noir", defaultTitle: "NOIR COLLECTION", defaultSub: "Deep, Structural Blacks & Architectural Lines" },
+      noyer: { slug: "noir", defaultTitle: "NOIR COLLECTION", defaultSub: "Deep, Structural Blacks & Architectural Lines" },
+      heritage: { slug: "heritage", defaultTitle: "HERITAGE COLLECTION", defaultSub: "Warm Tortoise Tones & Classic Craftsmanship" },
+      crystal: { slug: "crystal", defaultTitle: "CRYSTAL COLLECTION", defaultSub: "Translucent Smoke & Clear Bio-Acetate Silhouettes" },
+      atelier: { slug: "atelier", defaultTitle: "ATELIER COLLECTION", defaultSub: "Limited-Batch Precision Hardware & Bold Profiles" },
+      edits: { slug: "edits", defaultTitle: "CURATED EDITS", defaultSub: "Editorial Statements & Runway Profiles" },
+    }
+
+    for (const col of collections) {
+      const h = (col.handle || "").toLowerCase()
+      const matchConfig = handleMap[h]
+      if (matchConfig) {
+        const imgUrl = col.image?.url || ""
+        if (imgUrl) {
+          banners.push({
+            title: col.title ? `${col.title.toUpperCase()} COLLECTION` : matchConfig.defaultTitle,
+            subtitle: col.description || matchConfig.defaultSub,
+            categorySlug: matchConfig.slug,
+            image: imgUrl,
+            alt: col.image?.alt || `${col.title || matchConfig.defaultTitle} featured eyewear`,
+          })
+        }
+      }
+    }
+    return banners
+  } catch (error) {
+    console.warn("❌ [Shopify API] Failed to fetch collection banners:", error)
+    return []
+  }
 }

@@ -63,6 +63,8 @@ function CollectionContent() {
     if (filterParam === "bestseller") setSortBy("bestseller")
   }, [searchParams])
 
+  const [productCount, setProductCount] = useState<number | undefined>(undefined)
+
   return (
     <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10]">
       <section className="w-full bg-[#fcfbfa] px-4 pt-8 pb-16 text-[#0F0F10] sm:px-6 lg:px-8 md:pt-10">
@@ -73,6 +75,7 @@ function CollectionContent() {
           setSelectedType={setSelectedType}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          productCount={productCount}
         />
 
         <div className="mt-3.5">
@@ -83,6 +86,7 @@ function CollectionContent() {
             selectedMaterial={selectedMaterial}
             selectedColor={selectedColor}
             sortBy={sortBy}
+            onProductCountChange={setProductCount}
           />
         </div>
 
