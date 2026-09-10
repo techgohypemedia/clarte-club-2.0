@@ -5,39 +5,45 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export function CinematicPreloader() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isMobile, setIsMobile] = useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    // 1. Completely disable on mobile devices (< 768px)
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      return
+    // 1. Detect if viewport is mobile (< 768px)
+    const checkIsMobile = () => {
+      if (typeof window !== "undefined") {
+        setIsMobile(window.innerWidth < 768)
+      }
     }
+    checkIsMobile()
+    window.addEventListener("resize", checkIsMobile)
 
-    // 2. Only show on the first visit (prevent showing on every refresh)
+    // 2. Only show on the first visit of the session
     try {
       const hasSeen = sessionStorage.getItem("clarte_preloader_seen")
       if (hasSeen) {
-        return
+        return () => window.removeEventListener("resize", checkIsMobile)
       }
       sessionStorage.setItem("clarte_preloader_seen", "true")
     } catch {
       // Storage access fallback
     }
 
-    // Only set loading to true for first desktop visit
+    // Activate preloader
     setIsLoading(true)
 
     // Lock scroll during preloader
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Fallback timer: ensure preloader dismisses within 3.5s max
+    // Fallback timer: ensure preloader dismisses within 3.6s max
     const maxTimer = setTimeout(() => {
       setIsLoading(false)
       document.body.style.overflow = prevOverflow
-    }, 3500)
+    }, 3600)
 
     return () => {
+      window.removeEventListener("resize", checkIsMobile)
       clearTimeout(maxTimer)
       document.body.style.overflow = prevOverflow
     }
@@ -46,12 +52,16 @@ export function CinematicPreloader() {
   // Start video playback when isLoading activates
   useEffect(() => {
     if (isLoading && videoRef.current) {
+      videoRef.current.muted = true
       videoRef.current.currentTime = 0
-      videoRef.current.play().catch(() => {
-        setTimeout(() => setIsLoading(false), 1200)
-      })
+      const playPromise = videoRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          setTimeout(() => setIsLoading(false), 1200)
+        })
+      }
     }
-  }, [isLoading])
+  }, [isLoading, isMobile])
 
   const handleFinish = () => {
     setIsLoading(false)
@@ -69,22 +79,31 @@ export function CinematicPreloader() {
           onAnimationComplete={() => {
             document.body.style.overflow = ""
           }}
-          className="hidden md:flex fixed inset-0 z-[999999] items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
         >
           <div className="relative size-full w-full h-full flex items-center justify-center p-0 m-0 overflow-hidden">
             <video
               ref={videoRef}
-              src="/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
+              key={isMobile ? "preloader-mobile-video" : "preloader-desktop-video"}
+              src={
+                isMobile
+                  ? "/video/clarte%20logo%20%20animation_gwr_video_mvp.mp4"
+                  : "/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
+              }
               autoPlay
               muted
               playsInline
               preload="auto"
               onEnded={handleFinish}
-              className="absolute inset-0 size-full w-full h-full object-contain sm:object-cover object-center pointer-events-none"
+              className={`absolute inset-0 size-full w-full h-full pointer-events-none ${
+                isMobile
+                  ? "object-cover object-center"
+                  : "object-contain sm:object-cover object-center"
+              }`}
             />
 
             {/* Subtle brand watermark & skip action in bottom corner */}
-            <div className="absolute bottom-6 right-6 z-10 flex items-center gap-4">
+            <div className="absolute bottom-6 right-6 pb-[env(safe-area-inset-bottom,0px)] pr-[env(safe-area-inset-right,0px)] z-10 flex items-center gap-4">
               <button
                 type="button"
                 onClick={handleFinish}
