@@ -4,40 +4,27 @@ import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function CinematicPreloader() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    // Only show on first visit per session
-    try {
-      const hasSeen = sessionStorage.getItem("clarte_intro_seen")
-      if (hasSeen) {
-        setIsLoading(false)
-        return
-      }
-      sessionStorage.setItem("clarte_intro_seen", "true")
-      setIsLoading(true)
-    } catch {
-      // If sessionStorage unavailable, show once
-      setIsLoading(true)
-    }
-
     // Lock scroll during preloader
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Fallback timer: ensure the preloader always dismisses within 3.4s max
-    const maxTimer = setTimeout(() => {
-      setIsLoading(false)
-    }, 3400)
-
     // Attempt video playback immediately
     if (videoRef.current) {
+      videoRef.current.currentTime = 0
       videoRef.current.play().catch(() => {
-        // Autoplay policy fallback: dismiss quickly if blocked
+        // Autoplay policy fallback: dismiss smoothly if blocked
         setTimeout(() => setIsLoading(false), 1200)
       })
     }
+
+    // Fallback timer: ensure the preloader always dismisses within 3.5s max
+    const maxTimer = setTimeout(() => {
+      setIsLoading(false)
+    }, 3500)
 
     return () => {
       clearTimeout(maxTimer)
@@ -60,18 +47,18 @@ export function CinematicPreloader() {
           onAnimationComplete={() => {
             document.body.style.overflow = ""
           }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-[#EAE6DF] overflow-hidden select-none pointer-events-auto"
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
         >
-          <div className="relative size-full flex items-center justify-center px-4 py-6 sm:p-0">
+          <div className="relative size-full w-full h-full flex items-center justify-center p-0 m-0 overflow-hidden">
             <video
               ref={videoRef}
-              src="/video/Video%20Project%202_gwr_video_mvp.mp4"
+              src="/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
               autoPlay
               muted
               playsInline
               preload="auto"
               onEnded={handleFinish}
-              className="w-full h-full max-h-[100dvh] max-w-[100vw] object-contain object-center"
+              className="absolute inset-0 size-full w-full h-full object-contain sm:object-cover object-center pointer-events-none"
             />
 
             {/* Subtle brand watermark & skip action in bottom corner */}
@@ -79,7 +66,7 @@ export function CinematicPreloader() {
               <button
                 type="button"
                 onClick={handleFinish}
-                className="text-[9px] uppercase tracking-[0.25em] text-black/40 hover:text-black transition-colors font-medium cursor-pointer bg-white/40 px-3 py-1.5 rounded-full backdrop-blur-sm"
+                className="text-[9.5px] uppercase tracking-[0.25em] text-white/70 hover:text-white transition-all font-semibold cursor-pointer bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md shadow-lg active:scale-95"
               >
                 Skip →
               </button>

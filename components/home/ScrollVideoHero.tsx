@@ -272,28 +272,17 @@ export function ScrollVideoHero() {
         let offsetX = 0
         let offsetY = 0
 
-        if (isMobile) {
-          // Mobile: Contain (show full image width so nothing is cropped)
-          if (canvasRatio > imgRatio) {
-            drawWidth = cachedHeight * imgRatio
-            drawHeight = cachedHeight
-            offsetX = (cachedWidth - drawWidth) / 2
-            offsetY = 0
-          } else {
-            drawWidth = cachedWidth
-            drawHeight = cachedWidth / imgRatio
-            offsetX = 0
-            offsetY = (cachedHeight - drawHeight) / 2
-          }
+        // Cover mode: Fills 100% of the screen edge-to-edge on mobile and desktop
+        if (canvasRatio > imgRatio) {
+          drawWidth = cachedWidth
+          drawHeight = cachedWidth / imgRatio
+          offsetX = 0
+          offsetY = (cachedHeight - drawHeight) / 2
         } else {
-          // Desktop: Cover (fill screen)
-          if (canvasRatio > imgRatio) {
-            drawHeight = cachedWidth / imgRatio
-            offsetY = 0
-          } else {
-            drawWidth = cachedHeight * imgRatio
-            offsetX = (cachedWidth - drawWidth) / 2
-          }
+          drawWidth = cachedHeight * imgRatio
+          drawHeight = cachedHeight
+          offsetX = (cachedWidth - drawWidth) / 2
+          offsetY = 0
         }
 
         // Round coordinates to prevent subpixel anti-aliasing blur
@@ -304,24 +293,7 @@ export function ScrollVideoHero() {
 
         ctx.globalAlpha = 1.0
 
-        // For mobile, dynamically stretch the edge pixels of the video to fill the empty space.
-        // This creates a seamless 100vh background that perfectly matches the video's studio floor/ceiling!
-        if (isMobile) {
-          if (rOffsetY > 0) {
-            // Stretch top edge pixel upwards
-            ctx.drawImage(img, 0, 0, img.naturalWidth, 1, 0, 0, cachedWidth, rOffsetY)
-            // Stretch bottom edge pixel downwards
-            ctx.drawImage(img, 0, img.naturalHeight - 1, img.naturalWidth, 1, 0, rOffsetY + rDrawHeight - 1, cachedWidth, cachedHeight - (rOffsetY + rDrawHeight) + 2)
-          }
-          if (rOffsetX > 0) {
-            // Stretch left edge pixel
-            ctx.drawImage(img, 0, 0, 1, img.naturalHeight, 0, 0, rOffsetX, cachedHeight)
-            // Stretch right edge pixel
-            ctx.drawImage(img, img.naturalWidth - 1, 0, 1, img.naturalHeight, rOffsetX + rDrawWidth - 1, 0, cachedWidth - (rOffsetX + rDrawWidth) + 2, cachedHeight)
-          }
-        }
-
-        // Draw crisp single frame main image
+        // Draw crisp single frame main image (captures 100% of viewport)
         ctx.drawImage(img, rOffsetX, rOffsetY, rDrawWidth, rDrawHeight)
 
         ctx.restore()
@@ -347,7 +319,7 @@ export function ScrollVideoHero() {
   return (
     <div ref={containerRef} className="relative w-full h-[300vh] bg-black">
       {/* Sticky Container pinning canvas over 300vh container track */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-[100dvh] min-h-[100dvh] w-full overflow-hidden">
         
         {/* High Performance Pure Video Canvas (Instant Hydration, Zero Loading Screen) */}
         <canvas

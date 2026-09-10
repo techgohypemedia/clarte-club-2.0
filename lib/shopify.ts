@@ -738,7 +738,9 @@ const ALL_PRODUCTS_QUERY = `#graphql
           { namespace: "custom", key: "details_care" },
           { namespace: "custom", key: "care" },
           { namespace: "custom", key: "highlights" },
+          { namespace: "custom", key: "highlight" },
           { namespace: "custom", key: "product_highlights" },
+          { namespace: "custom", key: "product_highlight" },
           { namespace: "custom", key: "highlights_json" }
         ]) {
           key
@@ -986,7 +988,9 @@ export async function fetchProductByHandle(handle: string) {
         { namespace: "global", key: "origin" },
         { namespace: "theme", key: "origin" },
         { namespace: "custom", key: "highlights" },
+        { namespace: "custom", key: "highlight" },
         { namespace: "custom", key: "product_highlights" },
+        { namespace: "custom", key: "product_highlight" },
         { namespace: "custom", key: "highlights_json" }
       ]) {
         key

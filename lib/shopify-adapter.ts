@@ -356,7 +356,9 @@ export function shopifyProductToDetail(node: any): ProductDetail {
   // Dynamic Shopify Metafields extraction for Product Highlights
   const rawHighlightsValue = getMetafieldValue(
     node,
+    "highlight",
     "highlights",
+    "product_highlight",
     "product_highlights",
     "highlights_json"
   )
@@ -374,8 +376,26 @@ export function shopifyProductToDetail(node: any): ProductDetail {
           imageAlt: item.imageAlt || item.alt || "",
         }))
       }
-    } catch (e) {
-      console.warn("Failed to parse custom.highlights JSON metafield:", e)
+    } catch {
+      // If it's multi-line text instead of strict JSON, parse lines/paragraphs
+      if (typeof rawHighlightsValue === "string" && rawHighlightsValue.trim()) {
+        const blocks = rawHighlightsValue.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+        if (blocks.length > 0) {
+          highlights = blocks.map((block) => {
+            const lines = block.split("\n").map(l => l.trim()).filter(Boolean)
+            if (lines.length >= 2) {
+              return {
+                title: lines[0].replace(/^[-*#•\d.]+\s*/, ""),
+                description: lines.slice(1).join(" "),
+              }
+            }
+            return {
+              title: lines[0] || "",
+              description: "",
+            }
+          })
+        }
+      }
     }
   }
 
