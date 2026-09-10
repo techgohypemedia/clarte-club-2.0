@@ -11,6 +11,7 @@ export function CollectionGrid({
   selectedType,
   selectedShape,
   selectedMaterial,
+  selectedGender,
   selectedColor,
   sortBy,
   onProductCountChange,
@@ -19,6 +20,7 @@ export function CollectionGrid({
   selectedType: string | null
   selectedShape?: string | null
   selectedMaterial?: string | null
+  selectedGender?: string | null
   selectedColor?: string | null
   sortBy: string
   onProductCountChange?: (count: number) => void
@@ -64,12 +66,23 @@ export function CollectionGrid({
       (selectedCategory.toLowerCase() === "noir" && (product.category.toLowerCase() === "noyer" || product.category.toLowerCase() === "noir")) ||
       (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
 
-    const matchesType = selectedType === null || !product.type || product.type.toLowerCase() === selectedType.toLowerCase()
+    const matchesType =
+      selectedType === null ||
+      !product.type ||
+      product.type.toLowerCase() === selectedType.toLowerCase() ||
+      (selectedType.toLowerCase() === "eyeglasses" && (product.type.toLowerCase() === "optical" || product.type.toLowerCase() === "eyeglasses"))
+
+    const matchesGender =
+      !selectedGender ||
+      !product.gender ||
+      product.gender.toLowerCase() === "unisex" ||
+      product.gender.toLowerCase() === selectedGender.toLowerCase()
+
     const matchesShape = !selectedShape || (product.shape && product.shape.toLowerCase().includes(selectedShape))
     const matchesMaterial = !selectedMaterial || (product.material && product.material.toLowerCase().includes(selectedMaterial))
     const matchesColor = !selectedColor || (product.colorGroup && product.colorGroup.toLowerCase().includes(selectedColor))
 
-    return (selectedCategory ? true : matchesCategory) && matchesType && matchesShape && matchesMaterial && matchesColor
+    return matchesCategory && matchesType && matchesGender && matchesShape && matchesMaterial && matchesColor
   })
 
   useEffect(() => {
@@ -118,7 +131,7 @@ export function CollectionGrid({
   }
 
   return (
-    <motion.div layout className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <motion.div layout className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
       <AnimatePresence mode="popLayout">
         {sortedProducts.map((product) => (
           <motion.div

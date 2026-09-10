@@ -145,12 +145,12 @@ export default function ContactPage() {
                   </p>
                   <p className="text-[#0F0F10]">
                     <a
-                      href="https://wa.me/919371083295?text=Hi%20Clart%C3%A9%20Club%2C%20I%20have%20an%20inquiry"
+                      href="https://wa.me/919898391273?text=Hi%20Clart%C3%A9%20Club%2C%20I%20have%20an%20inquiry"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#0F0F10] hover:text-[#25D366] transition-colors inline-flex items-center gap-1.5"
                     >
-                      <span>+91 93710 83295 (WhatsApp) →</span>
+                      <span>+91 98983 91273 (WhatsApp) →</span>
                     </a>
                   </p>
                   <p className="text-[#0F0F10] hover:text-[#C9B07A] transition-colors font-sans">
@@ -164,7 +164,7 @@ export default function ContactPage() {
                   Operating Hours
                 </span>
                 <div className="col-span-8 text-[#0F0F10] font-mono">
-                  <p>[Mon–Sat, 10am–7pm IST]</p>
+                  <p>11 am – 8 pm IST</p>
                   <p className="text-[11px] text-neutral-500 font-sans mt-1">
                     Sunday &amp; Public Holidays: Next business day
                   </p>
@@ -185,7 +185,7 @@ export default function ContactPage() {
                   Entity
                 </span>
                 <div className="col-span-8 space-y-1">
-                  <p className="text-[#0F0F10] font-semibold">[Legal Entity Name]</p>
+                  <p className="text-[#0F0F10] font-semibold">Clarté Club</p>
                   <p className="text-[#C9B07A] font-mono underline">
                     <a href="mailto:contact@clarte.club">Grievance: contact@clarte.club</a>
                   </p>
@@ -197,7 +197,7 @@ export default function ContactPage() {
                   Registered Office
                 </span>
                 <div className="col-span-8 text-[#0F0F10] font-mono leading-relaxed">
-                  <p>[Registered Office Address]</p>
+                  <p>J9 Highstreet, Vesu, Surat - 395007</p>
                 </div>
               </div>
             </div>

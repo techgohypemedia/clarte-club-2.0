@@ -21,7 +21,7 @@ type SearchSidebarProps = {
 const trendingSearches = [
   "HERITAGE OVAL SUNGLASSES",
   "SIGNATURE AVIATORS",
-  "NOYER SQUARE OPTICALS",
+  "NOIR SQUARE EYEGLASSES",
   "CATEYE TRANSPARENT FRAMES",
 ]
 

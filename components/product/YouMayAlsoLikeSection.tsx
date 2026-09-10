@@ -31,10 +31,10 @@ export function YouMayAlsoLikeSection({
   if (products.length === 0) return null
 
   return (
-    <section className="w-full bg-white px-4 pb-14 pt-12 sm:pt-16 text-black sm:px-6 lg:px-8 border-t border-black/15">
+    <section className="w-full bg-white px-2.5 sm:px-6 lg:px-8 pb-14 pt-10 sm:pt-16 text-black border-t border-black/15">
       <div className="w-full">
         {/* Section Title */}
-        <div className="text-center mb-10 sm:mb-12 space-y-3">
+        <div className="text-center mb-8 sm:mb-12 space-y-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/40">
             Recommendations
           </p>
@@ -44,7 +44,7 @@ export function YouMayAlsoLikeSection({
           <div className="mx-auto h-[1px] w-16 bg-black/10 pt-1" />
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
           {products.map((product) => (
             <ProductCardView key={product.id} product={product} />
           ))}

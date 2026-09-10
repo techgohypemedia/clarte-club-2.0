@@ -140,9 +140,9 @@ export function ProductCardView({
 
   return (
     <article className="group relative flex flex-col w-full cursor-pointer">
-      {/* ── 1. Image Container (4/5 Aspect Ratio Matching Shopify Photos + rounded-[14px] Corners + Touch Pan-Y) ── */}
+      {/* ── 1. Image Container (4/5 Aspect Ratio + Tight rounded-[8px] Corners Matching Reference) ── */}
       <div
-        className={`relative aspect-[4/5] w-full overflow-hidden rounded-[14px] select-none shadow-xs touch-pan-y ${
+        className={`relative aspect-[4/5] w-full overflow-hidden rounded-[8px] sm:rounded-[10px] select-none shadow-xs touch-pan-y ${
           isDark ? "bg-[#18181b]" : "bg-[#F7F4EE]"
         }`}
         onTouchStart={handleTouchStart}
@@ -173,7 +173,7 @@ export function ProductCardView({
         {/* Badge */}
         {product.badge ? (
           <span
-            className="absolute left-3 top-3 z-10 px-2.5 py-1 text-[10px] font-bold uppercase leading-none tracking-wider rounded-md shadow-md"
+            className="absolute left-2.5 top-2.5 z-10 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase leading-none tracking-wider rounded-[4px] shadow-sm"
             style={{ background: "#C9B07A", color: "#0F0F10" }}
           >
             {product.badge}
@@ -185,16 +185,16 @@ export function ProductCardView({
           type="button"
           aria-label="Add to wishlist"
           onClick={toggleWishlist}
-          className={`absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-lg shadow-sm border transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+          className={`absolute right-2.5 top-2.5 z-10 flex size-7 sm:size-8 items-center justify-center rounded-[6px] shadow-xs border transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
             isWishlisted
               ? "bg-black text-[#C9B07A] border-[#C9B07A]"
               : isDark
               ? "bg-black/70 text-white border-white/10 hover:bg-black hover:text-white"
-              : "bg-white/90 text-neutral-800 border-black/10 hover:bg-white hover:text-black"
+              : "bg-white/85 text-neutral-800 border-black/10 hover:bg-white hover:text-black"
           }`}
         >
           <Heart
-            className={`size-4 transition-colors duration-200 ${
+            className={`size-3.5 sm:size-4 transition-colors duration-200 ${
               isWishlisted
                 ? "fill-[#C9B07A] text-[#C9B07A]"
                 : isDark
@@ -235,30 +235,74 @@ export function ProductCardView({
           </>
         ) : null}
 
-        {/* Carousel Pagination Dots (. . .) */}
-        {hasGalleryControls ? (
-          <div className="absolute bottom-3 inset-x-0 z-10 flex items-center justify-center pointer-events-auto">
-            <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full">
-              {gallery.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  aria-label={`Go to slide ${idx + 1}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    setActiveImageIndex(idx)
-                  }}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    idx === activeImageIndex
-                      ? "w-3.5 bg-white"
-                      : "w-1.5 bg-white/50 hover:bg-white/80"
-                  }`}
-                />
-              ))}
+        {/* Carousel Pagination Dots (. . .) - Max 4 Visible, Smooth Sliding Window */}
+        {hasGalleryControls ? (() => {
+          const maxVisible = 4
+          const total = gallery.length
+          const windowStart = total > maxVisible
+            ? Math.min(Math.max(0, activeImageIndex - 2), total - maxVisible)
+            : 0
+          const visibleCount = Math.min(total, maxVisible)
+          const viewportWidth = visibleCount * 8 + (visibleCount - 1) * 4
+
+          return (
+            <div className="absolute bottom-2.5 sm:bottom-3 inset-x-0 z-10 flex items-center justify-center pointer-events-auto select-none">
+              <div
+                className={`flex items-center px-1.5 py-0.5 rounded-full backdrop-blur-md transition-all ${
+                  isDark
+                    ? "bg-black/50 border border-white/15 shadow-[0_1px_3px_rgba(0,0,0,0.4)]"
+                    : "bg-white/85 border border-black/10 shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                }`}
+              >
+                <div
+                  className="overflow-hidden flex items-center"
+                  style={{ width: `${viewportWidth}px` }}
+                >
+                  <div
+                    className="flex items-center gap-1 transition-transform duration-300 ease-out shrink-0"
+                    style={{ transform: `translateX(-${windowStart * 12}px)` }}
+                  >
+                    {gallery.map((_, idx) => {
+                      const isEdgeLeft = total > maxVisible && idx === windowStart && windowStart > 0
+                      const isEdgeRight = total > maxVisible && idx === windowStart + maxVisible - 1 && windowStart < total - maxVisible
+                      const isShrunk = (isEdgeLeft || isEdgeRight) && idx !== activeImageIndex
+
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          aria-label={`Go to slide ${idx + 1}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            setActiveImageIndex(idx)
+                          }}
+                          className="flex size-2 shrink-0 items-center justify-center cursor-pointer"
+                        >
+                          <span
+                            className={`rounded-full transition-all duration-300 ${
+                              idx === activeImageIndex
+                                ? isDark
+                                  ? "size-1.5 bg-white scale-110 shadow-xs"
+                                  : "size-1.5 bg-[#18181b] scale-110 shadow-xs"
+                                : isShrunk
+                                ? isDark
+                                  ? "size-1 bg-white/25 scale-75"
+                                  : "size-1 bg-[#18181b]/20 scale-75"
+                                : isDark
+                                ? "size-1 bg-white/40 hover:bg-white/80"
+                                : "size-1 bg-[#18181b]/35 hover:bg-[#18181b]/70"
+                            }`}
+                          />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        ) : null}
+          )
+        })() : null}
 
         {/* Buy Now Button on Image Hover (Desktop Only) */}
         <button
@@ -393,7 +437,7 @@ export function TrendingSection() {
   }, [])
 
   return (
-    <section id="new-drops" className="w-full bg-white px-4 pt-14 pb-4 text-black sm:px-6 lg:px-8 md:pt-16 md:pb-4">
+    <section id="new-drops" className="w-full bg-white px-2.5 sm:px-6 lg:px-8 pt-12 pb-4 text-black md:pt-16 md:pb-4">
       <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start">
         <div className="flex flex-col items-center sm:items-start">
           <p className="text-[10px] uppercase font-semibold tracking-[0.25em] text-[#C9B07A] mb-1">
@@ -405,7 +449,7 @@ export function TrendingSection() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
         {products.map((product) => (
           <ProductCardView key={product.id} product={product} />
         ))}

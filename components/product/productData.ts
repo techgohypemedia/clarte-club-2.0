@@ -29,8 +29,9 @@ export type ProductCard = {
   gallery?: string[]
   name?: string
   price?: string
-  category?: "Heritage" | "Noyer" | "Crystal" | "Atelier" | "Edits" | "Noir" | string
-  type?: "Sunglasses" | "Optical"
+  category?: "Heritage" | "Noir" | "Crystal" | "Atelier" | "Edits" | string
+  type?: "Sunglasses" | "Eyeglasses" | "Optical" | string
+  gender?: "Men" | "Women" | "Unisex" | string
   shape?: string
   material?: string
   colorGroup?: string

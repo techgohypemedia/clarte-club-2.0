@@ -250,30 +250,30 @@ function MobileFloatingNav({
   return createPortal(
     <div
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 z-[99999] md:hidden flex items-center gap-2.5 transition-all duration-300 ease-out select-none",
+        "fixed bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-[99999] md:hidden flex items-center gap-2.5 transition-all duration-300 ease-out select-none",
         isVisible
           ? "translate-y-0 opacity-100 pointer-events-auto"
           : "translate-y-28 opacity-0 pointer-events-none"
       )}
     >
-      {/* Light Theme Glass Pill Navigation Bar */}
-      <div className="flex h-9 items-center gap-4.5 sm:gap-5 bg-[#F6F2EA]/95 backdrop-blur-xl border border-black/15 px-4.5 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.25)] text-black">
+      {/* Light Theme Glass Pill Navigation Bar - Sized to h-11 / sm:h-12 */}
+      <div className="flex h-11 sm:h-12 items-center gap-5 sm:gap-6 bg-[#F6F2EA]/95 backdrop-blur-xl border border-black/15 px-5 sm:px-6 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.25)] text-black">
         {/* Explore / Collections */}
         <Link
           href="/collections"
           aria-label="Explore Collections"
-          className="text-black hover:opacity-60 transition-opacity flex items-center justify-center"
+          className="text-black hover:opacity-60 transition-opacity flex items-center justify-center active:scale-95"
         >
-          <Compass className="size-[18px] stroke-[1.75]" />
+          <Compass className="size-5 stroke-[1.8]" />
         </Link>
 
         {/* Our Story / About */}
         <Link
           href="/about"
           aria-label="Our Story"
-          className="text-black hover:opacity-60 transition-opacity flex items-center justify-center"
+          className="text-black hover:opacity-60 transition-opacity flex items-center justify-center active:scale-95"
         >
-          <BookOpen className="size-[18px] stroke-[1.75]" />
+          <BookOpen className="size-5 stroke-[1.8]" />
         </Link>
 
         {/* Wishlist */}
@@ -281,22 +281,23 @@ function MobileFloatingNav({
           type="button"
           onClick={onOpenWishlist}
           aria-label="Wishlist"
-          className="text-black hover:opacity-60 transition-opacity cursor-pointer flex items-center justify-center"
+          className="text-black hover:opacity-60 transition-opacity cursor-pointer flex items-center justify-center active:scale-95"
         >
-          <Heart className="size-[18px] stroke-[1.75]" />
+          <Heart className="size-5 stroke-[1.8]" />
         </button>
       </div>
 
-      {/* Story Ring Button (Same Gold Rotating Ring as Desktop Header) */}
+      {/* Story Ring Button (Same Gold Rotating Ring as Desktop Header) - Sized to match pill height */}
       <StoryRingButton
         onClick={onOpenStories}
         tone="dark"
-        className="size-9 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:scale-110 active:scale-95"
+        className="size-11 sm:size-12 shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:scale-110 active:scale-95 shrink-0"
       />
     </div>,
     document.body
   )
 }
+
 
 function MenuSection({
   title,
@@ -896,8 +897,8 @@ export function Navbar({
                 <Link href="/collections?category=Heritage" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
                   Heritage Collection
                 </Link>
-                <Link href="/collections?category=Noyer" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
-                  Noyer Collection
+                <Link href="/collections?category=Noir" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
+                  Noir Collection
                 </Link>
                 <Link href="/collections?category=Crystal" onClick={closeMenu} className="font-semibold text-black/80 hover:text-black transition-colors">
                   Crystal Collection
@@ -911,7 +912,7 @@ export function Navbar({
               <div className="flex flex-col gap-2.5">
                 <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-black">Type</span>
                 <div className="flex flex-wrap gap-1.5">
-                  {["Sunglasses", "Optical Frames", "Blue Light", "Reading Glasses"].map((item) => (
+                  {["Sunglasses", "Eyeglasses"].map((item) => (
                     <Link
                       key={item}
                       href={`/collections?type=${item.toLowerCase()}`}
@@ -941,20 +942,38 @@ export function Navbar({
                 </div>
               </div>
 
-              {/* Column 4: Material & Acc */}
-              <div className="flex flex-col gap-2.5">
-                <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-black">Material & Acc</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Acetate", "Titanium", "Clear Crystal", "Leather Cases", "Eyewear Chains"].map((item) => (
-                    <Link
-                      key={item}
-                      href={`/collections?material=${item.toLowerCase()}`}
-                      onClick={closeMenu}
-                      className="rounded-full bg-white px-3.5 py-1.5 text-[11px] font-medium text-black/80 border border-black/5 hover:bg-black hover:text-white transition-all shadow-2xs"
-                    >
-                      {item}
-                    </Link>
-                  ))}
+              {/* Column 4: Material & Gender */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-black">Material</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["Acetate", "Metal"].map((item) => (
+                      <Link
+                        key={item}
+                        href={`/collections?material=${item.toLowerCase()}`}
+                        onClick={closeMenu}
+                        className="rounded-full bg-white px-3.5 py-1.5 text-[11px] font-medium text-black/80 border border-black/5 hover:bg-black hover:text-white transition-all shadow-2xs"
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-black">Gender</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["Men", "Women"].map((item) => (
+                      <Link
+                        key={item}
+                        href={`/collections?gender=${item.toLowerCase()}`}
+                        onClick={closeMenu}
+                        className="rounded-full bg-white px-3.5 py-1.5 text-[11px] font-medium text-black/80 border border-black/5 hover:bg-black hover:text-white transition-all shadow-2xs"
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
 

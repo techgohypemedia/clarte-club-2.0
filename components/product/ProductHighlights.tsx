@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import type { ProductImage } from "@/components/product/productData"
 
 type ProductHighlightsProps = {
@@ -9,90 +8,153 @@ type ProductHighlightsProps = {
 }
 
 export function ProductHighlights({ productTitle = "Signature Frame", gallery = [] }: ProductHighlightsProps) {
-  const image1 = gallery[1]?.src || gallery[0]?.src || ""
-  const image2 = gallery[2]?.src || gallery[3]?.src || gallery[0]?.src || image1
+  // Use gallery images or curated fallback imagery matching macro eyewear craftsmanship
+  const img1 = gallery[0]?.src || "/images/products/product13.png"
+  const img2 = gallery[1]?.src || "/images/products/product7.png"
+  const img3 = gallery[2]?.src || "/images/products/product4.png"
+  const img4 = gallery[3]?.src || gallery[0]?.src || "/images/products/product2.png"
 
-  const highlightBlocks = [
+  const highlightRows = [
     {
-      title: "Precision Bio-Acetate",
+      id: "row-1",
+      imagePosition: "left" as const,
+      eyebrow: "LIMITED EDITION",
+      title: "Rimless. Limitless.",
       description:
-        "Meticulously sculpted from organically sourced bio-acetate, each frame undergoes a multi-day tumbling process and precision polishing. This creates a rich, lustrous finish with exceptional durability and lightweight, hypoallergenic comfort.",
-      imageSrc: image1,
-      imageAlt: `${productTitle} - Precision Bio-Acetate Craftsmanship`,
+        "Clarity in its purest form. Clean lines, refined engineering, and an ultra-light profile create a timeless silhouette that lets your individuality take center stage.",
+      imageSrc: img1,
+      imageAlt: `${productTitle} - Rimless Limitless Floating Silhouette`,
     },
     {
-      title: "Signature 5-Barrel Hinges",
+      id: "row-2",
+      imagePosition: "right" as const,
+      eyebrow: "PRECISION ENGINEERING",
+      title: "Featherlight Construction",
       description:
-        "Reinforced custom metal hinges and wire temple cores provide structural longevity. Engineered to distribute weight evenly and balance the fit, ensuring the frames rest comfortably on your nose bridge without sliding.",
-      imageSrc: image2,
-      imageAlt: `${productTitle} - Custom Hardware & Hinge Construction`,
+        "Crafted with a precision metal body and rimless silhouette. The frame offers exceptional lightness, lasting comfort, and effortless wear throughout the day.",
+      imageSrc: img2,
+      imageAlt: `${productTitle} - Featherlight Construction Temple Tip`,
+    },
+    {
+      id: "row-3",
+      imagePosition: "left" as const,
+      eyebrow: "DETAILED DESIGN",
+      title: "6 Stellar Stars",
+      description:
+        "Six stars rest on every temple — a signature detail honoring memorable milestones of craft. A quiet reminder of the architectural precision and dedication that brought us here.",
+      imageSrc: img3,
+      imageAlt: `${productTitle} - 6 Stellar Stars Hardware Engraving`,
+    },
+    {
+      id: "row-4",
+      imagePosition: "right" as const,
+      eyebrow: "CUSTOM HARDWARE",
+      title: "Refined Craftsmanship",
+      description:
+        "The finely sculpted nose-bridge reflects meticulous craftsmanship, creating a seamless balance between minimalist design and exceptional ergonomic comfort.",
+      imageSrc: img4,
+      imageAlt: `${productTitle} - Refined Craftsmanship Sculpted Bridge`,
     },
   ]
 
   return (
-    <section className="w-full bg-[#fcfbfa] border-t border-black/15 py-20 text-black">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        {/* Section Title */}
-        <div className="text-center mb-16 space-y-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/40">
-            Craftsmanship & Fit
-          </p>
-          <h2 className="font-heading text-[22px] sm:text-3xl md:text-[40px] font-semibold uppercase leading-none tracking-tight">
-            Product Highlights
-          </h2>
-          <div className="mx-auto h-[1px] w-16 bg-black/10 pt-1" />
-        </div>
+    <section className="w-full bg-[#fcfbfa] border-t border-black/10 text-[#0F0F10]">
+      {/* Editorial Section Header */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12 text-center space-y-1.5 sm:space-y-2">
+        <p className="text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-[#C9B07A]">
+          CRAFTSMANSHIP &amp; ARCHITECTURE
+        </p>
+        <h2 className="font-heading text-xl sm:text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-[#0F0F10]">
+          Product Highlights
+        </h2>
+        <div className="mx-auto h-[1px] w-12 bg-black/15 mt-2 sm:mt-3" />
+      </div>
 
-        {/* Highlights List */}
-        <div className="space-y-24 md:space-y-32">
-          {highlightBlocks.map((block, index) => {
-            const isEven = index % 2 === 0
+      {/* 4 Alternating Feature Rows: Side-by-Side 2-Column on Mobile & Desktop */}
+      <div className="w-full border-t border-b border-black/10 max-w-[1440px] mx-auto">
+        {highlightRows.map((row, index) => {
+          const isImageLeft = row.imagePosition === "left"
+          const isNotLast = index < highlightRows.length - 1
 
-            return (
+          return (
+            <div
+              key={row.id}
+              className={`grid grid-cols-2 items-center ${
+                isNotLast ? "border-b border-black/10" : ""
+              }`}
+            >
+              {/* Left Column */}
               <div
-                key={block.title}
-                className={`flex flex-col md:flex-row items-center gap-10 md:gap-20 ${
-                  isEven ? "" : "md:flex-row-reverse"
+                className={`relative w-full overflow-hidden border-r border-black/10 ${
+                  isImageLeft
+                    ? "bg-[#f4f2ee]"
+                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-[#fcfbfa] self-stretch"
                 }`}
               >
-                {/* Image Block */}
-                <div className="w-full md:w-1/2">
-                  <figure className="relative aspect-[4/5] w-full overflow-hidden bg-[#efefef] border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
-                    {block.imageSrc ? (
-                      <Image
-                        src={block.imageSrc}
-                        alt={block.imageAlt}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover object-center hover:scale-[1.02] transition-transform duration-700 ease-out"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-[#F6F2EA]">
-                        <span className="font-heading text-xs tracking-[0.25em] uppercase font-bold text-black/40">
-                          CLARTÉ CLUB
-                        </span>
-                        <span className="text-[9px] uppercase tracking-[0.15em] text-[#C9B07A] font-semibold mt-1.5">
-                          {productTitle}
-                        </span>
-                      </div>
-                    )}
-                  </figure>
-                </div>
-
-                {/* Text Block */}
-                <div className="w-full md:w-1/2 space-y-5">
-                  <h3 className="font-heading text-[24px] md:text-[30px] font-normal uppercase leading-tight tracking-tight">
-                    {block.title}
-                  </h3>
-                  <div className="h-[2px] w-12 bg-black/80" />
-                  <p className="font-sans text-[15px] md:text-[16px] leading-[1.8] text-black/68 font-light max-w-xl">
-                    {block.description}
-                  </p>
-                </div>
+                {isImageLeft ? (
+                  /* Image on Left - Full Bleed Side by Side */
+                  <div className="relative w-full h-auto overflow-hidden group bg-[#f4f2ee]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={row.imageSrc}
+                      alt={row.imageAlt}
+                      className="w-full h-auto max-h-[640px] object-cover block group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-black/[0.02] pointer-events-none" />
+                  </div>
+                ) : (
+                  /* Text on Left */
+                  <div className="space-y-1.5 xs:space-y-2 sm:space-y-3.5 max-w-lg my-auto">
+                    <p className="text-[8px] xs:text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.22em] text-[#C9B07A]">
+                      {row.eyebrow}
+                    </p>
+                    <h3 className="font-heading text-[13px] xs:text-[15px] sm:text-2xl md:text-3xl lg:text-[38px] font-extrabold uppercase leading-[1.12] sm:leading-[1.1] tracking-tight text-[#0F0F10]">
+                      {row.title}
+                    </h3>
+                    <p className="font-sans text-[9.5px] xs:text-[10.5px] sm:text-xs md:text-[13px] lg:text-[14px] leading-[1.45] sm:leading-relaxed text-[#0F0F10]/70 font-light">
+                      {row.description}
+                    </p>
+                  </div>
+                )}
               </div>
-            )
-          })}
-        </div>
+
+              {/* Right Column */}
+              <div
+                className={`relative w-full overflow-hidden ${
+                  !isImageLeft
+                    ? "bg-[#f4f2ee]"
+                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-[#fcfbfa] self-stretch"
+                }`}
+              >
+                {!isImageLeft ? (
+                  /* Image on Right - Full Bleed Side by Side */
+                  <div className="relative w-full h-auto overflow-hidden group bg-[#f4f2ee]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={row.imageSrc}
+                      alt={row.imageAlt}
+                      className="w-full h-auto max-h-[640px] object-cover block group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-black/[0.02] pointer-events-none" />
+                  </div>
+                ) : (
+                  /* Text on Right */
+                  <div className="space-y-1.5 xs:space-y-2 sm:space-y-3.5 max-w-lg my-auto">
+                    <p className="text-[8px] xs:text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.22em] text-[#C9B07A]">
+                      {row.eyebrow}
+                    </p>
+                    <h3 className="font-heading text-[13px] xs:text-[15px] sm:text-2xl md:text-3xl lg:text-[38px] font-extrabold uppercase leading-[1.12] sm:leading-[1.1] tracking-tight text-[#0F0F10]">
+                      {row.title}
+                    </h3>
+                    <p className="font-sans text-[9.5px] xs:text-[10.5px] sm:text-xs md:text-[13px] lg:text-[14px] leading-[1.45] sm:leading-relaxed text-[#0F0F10]/70 font-light">
+                      {row.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </section>
   )

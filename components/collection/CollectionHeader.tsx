@@ -61,7 +61,11 @@ export function CollectionHeader({
       (selectedCategory.toLowerCase() === "noyer" && product.category.toLowerCase() === "noir") ||
       (selectedCategory.toLowerCase() === "noir" && product.category.toLowerCase() === "noyer") ||
       (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
-    const matchesType = selectedType === null || product.type === selectedType
+    const matchesType =
+      selectedType === null ||
+      !product.type ||
+      product.type.toLowerCase() === selectedType.toLowerCase() ||
+      (selectedType.toLowerCase() === "eyeglasses" && (product.type.toLowerCase() === "optical" || product.type.toLowerCase() === "eyeglasses"))
     return matchesCategory && matchesType
   }).length
 
@@ -76,7 +80,7 @@ export function CollectionHeader({
     { value: null, label: "ALL" },
     { value: "Edits", label: "EDITS" },
     { value: "Heritage", label: "HERITAGE" },
-    { value: "Noyer", label: "NOYER" },
+    { value: "Noir", label: "NOIR" },
     { value: "Crystal", label: "CRYSTAL" },
     { value: "Atelier", label: "ATELIER" },
   ]
@@ -84,7 +88,7 @@ export function CollectionHeader({
   const types = [
     { value: null, label: "Type: All" },
     { value: "Sunglasses", label: "Sunglasses" },
-    { value: "Optical", label: "Optical" },
+    { value: "Eyeglasses", label: "Eyeglasses" },
   ]
 
   const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || "Bestseller"

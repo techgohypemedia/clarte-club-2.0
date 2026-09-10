@@ -35,7 +35,7 @@ export default function TermsPage() {
             Preamble
           </h2>
           <p className="text-neutral-700 leading-[1.8]">
-            These Terms &amp; Conditions (“Terms”) govern access to and use of the Clart&eacute; Club website (“Website”), operated by [Legal Entity Name] (“Clart&eacute; Club,” “we,” “us,” or “the Company”). By browsing the Website, creating an account, or placing an order, you (“Customer” or “User”) agree to be bound by these Terms.
+            These Terms &amp; Conditions (“Terms”) govern access to and use of the Clart&eacute; Club website (“Website”), operated by Clart&eacute; Club (“Clart&eacute; Club,” “we,” “us,” or “the Company”). By browsing the Website, creating an account, or placing an order, you (“Customer” or “User”) agree to be bound by these Terms.
           </p>
           <p className="text-neutral-700 leading-[1.8]">
             These Terms are framed with reference to the Indian Contract Act, 1872, the Consumer Protection Act, 2019, the Consumer Protection (E-Commerce) Rules, 2020, the Information Technology Act, 2000, and the Digital Personal Data Protection Act, 2023, along with any rules made under these statutes. Where these Terms are silent, applicable Indian law governs.

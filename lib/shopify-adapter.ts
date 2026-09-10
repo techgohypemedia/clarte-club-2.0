@@ -13,28 +13,40 @@ function getProductFallbackImages(_indexOrId: number | string): string[] {
   return []
 }
 
-function extractTagsMetadata(tags: string[] = []) {
+function extractTagsMetadata(tags: string[] = [], extraContext: string = "") {
   let shape = ""
   let material = ""
   let colorGroup = ""
-  let type: "Sunglasses" | "Optical" | undefined = undefined
+  let type: "Sunglasses" | "Eyeglasses" | undefined = undefined
+  let gender: "Men" | "Women" | "Unisex" | undefined = undefined
   let badge: string | undefined = undefined
 
   const shapeKeywords = ["square", "cat-eye", "cateye", "round", "aviator", "geometric", "oval", "d-frame", "panto", "hexagon"]
-  const materialKeywords = ["acetate", "metal", "titanium", "gold", "crystal", "bio-acetate"]
+  const materialKeywords = ["acetate", "metal", "titanium", "gold", "crystal", "bio-acetate", "steel"]
 
-  for (const tag of tags) {
-    const t = tag.toLowerCase()
+  const allTokens = [...tags, ...extraContext.toLowerCase().split(/[\s,\-_/]+/)]
+
+  for (const token of allTokens) {
+    const t = token.toLowerCase().trim()
+    if (!t) continue
+
     if (t.includes("sunglass")) type = "Sunglasses"
-    if (t.includes("optical")) type = "Optical"
-    if (t.includes("new") || t.includes("bestseller") || t.includes("exclusive")) {
-      badge = tag.toUpperCase()
+    if (t.includes("eyeglasses") || t.includes("optical") || t.includes("eyeglass") || t.includes("glasses")) type = "Eyeglasses"
+    if (t === "women" || t === "female" || t === "woman" || t === "womens") gender = "Women"
+    else if (t === "men" || t === "male" || t === "man" || t === "mens") gender = "Men"
+    else if (t === "unisex") gender = "Unisex"
+
+    if (t === "new" || t.includes("bestseller") || t.includes("exclusive")) {
+      badge = token.toUpperCase()
     }
     for (const s of shapeKeywords) {
-      if (t.includes(s)) shape = s
+      if (t.includes(s) && !shape) shape = s
     }
     for (const m of materialKeywords) {
-      if (t.includes(m)) material = m
+      if (t.includes(m) && !material) {
+        if (m === "titanium" || m === "gold" || m === "metal" || m === "steel") material = "Metal"
+        else material = "Acetate"
+      }
     }
     if (t.includes("noir") || t.includes("black")) colorGroup = "monochrome"
     else if (t.includes("gold") || t.includes("champagne")) colorGroup = "gold"
@@ -42,7 +54,7 @@ function extractTagsMetadata(tags: string[] = []) {
     else if (t.includes("tortoise") || t.includes("havana")) colorGroup = "tortoiseshell"
   }
 
-  return { shape, material, colorGroup, type, badge }
+  return { shape, material, colorGroup, type, gender, badge }
 }
 
 export function shopifyProductToCard(node: any, index = 0): ProductCard {
@@ -59,7 +71,8 @@ export function shopifyProductToCard(node: any, index = 0): ProductCard {
   }
 
   const tags = Array.isArray(node.tags) ? node.tags : []
-  const { shape, material, colorGroup, type: tagType, badge: tagBadge } = extractTagsMetadata(tags)
+  const textContext = `${node.title || ""} ${node.productType || ""} ${node.description || ""} ${node.vendor || ""}`
+  const { shape, material, colorGroup, type: tagType, gender: tagGender, badge: tagBadge } = extractTagsMetadata(tags, textContext)
 
   // Direct Shopify Images
   const shopifyImages: string[] = []
@@ -89,12 +102,12 @@ export function shopifyProductToCard(node: any, index = 0): ProductCard {
   const priceVal = node.priceRange?.minVariantPrice?.amount || node.price || (node.variants?.nodes?.[0]?.price?.amount) || "4500"
   const currency = node.priceRange?.minVariantPrice?.currencyCode || node.currencyCode || "INR"
   const formattedPrice = formatMoney(priceVal, currency)
-  const productType = (node.productType || tagType || (tags.some((t: string) => t.toLowerCase().includes("sunglass")) ? "Sunglasses" : "Optical")) as "Sunglasses" | "Optical"
+  const productType = (node.productType?.toLowerCase().includes("sunglass") ? "Sunglasses" : tagType || (tags.some((t: string) => t.toLowerCase().includes("sunglass")) ? "Sunglasses" : "Eyeglasses")) as "Sunglasses" | "Eyeglasses"
 
   const collectionHandles = (Array.isArray(node.collections) ? node.collections : (node.collections?.nodes || [])).map((c: any) => (c.handle || c.title || "").toLowerCase())
   let category = ""
   if (collectionHandles.some((h: string) => h.includes("noir") || h.includes("noyer")) || tags.some((t: string) => t.toLowerCase().includes("noir") || t.toLowerCase().includes("noyer"))) {
-    category = "Noyer"
+    category = "Noir"
   } else if (collectionHandles.some((h: string) => h.includes("crystal")) || tags.some((t: string) => t.toLowerCase().includes("crystal"))) {
     category = "Crystal"
   } else if (collectionHandles.some((h: string) => h.includes("atelier")) || tags.some((t: string) => t.toLowerCase().includes("atelier") || t.toLowerCase().includes("geometric") || t.toLowerCase().includes("metal"))) {
@@ -119,6 +132,7 @@ export function shopifyProductToCard(node: any, index = 0): ProductCard {
     badge: tagBadge || (index === 0 ? "NEW DROP" : undefined),
     category,
     type: productType,
+    gender: tagGender,
     shape: shape || "Classic",
     material: material || "Acetate",
     colorGroup: colorGroup || "Monochrome",

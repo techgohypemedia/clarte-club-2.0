@@ -108,18 +108,57 @@ export function ProductGallery({
             </div>
           ))}
         </div>
-        {/* Pagination indicator dots */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/10 px-2.5 py-1 rounded-full backdrop-blur-sm">
-          {images.map((_, index) => (
-            <div
-              key={index}
-              className={cn(
-                "size-1.5 rounded-full transition-all duration-200",
-                index === activeImageIndex ? "bg-white w-3" : "bg-white/40"
-              )}
-            />
-          ))}
-        </div>
+        {/* Pagination indicator dots - Max 4 visible, sliding window */}
+        {images.length > 1 ? (() => {
+          const maxVisible = 4
+          const total = images.length
+          const windowStart = total > maxVisible
+            ? Math.min(Math.max(0, activeImageIndex - 2), total - maxVisible)
+            : 0
+          const visibleCount = Math.min(total, maxVisible)
+          const viewportWidth = visibleCount * 8 + (visibleCount - 1) * 4
+
+          return (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center z-10 px-1.5 py-0.5 rounded-full bg-white/85 backdrop-blur-md border border-black/10 shadow-[0_1px_3px_rgba(0,0,0,0.08)] select-none">
+              <div
+                className="overflow-hidden flex items-center"
+                style={{ width: `${viewportWidth}px` }}
+              >
+                <div
+                  className="flex items-center gap-1 transition-transform duration-300 ease-out shrink-0"
+                  style={{ transform: `translateX(-${windowStart * 12}px)` }}
+                >
+                  {images.map((_, index) => {
+                    const isEdgeLeft = total > maxVisible && index === windowStart && windowStart > 0
+                    const isEdgeRight = total > maxVisible && index === windowStart + maxVisible - 1 && windowStart < total - maxVisible
+                    const isShrunk = (isEdgeLeft || isEdgeRight) && index !== activeImageIndex
+
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        aria-label={`Go to image ${index + 1}`}
+                        onClick={() => setActiveImageIndex(index)}
+                        className="flex size-2 shrink-0 items-center justify-center cursor-pointer"
+                      >
+                        <span
+                          className={cn(
+                            "rounded-full transition-all duration-300",
+                            index === activeImageIndex
+                              ? "size-1.5 bg-[#18181b] scale-110 shadow-xs"
+                              : isShrunk
+                              ? "size-1 bg-[#18181b]/20 scale-75"
+                              : "size-1 bg-[#18181b]/35 hover:bg-[#18181b]/70"
+                          )}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )
+        })() : null}
       </div>
 
       {/* Desktop Main Image View (Hides on mobile/tablet) */}

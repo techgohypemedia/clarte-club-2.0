@@ -58,7 +58,7 @@ export function CollectionFilters({
   const types = [
     { value: null, label: "Type: All" },
     { value: "Sunglasses", label: "Sunglasses" },
-    { value: "Optical", label: "Optical" },
+    { value: "Eyeglasses", label: "Eyeglasses" },
   ]
 
   const shapes = [
