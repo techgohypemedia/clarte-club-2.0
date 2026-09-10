@@ -4,26 +4,37 @@ import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function CinematicPreloader() {
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
+    // 1. Completely disable on mobile devices (< 768px)
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      return
+    }
+
+    // 2. Only show on the first visit (prevent showing on every refresh)
+    try {
+      const hasSeen = sessionStorage.getItem("clarte_preloader_seen")
+      if (hasSeen) {
+        return
+      }
+      sessionStorage.setItem("clarte_preloader_seen", "true")
+    } catch {
+      // Storage access fallback
+    }
+
+    // Only set loading to true for first desktop visit
+    setIsLoading(true)
+
     // Lock scroll during preloader
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Attempt video playback immediately
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0
-      videoRef.current.play().catch(() => {
-        // Autoplay policy fallback: dismiss smoothly if blocked
-        setTimeout(() => setIsLoading(false), 1200)
-      })
-    }
-
-    // Fallback timer: ensure the preloader always dismisses within 3.5s max
+    // Fallback timer: ensure preloader dismisses within 3.5s max
     const maxTimer = setTimeout(() => {
       setIsLoading(false)
+      document.body.style.overflow = prevOverflow
     }, 3500)
 
     return () => {
@@ -32,8 +43,19 @@ export function CinematicPreloader() {
     }
   }, [])
 
+  // Start video playback when isLoading activates
+  useEffect(() => {
+    if (isLoading && videoRef.current) {
+      videoRef.current.currentTime = 0
+      videoRef.current.play().catch(() => {
+        setTimeout(() => setIsLoading(false), 1200)
+      })
+    }
+  }, [isLoading])
+
   const handleFinish = () => {
     setIsLoading(false)
+    document.body.style.overflow = ""
   }
 
   return (
@@ -47,7 +69,7 @@ export function CinematicPreloader() {
           onAnimationComplete={() => {
             document.body.style.overflow = ""
           }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
+          className="hidden md:flex fixed inset-0 z-[999999] items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
         >
           <div className="relative size-full w-full h-full flex items-center justify-center p-0 m-0 overflow-hidden">
             <video
@@ -77,3 +99,4 @@ export function CinematicPreloader() {
     </AnimatePresence>
   )
 }
+
