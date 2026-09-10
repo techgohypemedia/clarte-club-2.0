@@ -1,20 +1,27 @@
 "use client"
 
-import type { ProductImage } from "@/components/product/productData"
+import type { ProductImage, ProductHighlightItem } from "@/components/product/productData"
 
 type ProductHighlightsProps = {
   productTitle?: string
   gallery?: ProductImage[]
+  highlights?: ProductHighlightItem[]
 }
 
-export function ProductHighlights({ productTitle = "Signature Frame", gallery = [] }: ProductHighlightsProps) {
-  // Use gallery images or curated fallback imagery matching macro eyewear craftsmanship
-  const img1 = gallery[0]?.src || "/images/products/product13.png"
-  const img2 = gallery[1]?.src || "/images/products/product7.png"
-  const img3 = gallery[2]?.src || "/images/products/product4.png"
-  const img4 = gallery[3]?.src || gallery[0]?.src || "/images/products/product2.png"
+export function ProductHighlights({
+  productTitle = "Signature Frame",
+  gallery = [],
+  highlights = [],
+}: ProductHighlightsProps) {
+  // Strategy: Take the last 4 pictures in sequence from Shopify product media
+  const highlightImages = gallery.length >= 4 ? gallery.slice(-4) : gallery
 
-  const highlightRows = [
+  const img1 = highlightImages[0]?.src || "/images/products/product13.png"
+  const img2 = highlightImages[1]?.src || "/images/products/product7.png"
+  const img3 = highlightImages[2]?.src || "/images/products/product4.png"
+  const img4 = highlightImages[3]?.src || highlightImages[0]?.src || "/images/products/product2.png"
+
+  const defaultRows = [
     {
       id: "row-1",
       imagePosition: "left" as const,
@@ -56,6 +63,19 @@ export function ProductHighlights({ productTitle = "Signature Frame", gallery = 
       imageAlt: `${productTitle} - Refined Craftsmanship Sculpted Bridge`,
     },
   ]
+
+  // If custom metafield highlights exist in Shopify, merge them; otherwise use curated defaults
+  const highlightRows = defaultRows.map((defRow, index) => {
+    const custom = highlights?.[index]
+    return {
+      ...defRow,
+      eyebrow: custom?.eyebrow || defRow.eyebrow,
+      title: custom?.title || defRow.title,
+      description: custom?.description || defRow.description,
+      imageSrc: custom?.imageSrc || defRow.imageSrc,
+      imageAlt: custom?.imageAlt || defRow.imageAlt,
+    }
+  })
 
   return (
     <section className="w-full bg-[#fcfbfa] border-t border-black/10 text-[#0F0F10]">

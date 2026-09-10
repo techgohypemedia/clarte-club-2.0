@@ -37,6 +37,14 @@ export type ProductCard = {
   colorGroup?: string
 }
 
+export type ProductHighlightItem = {
+  eyebrow?: string
+  title: string
+  description: string
+  imageSrc?: string
+  imageAlt?: string
+}
+
 export type ProductDetail = {
   id?: string
   merchandiseId?: string
@@ -61,6 +69,7 @@ export type ProductDetail = {
   gallery: ProductImage[]
   deliveryPerks: DeliveryPerk[]
   completeLook: ProductImage[]
+  highlights?: ProductHighlightItem[]
 }
 
 export const trendingProducts: ProductCard[] = []

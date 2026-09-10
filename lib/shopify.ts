@@ -736,7 +736,10 @@ const ALL_PRODUCTS_QUERY = `#graphql
           { namespace: "custom", key: "shipping" },
           { namespace: "custom", key: "details_and_care" },
           { namespace: "custom", key: "details_care" },
-          { namespace: "custom", key: "care" }
+          { namespace: "custom", key: "care" },
+          { namespace: "custom", key: "highlights" },
+          { namespace: "custom", key: "product_highlights" },
+          { namespace: "custom", key: "highlights_json" }
         ]) {
           key
           namespace
@@ -858,7 +861,7 @@ export async function fetchProductByHandle(handle: string) {
       descriptionHtml
 
       featuredImage { url altText }
-      images(first: 10) { nodes { url altText } }
+      images(first: 25) { nodes { url altText } }
       media(first: 6, sortKey: POSITION) {
         nodes {
           __typename
@@ -981,7 +984,10 @@ export async function fetchProductByHandle(handle: string) {
         { namespace: "custom", key: "origin" },
         { namespace: "info", key: "origin" },
         { namespace: "global", key: "origin" },
-        { namespace: "theme", key: "origin" }
+        { namespace: "theme", key: "origin" },
+        { namespace: "custom", key: "highlights" },
+        { namespace: "custom", key: "product_highlights" },
+        { namespace: "custom", key: "highlights_json" }
       ]) {
         key
         namespace

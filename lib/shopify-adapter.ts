@@ -353,6 +353,32 @@ export function shopifyProductToDetail(node: any): ProductDetail {
   const careNotes = parseMetafieldNotes(rawCareValue, defaultCareNotes)
   const shippingNotes = parseMetafieldNotes(rawShippingValue, defaultShippingNotes)
 
+  // Dynamic Shopify Metafields extraction for Product Highlights
+  const rawHighlightsValue = getMetafieldValue(
+    node,
+    "highlights",
+    "product_highlights",
+    "highlights_json"
+  )
+
+  let highlights: any = undefined
+  if (rawHighlightsValue) {
+    try {
+      const parsed = typeof rawHighlightsValue === "string" ? JSON.parse(rawHighlightsValue) : rawHighlightsValue
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        highlights = parsed.map((item: any) => ({
+          eyebrow: item.eyebrow || item.badge || item.subtitle || "",
+          title: item.title || item.heading || item.name || "",
+          description: item.description || item.desc || item.body || "",
+          imageSrc: item.imageSrc || item.image || item.img || "",
+          imageAlt: item.imageAlt || item.alt || "",
+        }))
+      }
+    } catch (e) {
+      console.warn("Failed to parse custom.highlights JSON metafield:", e)
+    }
+  }
+
   return {
     id: node?.id || "product-detail",
     merchandiseId: firstVariantId,
@@ -386,6 +412,7 @@ export function shopifyProductToDetail(node: any): ProductDetail {
       { label: "Tracked shipping", detail: "Live updates", icon: "card" },
     ],
     completeLook: gallery.slice(0, 3),
+    highlights,
   }
 }
 
