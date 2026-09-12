@@ -1,18 +1,19 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
-
-
-
+import Link from "next/link"
+import { motion } from "framer-motion"
 import SimpleMarquee from "@/components/fancy/blocks/simple-marquee"
 
-type LookbookSlide = {
+export type LookbookSlide = {
   id: string
   image: string
   alt: string
-  username: string
-  caption: string
-  time: string
+  username?: string
+  caption?: string
+  time?: string
+  link?: string
   imagePos?: string
 }
 
@@ -34,12 +35,10 @@ const track2: LookbookSlide[] = [
   { id: "t2-6", image: "/images/products/product12.png",      alt: "Style with Clarté frames", username: "street_style", caption: "Loving my new shades from @clarteclub", time: "18 hours ago", imagePos: "center 22%" },
 ]
 
-
-
 function SocialCard({ slide }: { slide: LookbookSlide }) {
-  return (
+  const card = (
     <article
-      className="group relative mx-2 h-[370px] w-[210px] shrink-0 overflow-hidden rounded-xl bg-zinc-950"
+      className="group relative mx-2 h-[370px] w-[210px] shrink-0 overflow-hidden rounded-xl bg-zinc-950 cursor-pointer"
     >
       <Image
         src={slide.image}
@@ -49,19 +48,50 @@ function SocialCard({ slide }: { slide: LookbookSlide }) {
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         style={{ objectPosition: slide.imagePos ?? "center" }}
       />
-
     </article>
   )
+
+  if (slide.link) {
+    return (
+      <Link href={slide.link} className="block shrink-0">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }
 
 export function LookbookCarousel() {
+  const [slides1, setSlides1] = useState<LookbookSlide[]>(track1)
+  const [slides2, setSlides2] = useState<LookbookSlide[]>(track2)
+
+  useEffect(() => {
+    import("@/lib/shopify-adapter").then(({ getShopifyLookbook }) => {
+      getShopifyLookbook().then((res) => {
+        if (res.track1 && res.track1.length > 0) {
+          setSlides1(res.track1)
+        }
+        if (res.track2 && res.track2.length > 0) {
+          setSlides2(res.track2)
+        }
+      })
+    })
+  }, [])
+
   return (
     <section
       className="w-full overflow-hidden py-12 md:py-16"
       style={{ background: "#0F0F10" }}
     >
       {/* Heading */}
-      <div className="mb-10 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="mb-10 text-center"
+      >
         <p
           className="mb-2 uppercase"
           style={{ fontSize: "0.5rem", letterSpacing: "0.32em", color: "#8A8072" }}
@@ -75,43 +105,51 @@ export function LookbookCarousel() {
           className="mx-auto mt-3"
           style={{ width: "32px", height: "1px", background: "#C9B07A" }}
         />
-      </div>
+      </motion.div>
 
-      {/* Row 1 — scrolls LEFT */}
-      <SimpleMarquee
-        direction="left"
-        baseVelocity={20}
-        slowdownOnHover
-        slowDownFactor={0}
-        useScrollVelocity={false}
-        scrollAwareDirection={false}
-        scrollSpringConfig={{ damping: 40, stiffness: 200 }}
-        repeat={4}
-        className="overflow-hidden"
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-30px" }}
+        transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
       >
-        {track1.map((slide) => (
-          <SocialCard key={slide.id} slide={slide} />
-        ))}
-      </SimpleMarquee>
+        {/* Row 1 — scrolls LEFT */}
+        <SimpleMarquee
+          direction="left"
+          baseVelocity={20}
+          slowdownOnHover
+          slowDownFactor={0}
+          useScrollVelocity={false}
+          scrollAwareDirection={false}
+          scrollSpringConfig={{ damping: 40, stiffness: 200 }}
+          repeat={4}
+          className="overflow-hidden"
+        >
+          {slides1.map((slide) => (
+            <SocialCard key={slide.id} slide={slide} />
+          ))}
+        </SimpleMarquee>
 
-      <div className="mt-3" />
+        <div className="mt-3" />
 
-      {/* Row 2 — scrolls RIGHT */}
-      <SimpleMarquee
-        direction="right"
-        baseVelocity={16}
-        slowdownOnHover
-        slowDownFactor={0}
-        useScrollVelocity={false}
-        scrollAwareDirection={false}
-        scrollSpringConfig={{ damping: 40, stiffness: 200 }}
-        repeat={4}
-        className="overflow-hidden"
-      >
-        {track2.map((slide) => (
-          <SocialCard key={slide.id} slide={slide} />
-        ))}
-      </SimpleMarquee>
+        {/* Row 2 — scrolls RIGHT */}
+        <SimpleMarquee
+          direction="right"
+          baseVelocity={16}
+          slowdownOnHover
+          slowDownFactor={0}
+          useScrollVelocity={false}
+          scrollAwareDirection={false}
+          scrollSpringConfig={{ damping: 40, stiffness: 200 }}
+          repeat={4}
+          className="overflow-hidden"
+        >
+          {slides2.map((slide) => (
+            <SocialCard key={slide.id} slide={slide} />
+          ))}
+        </SimpleMarquee>
+      </motion.div>
     </section>
   )
 }
+

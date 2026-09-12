@@ -11,6 +11,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 type DenimSlide = {
   title: string
@@ -145,7 +146,13 @@ export function DenimCarousel() {
   }, [api, current])
 
   return (
-    <section className="w-full bg-white pb-16 pt-10 text-black md:pb-20">
+    <motion.section
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full bg-white pb-16 pt-10 text-black md:pb-20"
+    >
       <div className="relative w-full">
         <Carousel
           setApi={setApi}
@@ -201,7 +208,7 @@ export function DenimCarousel() {
           </div>
         )}
       </div>
-    </section>
+    </motion.section>
   )
 }
 

@@ -287,8 +287,8 @@ export default function CartPage() {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3 gap-y-4 sm:gap-y-6">
-              {recommendedProducts.map((product) => (
-                <ProductCardView key={product.id} product={product} />
+              {recommendedProducts.map((product, idx) => (
+                <ProductCardView key={product.id} product={product} index={idx} />
               ))}
             </div>
           </div>

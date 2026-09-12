@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel"
 import { ProductCardView } from "@/components/home/TrendingSection"
 import type { ProductCard } from "@/components/product/productData"
+import { motion } from "framer-motion"
 
 export const curatedEditsProducts: ProductCard[] = [
   {
@@ -184,7 +185,13 @@ export function EditsCarousel() {
       className="w-full bg-[#0F0F10] px-4 pt-14 pb-12 sm:px-6 lg:px-8 md:pt-16 md:pb-16 text-white"
     >
       {/* Section header with Prev/Next Controls */}
-      <div className="mb-8 flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="mb-8 flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start"
+      >
         <div className="flex flex-col items-center sm:items-start">
           <p className="text-[10px] uppercase font-semibold tracking-[0.25em] text-[#C9B07A] mb-1">
             Curated Selections
@@ -216,7 +223,7 @@ export function EditsCarousel() {
             <ArrowRight className="size-4 stroke-[1.8]" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       <Carousel
         setApi={setApi}
@@ -228,26 +235,32 @@ export function EditsCarousel() {
         aria-label="Curated Edits product carousel"
       >
         <CarouselContent className="-ml-3 sm:-ml-4">
-          {products.map((product) => (
+          {products.map((product, idx) => (
             <CarouselItem
               key={product.id}
               className="pl-3 sm:pl-4 basis-[74%] sm:basis-[48%] md:basis-[36%] lg:basis-[25%]"
             >
-              <ProductCardView product={product} theme="dark" />
+              <ProductCardView product={product} theme="dark" index={idx} />
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
 
       {/* Bottom CTA to view full curated collection */}
-      <div className="mt-10 flex justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-10 flex justify-center"
+      >
         <Link
           href="/collections?category=edits"
           className="inline-flex h-9 items-center justify-center border border-white/30 text-white px-6 text-[0.6875rem] uppercase tracking-[0.14em] transition-colors hover:bg-white hover:text-black hover:border-white font-medium cursor-pointer"
         >
           Explore All Curations
         </Link>
-      </div>
+      </motion.div>
     </section>
   )
 }

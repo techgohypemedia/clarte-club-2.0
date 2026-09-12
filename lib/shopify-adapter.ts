@@ -438,10 +438,19 @@ export function shopifyProductToDetail(node: any): ProductDetail {
 
 export async function getShopifyProducts(limit = 50): Promise<ProductCard[]> {
   try {
-    const products = await fetchAllProducts(limit)
+    // Fetch with extra headroom so non-catalog utility items (e.g. as-seen-on, lookbook, stories)
+    // do not diminish the requested count of actual catalog products.
+    const fetchLimit = Math.max((limit || 8) + 10, 50)
+    const products = await fetchAllProducts(fetchLimit)
     if (products && products.length > 0) {
-      console.log(`🛍️ [Shopify API] Successfully loaded ${products.length} live products from shapar-ay.myshopify.com`)
-      return products.map((p: any, i: number) => shopifyProductToCard(p, i))
+      // Filter out utility lookbook and container products
+      const catalogProducts = products.filter((p: any) => {
+        const h = (p.handle || "").toLowerCase()
+        return h !== "as-seen-on" && h !== "lookbook" && !h.startsWith("story-")
+      })
+      const finalProducts = limit ? catalogProducts.slice(0, limit) : catalogProducts
+      console.log(`🛍️ [Shopify API] Successfully loaded ${finalProducts.length} live products from shapar-ay.myshopify.com`)
+      return finalProducts.map((p: any, i: number) => shopifyProductToCard(p, i))
     }
   } catch (error) {
     console.warn("❌ [Shopify API] Failed to fetch products from Shopify API:", error)
@@ -612,4 +621,88 @@ export async function getShopifyStories(): Promise<ShopifyStoryItem[]> {
   }
   return []
 }
+
+export type LookbookSlideItem = {
+  id: string
+  image: string
+  alt: string
+  username?: string
+  caption?: string
+  time?: string
+  link?: string
+  imagePos?: string
+}
+
+export async function getShopifyLookbook(): Promise<{ track1: LookbookSlideItem[]; track2: LookbookSlideItem[] }> {
+  try {
+    let images: { url: string; alt?: string; link?: string }[] = []
+
+    // 1. Try single dedicated product 'as-seen-on' or 'lookbook' (allows uploading all photos to 1 product in Shopify)
+    const lookbookProduct = (await fetchProductByHandle("as-seen-on")) || (await fetchProductByHandle("lookbook"))
+    if (lookbookProduct && lookbookProduct.images && lookbookProduct.images.length > 0) {
+      console.log(`📸 [Shopify API] Found 'as-seen-on' product with ${lookbookProduct.images.length} images`)
+      images = lookbookProduct.images.map((img: any) => ({
+        url: img.url,
+        alt: img.altText || "Style with Clarté frames",
+      }))
+    }
+
+    // 2. If not found, try collection 'as-seen-on' or 'lookbook'
+    if (images.length === 0) {
+      const collection = (await fetchCollectionByHandle("as-seen-on", 24)) || (await fetchCollectionByHandle("lookbook", 24))
+      if (collection?.products && collection.products.length > 0) {
+        console.log(`📸 [Shopify API] Found 'as-seen-on' collection with ${collection.products.length} products`)
+        collection.products.forEach((p: any) => {
+          // Gather lifestyle/model shots (prefer image 1 or 0)
+          if (p.images && p.images.length > 1) {
+            images.push({
+              url: p.images[1]?.url || p.images[0]?.url,
+              alt: p.title || "Style with Clarté frames",
+              link: `/product/${p.handle}`,
+            })
+          } else if (p.featuredImage?.url) {
+            images.push({
+              url: p.featuredImage.url,
+              alt: p.title || "Style with Clarté frames",
+              link: `/product/${p.handle}`,
+            })
+          }
+        })
+      }
+    }
+
+    if (images.length > 0) {
+      const t1: LookbookSlideItem[] = []
+      const t2: LookbookSlideItem[] = []
+
+      images.forEach((img, idx) => {
+        const slide: LookbookSlideItem = {
+          id: `shopify-lb-${idx + 1}`,
+          image: img.url,
+          alt: img.alt || "Style with Clarté frames",
+          username: "street_style",
+          caption: "Loving my new shades from @clarteclub",
+          time: `${(idx % 12) + 1} hours ago`,
+          link: img.link,
+          imagePos: "center 20%",
+        }
+        if (idx % 2 === 0) {
+          t1.push(slide)
+        } else {
+          t2.push(slide)
+        }
+      })
+
+      return {
+        track1: t1.length > 0 ? t1 : t2,
+        track2: t2.length > 0 ? t2 : t1,
+      }
+    }
+  } catch (error) {
+    console.warn("❌ [Shopify API] Failed to fetch lookbook images:", error)
+  }
+
+  return { track1: [], track2: [] }
+}
+
 

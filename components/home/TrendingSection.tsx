@@ -12,6 +12,7 @@ import {
   type ProductCard,
 } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
+import { motion } from "framer-motion"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
 
@@ -19,10 +20,12 @@ export function ProductCardView({
   product,
   expanded = false,
   theme = "light",
+  index = 0,
 }: {
   product: ProductCard
   expanded?: boolean
   theme?: "light" | "dark"
+  index?: number
 }) {
   const isDark = theme === "dark"
   const gallery = product.gallery && product.gallery.length > 0 
@@ -139,7 +142,17 @@ export function ProductCardView({
   const productHref = product.href || (product.handle ? `/product/${product.handle}` : (product.id ? `/product/${product.id}` : "/products"))
 
   return (
-    <article className="group relative flex flex-col w-full cursor-pointer">
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: 0.55,
+        delay: (index % 4) * 0.08,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className="group relative flex flex-col w-full cursor-pointer"
+    >
       {/* ── 1. Image Container (Bluorng 3/4 Portrait Aspect Ratio with Smart Top Framing) ── */}
       <div
         className={`relative aspect-[3/4] w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs touch-pan-y ${
@@ -403,7 +416,7 @@ export function ProductCardView({
         gallery={gallery}
         initialImageIndex={activeImageIndex}
       />
-    </article>
+    </motion.article>
   )
 }
 
@@ -426,7 +439,13 @@ export function TrendingSection() {
 
   return (
     <section id="new-drops" className="w-full bg-white px-2 sm:px-4 lg:px-6 pt-12 pb-4 text-black md:pt-16 md:pb-6">
-      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start px-0.5">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start px-0.5"
+      >
         <div className="flex flex-col items-center sm:items-start">
           <p className="text-[10px] uppercase font-semibold tracking-[0.25em] text-[#C9B07A] mb-1">
             Fresh Arrivals
@@ -435,22 +454,43 @@ export function TrendingSection() {
             New Drops
           </h2>
         </div>
-      </div>
+      </motion.div>
 
       <div className="mt-5 sm:mt-7 grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
-        {products.map((product) => (
-          <ProductCardView key={product.id} product={product} />
-        ))}
+        {products.length === 0 ? (
+          Array.from({ length: 8 }).map((_, idx) => (
+            <div
+              key={`skeleton-${idx}`}
+              className="flex flex-col w-full animate-pulse"
+            >
+              <div className="relative aspect-[3/4] w-full rounded-[12px] sm:rounded-[14px] bg-neutral-100 border border-black/5" />
+              <div className="mt-2.5 space-y-1.5 px-0.5">
+                <div className="h-3.5 bg-neutral-100 rounded-sm w-3/4" />
+                <div className="h-3 bg-neutral-100 rounded-sm w-1/3" />
+              </div>
+            </div>
+          ))
+        ) : (
+          products.map((product, idx) => (
+            <ProductCardView key={product.id} product={product} index={idx} />
+          ))
+        )}
       </div>
 
-      <div className="mt-6 flex justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-6 flex justify-center"
+      >
         <Link
           href="/collections"
           className="inline-flex h-9 items-center justify-center border border-black px-5 text-[0.6875rem] uppercase tracking-[0.12em] transition-colors hover:bg-black hover:text-white font-medium"
         >
           View All Drops
         </Link>
-      </div>
+      </motion.div>
     </section>
   )
 }

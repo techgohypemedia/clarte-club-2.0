@@ -133,7 +133,7 @@ export function CollectionGrid({
   return (
     <motion.div layout className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
       <AnimatePresence mode="popLayout">
-        {sortedProducts.map((product) => (
+        {sortedProducts.map((product, idx) => (
           <motion.div
             layout
             key={product.id}
@@ -142,10 +142,11 @@ export function CollectionGrid({
             exit={{ opacity: 0, scale: 0.97, y: -16 }}
             transition={{
               duration: 0.45,
+              delay: (idx % 4) * 0.05,
               ease: [0.16, 1, 0.3, 1], // easeOutExpo
             }}
           >
-            <ProductCardView product={product} />
+            <ProductCardView product={product} index={idx} />
           </motion.div>
         ))}
       </AnimatePresence>

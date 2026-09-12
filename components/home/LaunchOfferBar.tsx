@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 import { LaunchOfferCountdown } from "@/components/home/LaunchOfferCountdown"
 import { getServerTimestamp } from "@/lib/server-time"
@@ -13,7 +16,11 @@ export function LaunchOfferBar({ className }: { className?: string }) {
   const launchDeadline = FIXED_DEADLINE > initialNow ? FIXED_DEADLINE : initialNow + (6 * 86400 + 14 * 3600 + 45 * 60) * 1000
 
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className={cn("relative w-full overflow-hidden", className)}
       style={!className ? {
         background: "linear-gradient(90deg, #0a0a0b 0%, #141415 50%, #0a0a0b 100%)",
@@ -102,6 +109,6 @@ export function LaunchOfferBar({ className }: { className?: string }) {
           </Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

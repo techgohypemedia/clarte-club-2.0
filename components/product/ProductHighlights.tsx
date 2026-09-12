@@ -1,5 +1,6 @@
 "use client"
 
+import { motion } from "framer-motion"
 import type { ProductImage, ProductHighlightItem } from "@/components/product/productData"
 
 type ProductHighlightsProps = {
@@ -80,7 +81,13 @@ export function ProductHighlights({
   return (
     <section className="w-full bg-white border-t border-black/10 text-[#0F0F10]">
       {/* Editorial Section Header */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12 text-center space-y-1.5 sm:space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12 text-center space-y-1.5 sm:space-y-2"
+      >
         <p className="text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-[#C9B07A]">
           CRAFTSMANSHIP &amp; ARCHITECTURE
         </p>
@@ -88,7 +95,7 @@ export function ProductHighlights({
           Product Highlights
         </h2>
         <div className="mx-auto h-[1px] w-12 bg-black/15 mt-2 sm:mt-3" />
-      </div>
+      </motion.div>
 
       {/* 4 Alternating Feature Rows: Side-by-Side 2-Column on Mobile & Desktop */}
       <div className="w-full border-t border-b border-black/10 max-w-[1440px] mx-auto">
@@ -97,8 +104,12 @@ export function ProductHighlights({
           const isNotLast = index < highlightRows.length - 1
 
           return (
-            <div
+            <motion.div
               key={row.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className={`grid grid-cols-2 items-center ${
                 isNotLast ? "border-b border-black/10" : ""
               }`}
@@ -172,7 +183,7 @@ export function ProductHighlights({
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )
         })}
       </div>
