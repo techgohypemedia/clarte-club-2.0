@@ -2,18 +2,39 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 
 import { LaunchOfferCountdown } from "@/components/home/LaunchOfferCountdown"
 import { getServerTimestamp } from "@/lib/server-time"
 
 import { cn } from "@/lib/utils"
 
-// Target deadline set into the future (with dynamic fallback so it never stays stuck at 00:00:00:00)
-const FIXED_DEADLINE = Date.parse("2026-09-15T23:59:59Z")
+// Launch date: 30th of September 2026
+const LAUNCH_DATE = new Date("2026-09-30T23:59:59+05:30").getTime()
 
 export function LaunchOfferBar({ className }: { className?: string }) {
   const initialNow = getServerTimestamp()
-  const launchDeadline = FIXED_DEADLINE > initialNow ? FIXED_DEADLINE : initialNow + (6 * 86400 + 14 * 3600 + 45 * 60) * 1000
+  const [isExpired, setIsExpired] = useState(() => initialNow >= LAUNCH_DATE)
+
+  useEffect(() => {
+    if (Date.now() >= LAUNCH_DATE) {
+      setIsExpired(true)
+      return
+    }
+
+    const timer = setInterval(() => {
+      if (Date.now() >= LAUNCH_DATE) {
+        setIsExpired(true)
+      }
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  // Once the launch date has passed, remove the countdown offer bar
+  if (isExpired) {
+    return null
+  }
 
   return (
     <motion.section
@@ -65,7 +86,7 @@ export function LaunchOfferBar({ className }: { className?: string }) {
           />
 
           <LaunchOfferCountdown
-            targetTimestamp={launchDeadline}
+            targetTimestamp={LAUNCH_DATE}
             initialNow={initialNow}
           />
 

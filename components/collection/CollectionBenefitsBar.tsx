@@ -7,7 +7,7 @@ const benefits = [
   {
     icon: ShoppingCart,
     title: "FREE SHIPPING",
-    description: "On orders over ₹2,900",
+    description: "Across India",
   },
   {
     icon: CornerUpLeft,
