@@ -153,9 +153,9 @@ export function ProductCardView({
       }}
       className="group relative flex flex-col w-full cursor-pointer"
     >
-      {/* ── 1. Image Container (Bluorng 3/4 Portrait Aspect Ratio with Smart Top Framing) ── */}
+      {/* ── 1. Image Container (1:1 Square Aspect Ratio - perfectly matches 1254x1254 Shopify images full without cropping) ── */}
       <div
-        className={`relative aspect-[3/4] w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs touch-pan-y ${
+        className={`relative aspect-square w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs touch-pan-y ${
           isDark ? "bg-[#18181b]" : "bg-white border border-black/5"
         }`}
         onTouchStart={handleTouchStart}
@@ -169,7 +169,7 @@ export function ProductCardView({
               alt={product.alt || product.name || "Product"}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover object-[center_top] transition-transform duration-500 ease-out group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#18181b]">
@@ -463,7 +463,7 @@ export function TrendingSection() {
               key={`skeleton-${idx}`}
               className="flex flex-col w-full animate-pulse"
             >
-              <div className="relative aspect-[3/4] w-full rounded-[12px] sm:rounded-[14px] bg-neutral-100 border border-black/5" />
+              <div className="relative aspect-square w-full rounded-[12px] sm:rounded-[14px] bg-neutral-100 border border-black/5" />
               <div className="mt-2.5 space-y-1.5 px-0.5">
                 <div className="h-3.5 bg-neutral-100 rounded-sm w-3/4" />
                 <div className="h-3 bg-neutral-100 rounded-sm w-1/3" />
