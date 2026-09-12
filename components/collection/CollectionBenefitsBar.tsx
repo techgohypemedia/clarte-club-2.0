@@ -25,7 +25,7 @@ export function CollectionBenefitsBar() {
   return (
     <section
       aria-label="Store benefits"
-      className="mt-20 -mx-4 bg-[#fcfbfa] px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-y border-black/10"
+      className="mt-20 -mx-4 bg-white px-4 py-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-y border-black/10"
     >
       <div className="mx-auto max-w-[1100px] border border-black/10 py-6 px-4 bg-white/60 rounded-lg shadow-sm">
         <ul className="grid grid-cols-3 divide-x divide-black/10">
@@ -36,7 +36,7 @@ export function CollectionBenefitsBar() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="flex flex-col items-center text-center gap-1.5 text-[#0F0F10] cursor-default w-full"
               >
-                <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-[#ebe8e1] shrink-0 border border-black/10">
+                <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-neutral-100 shrink-0 border border-black/10">
                   <Icon
                     aria-hidden="true"
                     className="size-4 sm:size-5 stroke-[1.8] text-[#0F0F10]"

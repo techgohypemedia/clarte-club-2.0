@@ -140,10 +140,10 @@ export function ProductCardView({
 
   return (
     <article className="group relative flex flex-col w-full cursor-pointer">
-      {/* ── 1. Image Container (4/5 Aspect Ratio + Tight rounded-[8px] Corners Matching Reference) ── */}
+      {/* ── 1. Image Container (Bluorng 3/4 Portrait Aspect Ratio with Smart Top Framing) ── */}
       <div
-        className={`relative aspect-[4/5] w-full overflow-hidden rounded-[8px] sm:rounded-[10px] select-none shadow-xs touch-pan-y ${
-          isDark ? "bg-[#18181b]" : "bg-[#F7F4EE]"
+        className={`relative aspect-[3/4] w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs touch-pan-y ${
+          isDark ? "bg-[#18181b]" : "bg-white border border-black/5"
         }`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -156,10 +156,10 @@ export function ProductCardView({
               alt={product.alt || product.name || "Product"}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+              className="object-cover object-[center_top] transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#F7F4EE] dark:bg-[#18181b]">
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#18181b]">
               <span className="font-heading text-[11px] sm:text-[13px] tracking-[0.22em] uppercase font-bold text-black/40 dark:text-white/40">
                 CLARTÉ CLUB
               </span>
@@ -180,26 +180,18 @@ export function ProductCardView({
           </span>
         ) : null}
 
-        {/* Top Right Wishlist Heart Icon Button */}
+        {/* Top Right Wishlist Heart Icon Button (White Filled Heart, No Background) */}
         <button
           type="button"
           aria-label="Add to wishlist"
           onClick={toggleWishlist}
-          className={`absolute right-2.5 top-2.5 z-10 flex size-7 sm:size-8 items-center justify-center rounded-[6px] shadow-xs border transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
-            isWishlisted
-              ? "bg-black text-[#C9B07A] border-[#C9B07A]"
-              : isDark
-              ? "bg-black/70 text-white border-white/10 hover:bg-black hover:text-white"
-              : "bg-white/85 text-neutral-800 border-black/10 hover:bg-white hover:text-black"
-          }`}
+          className="group/wish absolute right-2.5 top-2.5 sm:right-3 sm:top-3 z-10 flex size-7 sm:size-8 items-center justify-center bg-transparent border-0 shadow-none cursor-pointer transition-transform duration-200 hover:scale-115 active:scale-95"
         >
           <Heart
-            className={`size-3.5 sm:size-4 transition-colors duration-200 ${
+            className={`size-4 sm:size-4.5 transition-colors duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)] ${
               isWishlisted
                 ? "fill-[#C9B07A] text-[#C9B07A]"
-                : isDark
-                ? "fill-transparent text-white/90 stroke-[1.8]"
-                : "fill-white/80 text-black stroke-[1.8]"
+                : "fill-white text-white"
             }`}
           />
         </button>
@@ -215,9 +207,13 @@ export function ProductCardView({
                 e.preventDefault()
                 handlePreviousImage()
               }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-9 items-center justify-center rounded-full bg-white/75 text-black backdrop-blur-md opacity-0 -translate-x-3 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:bg-white hover:scale-110 active:scale-95 cursor-pointer shadow-sm border border-black/5"
+              className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 items-center justify-center rounded-full backdrop-blur-xs opacity-0 -translate-x-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
+                isDark
+                  ? "bg-black/40 hover:bg-black/70 text-white border-white/15"
+                  : "bg-white/50 hover:bg-white/85 text-black border-black/10"
+              }`}
             >
-              <ArrowLeft className="size-4 stroke-[1.8]" />
+              <ArrowLeft className="size-3.5 sm:size-4 stroke-[2]" />
             </button>
 
             <button
@@ -228,9 +224,13 @@ export function ProductCardView({
                 e.preventDefault()
                 handleNextImage()
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-9 items-center justify-center rounded-full bg-white/75 text-black backdrop-blur-md opacity-0 translate-x-3 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:bg-white hover:scale-110 active:scale-95 cursor-pointer shadow-sm border border-black/5"
+              className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 items-center justify-center rounded-full backdrop-blur-xs opacity-0 translate-x-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
+                isDark
+                  ? "bg-black/40 hover:bg-black/70 text-white border-white/15"
+                  : "bg-white/50 hover:bg-white/85 text-black border-black/10"
+              }`}
             >
-              <ArrowRight className="size-4 stroke-[1.8]" />
+              <ArrowRight className="size-3.5 sm:size-4 stroke-[2]" />
             </button>
           </>
         ) : null}
@@ -247,13 +247,7 @@ export function ProductCardView({
 
           return (
             <div className="absolute bottom-2.5 sm:bottom-3 inset-x-0 z-10 flex items-center justify-center pointer-events-auto select-none">
-              <div
-                className={`flex items-center px-1.5 py-0.5 rounded-full backdrop-blur-md transition-all ${
-                  isDark
-                    ? "bg-black/50 border border-white/15 shadow-[0_1px_3px_rgba(0,0,0,0.4)]"
-                    : "bg-white/85 border border-black/10 shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
-                }`}
-              >
+              <div className="flex items-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
                 <div
                   className="overflow-hidden flex items-center"
                   style={{ width: `${viewportWidth}px` }}
@@ -282,16 +276,10 @@ export function ProductCardView({
                           <span
                             className={`rounded-full transition-all duration-300 ${
                               idx === activeImageIndex
-                                ? isDark
-                                  ? "size-1.5 bg-white scale-110 shadow-xs"
-                                  : "size-1.5 bg-[#18181b] scale-110 shadow-xs"
+                                ? "size-1.5 bg-white scale-110 shadow-xs"
                                 : isShrunk
-                                ? isDark
-                                  ? "size-1 bg-white/25 scale-75"
-                                  : "size-1 bg-[#18181b]/20 scale-75"
-                                : isDark
-                                ? "size-1 bg-white/40 hover:bg-white/80"
-                                : "size-1 bg-[#18181b]/35 hover:bg-[#18181b]/70"
+                                ? "size-1 bg-white/35 scale-75"
+                                : "size-1 bg-white/50 hover:bg-white/90"
                             }`}
                           />
                         </button>
@@ -320,13 +308,13 @@ export function ProductCardView({
         </button>
       </div>
 
-      {/* ── 2. Content Details Below Image ── */}
+      {/* ── 2. Content Details Below Image (Bluorng Style) ── */}
       <div className="mt-2.5 flex items-center justify-between gap-2 px-0.5">
         <div className="min-w-0 flex-1">
           <Link href={productHref} className="block group/title">
             <h3
               className={`text-xs sm:text-[13px] font-semibold truncate transition-colors group-hover/title:text-[#C9B07A] ${
-                isDark ? "text-[#F6F2EA]" : "text-black"
+                isDark ? "text-white" : "text-black"
               }`}
             >
               {product.name ?? "Signature Frame"}
@@ -341,24 +329,24 @@ export function ProductCardView({
           </p>
         </div>
 
-        {/* Shopping Bag Cart Button */}
+        {/* Quick Add Plus Button (Bluorng Style) */}
         <button
           type="button"
           aria-label="Add to cart"
           onClick={handleAddToCart}
-          className={`flex shrink-0 items-center justify-center p-1.5 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+          className={`flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
             added
               ? "text-emerald-500"
               : isDark
-              ? "text-white/80 hover:text-[#C9B07A]"
-              : "text-black hover:text-[#C9B07A]"
+              ? "text-white/80 hover:text-white hover:bg-white/10"
+              : "text-black/60 hover:text-black hover:bg-black/5"
           }`}
           title="Add to Cart"
         >
           {added ? (
             <Check className="size-4 animate-in zoom-in-50 duration-200 text-emerald-500" />
           ) : (
-            <ShoppingBag className="size-4 stroke-[1.8]" />
+            <Plus className="size-4 stroke-[1.8]" />
           )}
         </button>
       </div>
@@ -437,8 +425,8 @@ export function TrendingSection() {
   }, [])
 
   return (
-    <section id="new-drops" className="w-full bg-white px-2.5 sm:px-6 lg:px-8 pt-12 pb-4 text-black md:pt-16 md:pb-4">
-      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start">
+    <section id="new-drops" className="w-full bg-white px-2 sm:px-4 lg:px-6 pt-12 pb-4 text-black md:pt-16 md:pb-6">
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start px-0.5">
         <div className="flex flex-col items-center sm:items-start">
           <p className="text-[10px] uppercase font-semibold tracking-[0.25em] text-[#C9B07A] mb-1">
             Fresh Arrivals
@@ -449,7 +437,7 @@ export function TrendingSection() {
         </div>
       </div>
 
-      <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
+      <div className="mt-5 sm:mt-7 grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
         {products.map((product) => (
           <ProductCardView key={product.id} product={product} />
         ))}

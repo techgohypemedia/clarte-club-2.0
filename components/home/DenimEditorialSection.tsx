@@ -18,7 +18,7 @@ function DenimPanel({
   sizes = "(max-width: 1023px) 100vw, 50vw",
 }: DenimPanelProps) {
   return (
-    <div className={cn("relative overflow-hidden bg-[#f3f0ea]", className)}>
+    <div className={cn("relative overflow-hidden bg-white", className)}>
       <Image
         src={src}
         alt={alt}
@@ -50,7 +50,7 @@ export function DenimEditorialSection() {
         />
       </div>
 
-      <div className="relative overflow-hidden bg-[#f3f0ea] aspect-[17/9] md:aspect-[20/9]">
+      <div className="relative overflow-hidden bg-white aspect-[17/9] md:aspect-[20/9]">
         <Image
           src="/images/products/product8.png"
           alt="Model reclining wearing custom Aviator sunglasses"

@@ -55,7 +55,7 @@ function DenimSlideCard({ slide }: { slide: DenimSlide }) {
   return (
     <Link
       href={`/collections?category=${slide.categorySlug}`}
-      className="group relative block h-[500px] w-full overflow-hidden bg-[#F6F2EA] sm:h-[580px] md:h-[640px] lg:h-[700px]"
+      className="group relative block h-[500px] w-full overflow-hidden bg-white sm:h-[580px] md:h-[640px] lg:h-[700px]"
     >
       <Image
         src={slide.image}
@@ -145,7 +145,7 @@ export function DenimCarousel() {
   }, [api, current])
 
   return (
-    <section className="w-full bg-[#F6F2EA] pb-16 pt-10 text-black md:pb-20">
+    <section className="w-full bg-white pb-16 pt-10 text-black md:pb-20">
       <div className="relative w-full">
         <Carousel
           setApi={setApi}

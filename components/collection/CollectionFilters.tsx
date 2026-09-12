@@ -115,7 +115,7 @@ export function CollectionFilters({
               setShapeOpen(false)
             }}
             className={cn(
-              "h-10 border border-black/15 bg-[#F6F2EA] pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[130px] relative rounded-none",
+              "h-10 border border-black/15 bg-white pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[130px] relative rounded-none",
               (typeOpen || selectedType) && "border-black bg-white"
             )}
           >
@@ -137,8 +137,8 @@ export function CollectionFilters({
                       setTypeOpen(false)
                     }}
                     className={cn(
-                      "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-[#F6F2EA] hover:text-black text-black cursor-pointer bg-white",
-                      selectedType === opt.value && "bg-[#ebe8e1] font-semibold"
+                      "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-neutral-100 hover:text-black text-black cursor-pointer bg-white",
+                      selectedType === opt.value && "bg-neutral-100 font-semibold"
                     )}
                   >
                     {opt.label}
@@ -159,7 +159,7 @@ export function CollectionFilters({
                 setTypeOpen(false)
               }}
               className={cn(
-                "h-10 border border-black/15 bg-[#F6F2EA] pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[130px] relative rounded-none",
+                "h-10 border border-black/15 bg-white pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[130px] relative rounded-none",
                 (shapeOpen || selectedShape) && "border-black bg-white"
               )}
             >
@@ -181,8 +181,8 @@ export function CollectionFilters({
                         setShapeOpen(false)
                       }}
                       className={cn(
-                        "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-[#F6F2EA] hover:text-black text-black cursor-pointer bg-white",
-                        selectedShape === opt.value && "bg-[#ebe8e1] font-semibold"
+                        "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-neutral-100 hover:text-black text-black cursor-pointer bg-white",
+                        selectedShape === opt.value && "bg-neutral-100 font-semibold"
                       )}
                     >
                       {opt.label}

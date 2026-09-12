@@ -40,7 +40,7 @@ export default function SecretDesire() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section className="relative w-full bg-[#0F0F10] text-[#FAF8F5] py-20 sm:py-28 md:py-32 overflow-hidden border-b border-[#E5E0D8]/10">
+    <section className="relative w-full bg-[#0F0F10] text-white py-20 sm:py-28 md:py-32 overflow-hidden border-b border-white/10">
       <div className="relative max-w-[1200px] mx-auto px-6 md:px-12 z-10 flex flex-col items-center text-center">
 
         {/* Top Badge */}

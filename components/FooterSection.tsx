@@ -38,7 +38,7 @@ const clarteClubLinks = [
 
 export function FooterSection() {
   return (
-    <footer className="relative overflow-hidden font-marquee bg-[#0F0F10] text-[#F6F2EA] pt-10 sm:pt-12 pb-8 border-t border-[#8A8072]/20">
+    <footer className="relative overflow-hidden font-marquee bg-[#0F0F10] text-white pt-10 sm:pt-12 pb-8 border-t border-[#8A8072]/20">
       <div className="w-full px-6 md:px-12 2xl:px-24 mx-auto relative z-10">
         <div className="grid grid-cols-2 gap-8 mb-8 relative z-10 md:grid-cols-12">
 
@@ -63,7 +63,7 @@ export function FooterSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
+                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-white hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
               >
                 <FacebookIcon className="size-4" />
               </a>
@@ -72,7 +72,7 @@ export function FooterSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-[#F6F2EA] hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
+                className="flex size-8 items-center justify-center rounded-full border border-[#E2DDD3]/40 text-white hover:border-[#C9B07A] hover:text-[#C9B07A] transition-all"
               >
                 <InstagramIcon className="size-4" />
               </a>
@@ -81,7 +81,7 @@ export function FooterSection() {
 
           {/* Column 2: CLARTÉ CLUB */}
           <div className="col-span-1 md:col-span-3">
-            <h4 className="font-bold text-xs sm:text-sm uppercase mb-4 tracking-wider text-[#F6F2EA]">CLARTÉ CLUB</h4>
+            <h4 className="font-bold text-xs sm:text-sm uppercase mb-4 tracking-wider text-white">CLARTÉ CLUB</h4>
             <ul className="space-y-2.5 text-xs text-[#E2DDD3] tracking-wider">
               {clarteClubLinks.map((link) => (
                 <li key={link.label}>
@@ -95,19 +95,19 @@ export function FooterSection() {
 
           {/* Column 3: GET SUPPORT */}
           <div className="col-span-1 md:col-span-3">
-            <h4 className="font-bold text-xs sm:text-sm uppercase mb-4 tracking-wider text-[#F6F2EA]">GET SUPPORT</h4>
+            <h4 className="font-bold text-xs sm:text-sm uppercase mb-4 tracking-wider text-white">GET SUPPORT</h4>
 
             <div className="space-y-3.5 text-xs">
               <div>
                 <p className="text-[9px] font-semibold uppercase tracking-wider text-[#B8B0A2]">CUSTOMER CARE EMAIL</p>
-                <p className="text-xs font-semibold text-[#F6F2EA] hover:text-[#C9B07A] transition-colors mt-0.5">
+                <p className="text-xs font-semibold text-white hover:text-[#C9B07A] transition-colors mt-0.5">
                   <a href="mailto:contact@clarte.club">contact@clarte.club</a>
                 </p>
               </div>
 
               <div>
                 <p className="text-[9px] font-semibold uppercase tracking-wider text-[#B8B0A2]">WHATSAPP DIRECT</p>
-                <p className="text-xs font-semibold text-[#F6F2EA] hover:text-[#C9B07A] transition-colors mt-0.5">
+                <p className="text-xs font-semibold text-white hover:text-[#C9B07A] transition-colors mt-0.5">
                   <a
                     href="https://wa.me/919898391273?text=Hi%20Clart%C3%A9%20Club%2C%20I%20have%20an%20inquiry"
                     target="_blank"
@@ -120,7 +120,7 @@ export function FooterSection() {
 
               <div>
                 <p className="text-[9px] font-semibold uppercase tracking-wider text-[#B8B0A2]">SUPPORT HOURS</p>
-                <p className="text-xs font-semibold text-[#F6F2EA] mt-0.5">
+                <p className="text-xs font-semibold text-white mt-0.5">
                   11 am – 8 pm IST
                 </p>
               </div>
@@ -148,7 +148,7 @@ export function FooterSection() {
 
       {/* Faded Background Text Watermark */}
       <div className="absolute bottom-1 left-0 right-0 text-center pointer-events-none z-0 select-none overflow-hidden leading-none">
-        <span className="block text-[6vw] md:text-[5vw] lg:text-5xl xl:text-6xl font-bold uppercase tracking-[0.45em] text-transparent bg-clip-text bg-gradient-to-b from-[#F6F2EA]/12 to-transparent translate-x-[3.5vw]">
+        <span className="block text-[6vw] md:text-[5vw] lg:text-5xl xl:text-6xl font-bold uppercase tracking-[0.45em] text-transparent bg-clip-text bg-gradient-to-b from-white/10 to-transparent translate-x-[3.5vw]">
           CLARTÉ CLUB
         </span>
       </div>

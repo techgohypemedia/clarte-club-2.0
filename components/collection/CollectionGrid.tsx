@@ -118,7 +118,7 @@ export function CollectionGrid({
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center border border-black/10 py-24 px-6 text-center bg-[#ebe8e1]/10 backdrop-blur-sm"
+        className="flex flex-col items-center justify-center border border-black/10 py-24 px-6 text-center bg-white shadow-sm"
       >
         <p className="font-heading text-[16px] sm:text-[18px] uppercase tracking-[0.18em] text-black/60 font-semibold">
           No frames found
@@ -131,7 +131,7 @@ export function CollectionGrid({
   }
 
   return (
-    <motion.div layout className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
+    <motion.div layout className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
       <AnimatePresence mode="popLayout">
         {sortedProducts.map((product) => (
           <motion.div

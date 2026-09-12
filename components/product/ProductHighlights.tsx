@@ -78,7 +78,7 @@ export function ProductHighlights({
   })
 
   return (
-    <section className="w-full bg-[#fcfbfa] border-t border-black/10 text-[#0F0F10]">
+    <section className="w-full bg-white border-t border-black/10 text-[#0F0F10]">
       {/* Editorial Section Header */}
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12 text-center space-y-1.5 sm:space-y-2">
         <p className="text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-[#C9B07A]">
@@ -107,13 +107,13 @@ export function ProductHighlights({
               <div
                 className={`relative w-full overflow-hidden border-r border-black/10 ${
                   isImageLeft
-                    ? "bg-[#f4f2ee]"
-                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-[#fcfbfa] self-stretch"
+                    ? "bg-white"
+                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-white self-stretch"
                 }`}
               >
                 {isImageLeft ? (
                   /* Image on Left - Full Bleed Side by Side */
-                  <div className="relative w-full h-auto overflow-hidden group bg-[#f4f2ee]">
+                  <div className="relative w-full h-auto overflow-hidden group bg-white">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={row.imageSrc}
@@ -142,13 +142,13 @@ export function ProductHighlights({
               <div
                 className={`relative w-full overflow-hidden ${
                   !isImageLeft
-                    ? "bg-[#f4f2ee]"
-                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-[#fcfbfa] self-stretch"
+                    ? "bg-white"
+                    : "flex flex-col justify-center px-3.5 xs:px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 xs:py-6 sm:py-10 md:py-14 bg-white self-stretch"
                 }`}
               >
                 {!isImageLeft ? (
                   /* Image on Right - Full Bleed Side by Side */
-                  <div className="relative w-full h-auto overflow-hidden group bg-[#f4f2ee]">
+                  <div className="relative w-full h-auto overflow-hidden group bg-white">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={row.imageSrc}

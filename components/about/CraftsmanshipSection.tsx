@@ -32,11 +32,11 @@ export default function CraftsmanshipSection() {
   ]
 
   return (
-    <section className="w-full px-6 sm:px-12 md:px-20 py-20 bg-[#FAF8F5] border-b border-[#E5E0D8]">
+    <section className="w-full px-6 sm:px-12 md:px-20 py-20 bg-white border-b border-black/10">
       <div className="mx-auto max-w-7xl space-y-16">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#E5E0D8] pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/10 pb-6">
           <div>
             <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-[#C9B07A]">
               03 / Craftsmanship
@@ -57,14 +57,14 @@ export default function CraftsmanshipSection() {
             return (
               <div
                 key={idx}
-                className="bg-[#F4F0E8] border border-[#E5E0D8] p-8 flex flex-col justify-between space-y-6 hover:border-[#C9B07A] transition-all duration-300 group"
+                className="bg-white border border-black/10 p-8 flex flex-col justify-between space-y-6 hover:border-[#C9B07A] transition-all duration-300 group shadow-xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-xs font-mono font-bold tracking-widest text-[#C9B07A]">
                       [{pillar.number}]
                     </span>
-                    <div className="p-2.5 bg-[#FAF8F5] border border-[#E5E0D8] text-[#0F0F10] group-hover:bg-[#0F0F10] group-hover:text-[#FAF8F5] transition-colors">
+                    <div className="p-2.5 bg-white border border-black/10 text-[#0F0F10] group-hover:bg-[#0F0F10] group-hover:text-white transition-colors">
                       <Icon className="w-4 h-4" />
                     </div>
                   </div>
@@ -78,7 +78,7 @@ export default function CraftsmanshipSection() {
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-[#E5E0D8]/60 flex items-center justify-between text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">
+                <div className="pt-4 border-t border-black/10 flex items-center justify-between text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">
                   <span>Standard</span>
                   <span className="text-[#C9B07A]">Inspected</span>
                 </div>
@@ -88,7 +88,7 @@ export default function CraftsmanshipSection() {
         </div>
 
         {/* Visual Craftsmanship Highlight Showcase */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#F0ECE3] border border-[#E5E0D8] p-8 sm:p-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white border border-black/10 p-8 sm:p-12 shadow-xs">
           <div className="lg:col-span-6 space-y-4">
             <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C9B07A]">
               THE ANATOMY OF A CLARTÉ FRAME
@@ -102,7 +102,7 @@ export default function CraftsmanshipSection() {
           </div>
 
           <div className="lg:col-span-6 grid grid-cols-2 gap-4">
-            <div className="relative aspect-[4/3] bg-[#E5E0D8] border border-[#E5E0D8] overflow-hidden">
+            <div className="relative aspect-[4/3] bg-white border border-black/10 overflow-hidden">
               <Image
                 src="/images/products/product1.png"
                 alt="Frame hinge detail"
@@ -110,7 +110,7 @@ export default function CraftsmanshipSection() {
                 className="object-cover filter contrast-[1.05]"
               />
             </div>
-            <div className="relative aspect-[4/3] bg-[#E5E0D8] border border-[#E5E0D8] overflow-hidden">
+            <div className="relative aspect-[4/3] bg-white border border-black/10 overflow-hidden">
               <Image
                 src="/images/products/product4.png"
                 alt="Acetate polish detail"

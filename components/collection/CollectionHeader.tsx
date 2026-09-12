@@ -120,7 +120,7 @@ export function CollectionHeader({
         </div>
 
         {/* Controls: Divider + Filters & Sorting Card */}
-        <div className="bg-[#fcfbfa] border border-black/10 py-3 px-3.5 sm:px-6 mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-xl sm:rounded-2xl shadow-sm w-full relative z-20">
+        <div className="bg-white border border-black/10 py-3 px-3.5 sm:px-6 mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-xl sm:rounded-2xl shadow-sm w-full relative z-20">
           
           {/* Mobile view: Row 1 has Sort (left) & Type (right) */}
           {/* Desktop view: Left side has Sort, Right side has Category Tabs + Type + Clear */}
@@ -148,8 +148,8 @@ export function CollectionHeader({
                           setSortOpen(false)
                         }}
                         className={cn(
-                          "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-[#F6F2EA] hover:text-black text-black cursor-pointer bg-white",
-                          sortBy === opt.value && "bg-[#ebe8e1] font-semibold"
+                          "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-neutral-100 hover:text-black text-black cursor-pointer bg-white",
+                          sortBy === opt.value && "bg-neutral-100 font-semibold"
                         )}
                       >
                         {opt.label}
@@ -202,8 +202,8 @@ export function CollectionHeader({
                             setTypeOpen(false)
                           }}
                           className={cn(
-                            "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-[#F6F2EA] hover:text-black text-black cursor-pointer bg-white",
-                            selectedType === opt.value && "bg-[#ebe8e1] font-semibold"
+                            "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-neutral-100 hover:text-black text-black cursor-pointer bg-white",
+                            selectedType === opt.value && "bg-neutral-100 font-semibold"
                           )}
                         >
                           {opt.label}
@@ -255,7 +255,7 @@ export function CollectionHeader({
                   type="button"
                   onClick={() => setTypeOpen(!typeOpen)}
                   className={cn(
-                    "h-10 border border-black/15 bg-[#F6F2EA] pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[140px] relative rounded-lg",
+                    "h-10 border border-black/15 bg-white pl-4 pr-10 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all hover:border-black cursor-pointer outline-none flex items-center justify-between gap-3 min-w-[140px] relative rounded-lg",
                     (typeOpen || selectedType) && "border-black bg-white"
                   )}
                 >
@@ -277,8 +277,8 @@ export function CollectionHeader({
                             setTypeOpen(false)
                           }}
                           className={cn(
-                            "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-[#F6F2EA] hover:text-black text-black cursor-pointer bg-white",
-                            selectedType === opt.value && "bg-[#ebe8e1] font-semibold"
+                            "w-full px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-neutral-100 hover:text-black text-black cursor-pointer bg-white",
+                            selectedType === opt.value && "bg-neutral-100 font-semibold"
                           )}
                         >
                           {opt.label}

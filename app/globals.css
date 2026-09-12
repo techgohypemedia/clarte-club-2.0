@@ -52,8 +52,8 @@
   --color-brand-gold: var(--brand-gold);
   --color-brand-taupe: var(--brand-taupe);
 
-  /* Overrides to map existing white/black classes to brand cream/black */
-  --color-white: var(--brand-cream);
+  /* Overrides to map existing white/black classes */
+  --color-white: #ffffff;
   --color-black: var(--brand-black);
   --color-pure-white: #ffffff;
   --color-pure-black: #000000;
@@ -69,7 +69,7 @@
 
 :root {
   /* Brand colors */
-  --brand-cream: #F6F2EA;
+  --brand-cream: #ffffff;
   --brand-black: #0F0F10;
   --brand-gold: #C9B07A;
   --brand-taupe: #8A8072;
@@ -89,22 +89,22 @@
 :root {
 
   /* Base */
-  --background: #F6F2EA;
+  --background: #ffffff;
   --foreground: #0F0F10;
 
   /* Surfaces */
-  --card: #F6F2EA;
+  --card: #ffffff;
   --card-foreground: #0F0F10;
-  --popover: #F6F2EA;
+  --popover: #ffffff;
   --popover-foreground: #0F0F10;
 
   /* Primary */
   --primary: #0F0F10;
-  --primary-foreground: #F6F2EA;
+  --primary-foreground: #ffffff;
 
   /* Secondary */
   --secondary: #8A8072;
-  --secondary-foreground: #F6F2EA;
+  --secondary-foreground: #ffffff;
 
   /* Muted */
   --muted: #8A8072;
@@ -127,15 +127,15 @@
   --chart-2: #C9B07A;
   --chart-3: #8A8072;
   --chart-4: rgba(15, 15, 16, 0.1);
-  --chart-5: #F6F2EA;
+  --chart-5: #ffffff;
 
   --radius: 0.625rem;
 
   /* Sidebar */
-  --sidebar: #F6F2EA;
+  --sidebar: #ffffff;
   --sidebar-foreground: #0F0F10;
   --sidebar-primary: #0F0F10;
-  --sidebar-primary-foreground: #F6F2EA;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: rgba(15, 15, 16, 0.05);
   --sidebar-accent-foreground: #0F0F10;
   --sidebar-border: rgba(15, 15, 16, 0.1);
@@ -268,7 +268,7 @@
 }
 
 .navbar-shell.is-scrolled.is-light-surface {
-  background-color: var(--brand-cream);
+  background-color: #ffffff;
   color: var(--brand-black);
   border-color: rgba(15, 15, 16, 0.08);
   box-shadow: 0 1px 0 rgba(15, 15, 16, 0.08);

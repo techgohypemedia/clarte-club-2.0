@@ -60,9 +60,9 @@ export default function CartPage() {
   const totalItemCount = cartItems.reduce((acc, i) => acc + i.quantity, 0)
 
   return (
-    <main className="min-h-screen bg-[#fcfbfa] text-[#0F0F10] font-sans">
+    <main className="min-h-screen bg-white text-[#0F0F10] font-sans">
       {/* 1. Header Section */}
-      <section className="w-full px-5 sm:px-12 md:px-20 pt-6 sm:pt-10 pb-8 border-b border-black/10 bg-[#fcfbfa]">
+      <section className="w-full px-5 sm:px-12 md:px-20 pt-6 sm:pt-10 pb-8 border-b border-black/10 bg-white">
         <div className="mx-auto max-w-7xl relative">
           {/* Top Left Continue Shopping Button */}
           <div className="mb-4 sm:mb-0 sm:absolute sm:left-0 sm:top-1.5">
@@ -117,7 +117,7 @@ export default function CartPage() {
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/#new-drops"
-                  className="w-full sm:w-auto px-8 h-12 inline-flex items-center justify-center bg-[#0F0F10] text-[#fcfbfa] text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-[#C9B07A] hover:text-black transition-colors shadow-sm"
+                  className="w-full sm:w-auto px-8 h-12 inline-flex items-center justify-center bg-[#0F0F10] text-white text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-[#C9B07A] hover:text-black transition-colors shadow-sm"
                 >
                   Explore New Drops
                 </Link>
@@ -243,7 +243,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Pre-paid discount highlight */}
-                  <div className="rounded bg-[#ebe8e1] border border-black/10 p-3.5 text-center">
+                  <div className="rounded bg-neutral-100 border border-black/10 p-3.5 text-center">
                     <p className="text-[10.5px] font-semibold uppercase tracking-[0.15em] text-[#0F0F10]">
                       Additional Discount Available on Pre-Paid Orders
                     </p>
@@ -254,7 +254,7 @@ export default function CartPage() {
                     type="button"
                     onClick={handleCheckout}
                     disabled={isCheckingOut || cartItems.length === 0}
-                    className="flex h-14 w-full items-center justify-center bg-[#0F0F10] text-[#fcfbfa] text-[12px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-[#C9B07A] hover:text-black disabled:opacity-50 cursor-pointer shadow-md mt-2"
+                    className="flex h-14 w-full items-center justify-center bg-[#0F0F10] text-white text-[12px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-[#C9B07A] hover:text-black disabled:opacity-50 cursor-pointer shadow-md mt-2"
                   >
                     {isCheckingOut ? (
                       <span className="inline-flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function CartPage() {
               <div className="mx-auto h-[1px] w-16 bg-black/15 pt-1" />
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 gap-y-3.5 sm:gap-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3 gap-y-4 sm:gap-y-6">
               {recommendedProducts.map((product) => (
                 <ProductCardView key={product.id} product={product} />
               ))}

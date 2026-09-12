@@ -228,7 +228,7 @@ export function ProductQuickViewModal({
         </DialogDescription>
 
         <div className="grid h-[min(88dvh,520px)] grid-cols-1 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-          <div className="relative min-h-[360px] bg-[#F6F2EA] lg:min-h-0 flex items-center justify-center">
+          <div className="relative min-h-[360px] bg-white border-r border-black/10 lg:min-h-0 flex items-center justify-center">
             {activeImage || product.gallery[0]?.src ? (
               <Image
                 key={`${activeImage ?? ""}-${activeImageIndex}`}
@@ -272,7 +272,7 @@ export function ProductQuickViewModal({
               </div>
             ) : null}
 
-            <div className="absolute bottom-3 left-3 bg-white/75 px-2 py-1 text-[0.85rem] font-medium text-black">
+            <div className="absolute bottom-3 left-3 px-2 py-0.5 text-[0.75rem] tracking-wider uppercase font-medium text-black/70 drop-shadow-sm select-none">
               {galleryImages.length > 0 ? activeImageIndex + 1 : 1}/
               {galleryImages.length || 1}
             </div>
@@ -308,7 +308,7 @@ export function ProductQuickViewModal({
                   <span className="font-heading text-[18px] sm:text-[22px] font-medium leading-none tracking-[-0.04em] text-black">
                     {product.price}
                   </span>
-                  <span className="inline-flex items-center justify-center bg-black text-[#F6F2EA] px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
+                  <span className="inline-flex items-center justify-center bg-black text-white px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
                     1,238 Sold Today
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11px] sm:text-[13px] font-semibold uppercase tracking-[0.06em] text-black/60 ml-auto">

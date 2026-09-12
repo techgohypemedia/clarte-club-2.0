@@ -68,7 +68,7 @@ export function LookbookCarousel() {
         >
           Community
         </p>
-        <h2 className="font-heading text-[22px] sm:text-3xl md:text-[40px] font-semibold uppercase leading-none tracking-tight text-[#F6F2EA]">
+        <h2 className="font-heading text-[22px] sm:text-3xl md:text-[40px] font-semibold uppercase leading-none tracking-tight text-white">
           As Seen On
         </h2>
         <div

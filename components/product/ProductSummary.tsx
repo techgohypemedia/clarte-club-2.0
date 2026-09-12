@@ -242,7 +242,7 @@ export function ProductSummary({
             <span className="font-heading text-[20px] sm:text-[24px] font-medium leading-none tracking-[-0.04em] text-black">
               {product.price}
             </span>
-            <span className="inline-flex items-center justify-center bg-black text-[#F6F2EA] px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
+            <span className="inline-flex items-center justify-center bg-black text-white px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
               1,238 Sold Today
             </span>
           </div>

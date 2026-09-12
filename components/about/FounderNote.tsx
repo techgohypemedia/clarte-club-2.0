@@ -4,7 +4,7 @@ import Image from "next/image"
 
 export default function FounderNote() {
   return (
-    <section className="w-full px-5 sm:px-12 md:px-20 py-12 sm:py-24 bg-[#fcfbfa] border-b border-black/10">
+    <section className="w-full px-5 sm:px-12 md:px-20 py-12 sm:py-24 bg-white border-b border-black/10">
       <div className="mx-auto max-w-7xl">
         
         {/* Section Header */}
@@ -27,7 +27,7 @@ export default function FounderNote() {
           
           {/* Left Column: Visual Studio */}
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[3/4] w-full bg-[#efefef] overflow-hidden border border-black/10 shadow-sm">
+            <div className="relative aspect-[3/4] w-full bg-white overflow-hidden border border-black/10 shadow-sm">
               <Image
                 src="/images/hero-right.png"
                 alt="Clarté Club Studio"
@@ -35,7 +35,7 @@ export default function FounderNote() {
                 className="object-cover filter grayscale contrast-[1.05]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F10]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-5 sm:bottom-6 left-5 sm:left-6 right-5 sm:right-6 text-[#FAF8F5] text-left">
+              <div className="absolute bottom-5 sm:bottom-6 left-5 sm:left-6 right-5 sm:right-6 text-white text-left">
                 <p className="text-[11px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-[#C9B07A] mb-0.5 sm:mb-1">
                   Design Studio & Atelier
                 </p>

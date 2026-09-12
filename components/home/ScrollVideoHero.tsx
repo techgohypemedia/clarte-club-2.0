@@ -361,14 +361,14 @@ export function ScrollVideoHero() {
                 >
                   <Link 
                     href="/collections" 
-                    className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-black/85 px-6 py-2.5 sm:px-9 sm:py-3.5 md:px-10 md:py-4 text-[#F6F2EA] backdrop-blur-xl border border-[#C9B07A]/50 transition-all duration-500 hover:border-[#C9B07A] active:scale-95 whitespace-nowrap"
+                    className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-black/85 px-6 py-2.5 sm:px-9 sm:py-3.5 md:px-10 md:py-4 text-white backdrop-blur-xl border border-[#C9B07A]/50 transition-all duration-500 hover:border-[#C9B07A] active:scale-95 whitespace-nowrap"
                   >
                     {/* Champagne Gold Shimmer Fill on Hover */}
                     <span 
                       className="absolute inset-0 -translate-x-full bg-gradient-to-r from-[#C9B07A] via-[#dfc893] to-[#C9B07A] transition-transform duration-500 ease-out group-hover:translate-x-0" 
                     />
                     
-                    <span className="relative z-10 font-heading text-[10px] sm:text-[11.5px] md:text-[12px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#F6F2EA] transition-colors duration-300 group-hover:text-[#0A0A0B]">
+                    <span className="relative z-10 font-heading text-[10px] sm:text-[11.5px] md:text-[12px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white transition-colors duration-300 group-hover:text-[#0A0A0B]">
                       Explore Collections
                     </span>
                   </Link>

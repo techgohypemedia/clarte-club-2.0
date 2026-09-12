@@ -36,7 +36,7 @@ function YoutubeIcon(props: React.ComponentProps<"svg">) {
 
 export default function ContactPage() {
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10] font-sans min-h-screen pb-24 relative overflow-hidden">
+    <main className="flex-1 bg-white text-[#0F0F10] font-sans min-h-screen pb-24 relative overflow-hidden">
       
       {/* Top Main Section (Natural height on Mobile, Full Viewport Height on Desktop) */}
       <section className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 md:px-20 sm:min-h-[calc(100vh-var(--header-stack-height))] flex flex-col justify-center pt-10 sm:pt-16 pb-8 sm:pb-16">

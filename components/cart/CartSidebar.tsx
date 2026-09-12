@@ -25,7 +25,7 @@ const recommendations: Array<{ id: string; image: string; alt: string }> = []
 function CartItemRow({ item }: { item: CartItem }) {
   return (
     <article className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 p-3 bg-white border border-black/10 rounded-lg shadow-sm">
-      <div className="relative aspect-[3/4] overflow-hidden bg-[#efefef] border border-black/5 rounded">
+      <div className="relative aspect-square overflow-hidden bg-white border border-black/5 rounded">
         <Image
           src={item.image}
           alt={item.alt}
@@ -158,7 +158,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
         side="right"
         showCloseButton={false}
         overlayClassName="!z-[10000] bg-black/40 backdrop-blur-[1px]"
-        className="!z-[10001] overflow-hidden border-l border-black/10 bg-[#fcfbfa] p-0 text-[#0F0F10] shadow-[0_0_80px_rgba(0,0,0,0.15)] ease-in-out duration-300"
+        className="!z-[10001] overflow-hidden border-l border-black/10 bg-white p-0 text-[#0F0F10] shadow-[0_0_80px_rgba(0,0,0,0.15)] ease-in-out duration-300"
         style={{ width: "min(100vw, 420px)", maxWidth: "none" }}
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
@@ -193,7 +193,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
           {/* Cart Items List */}
           <div
             data-lenis-prevent
-            className="cart-item-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-[#fcfbfa]"
+            className="cart-item-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-white"
           >
             {cartItems.length === 0 ? (
               <div className="py-12 text-center text-neutral-500 text-sm">
@@ -209,7 +209,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
           {/* Footer Area */}
           <div className="flex-none bg-[#f4f4f4] border-t border-black/10">
             {/* Marquee Banner */}
-            <div className="overflow-hidden bg-[#ebe8e1] border-b border-black/10 px-3 py-1.5 text-[#0F0F10]">
+            <div className="overflow-hidden bg-neutral-100 border-b border-black/10 px-3 py-1.5 text-[#0F0F10]">
               <div className="flex w-max items-center animate-[marquee_18s_linear_infinite] motion-reduce:animate-none [will-change:transform]">
                 <PromoMarqueeRow />
                 <PromoMarqueeRow />
@@ -225,7 +225,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
                   type="button"
                   onClick={handleCheckout}
                   disabled={isCheckingOut || cartItems.length === 0}
-                  className="flex h-12 w-full items-center justify-center bg-[#0F0F10] text-[#fcfbfa] text-[12px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-[#C9B07A] hover:text-black cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="flex h-12 w-full items-center justify-center bg-[#0F0F10] text-white text-[12px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-[#C9B07A] hover:text-black cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   {isCheckingOut ? (
                     <span className="inline-flex items-center gap-2">

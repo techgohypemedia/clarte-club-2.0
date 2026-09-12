@@ -57,7 +57,7 @@ export default function FAQPage() {
   }
 
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10] font-sans min-h-screen pb-24">
+    <main className="flex-1 bg-white text-[#0F0F10] font-sans min-h-screen pb-24">
       
       {/* Inject JSON-LD Schema */}
       <script

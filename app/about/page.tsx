@@ -33,7 +33,7 @@ export default function AboutPage() {
   ]
 
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10] font-sans min-h-screen">
+    <main className="flex-1 bg-white text-[#0F0F10] font-sans min-h-screen">
       
       {/* 1. OUR STORY - Header */}
       <section className="w-full px-5 sm:px-12 md:px-20 pt-8 sm:pt-16 pb-8 sm:pb-12 border-b border-black/10 text-center sm:text-left">
@@ -157,14 +157,14 @@ export default function AboutPage() {
       </section>
 
       {/* Scroll-Driven Text Reveal Statement */}
-      <section className="w-full bg-[#fcfbfa] border-b border-black/10">
+      <section className="w-full bg-white border-b border-black/10">
         <TextReveal>
           WE'RE COMMITTED TO **EVERYTHING WE MAKE**, CHOSEN WITH CARE, **CHECKED BEFORE IT EVER REACHES YOU**. THAT'S WHAT WE ACTUALLY **STAND ON**. NOT A CLAIM, JUST THE **WORK BEHIND IT**.
         </TextReveal>
       </section>
 
       {/* 3. OUR APPROACH Section */}
-      <section className="w-full px-5 sm:px-12 md:px-20 py-12 sm:py-20 bg-[#fcfbfa] border-b border-black/10">
+      <section className="w-full px-5 sm:px-12 md:px-20 py-12 sm:py-20 bg-white border-b border-black/10">
         <div className="mx-auto max-w-7xl space-y-8 sm:space-y-12">
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between items-center sm:items-start gap-3 sm:gap-4 border-b border-black/10 pb-5 sm:pb-6 text-center sm:text-left">
@@ -190,7 +190,7 @@ export default function AboutPage() {
                 { img: "/images/products/product7.png", alt: "Frame detail 2" },
                 { img: "/images/products/product8.png", alt: "Frame detail 3" }
               ].map((item, idx) => (
-                <div key={idx} className="relative aspect-square flex-1 bg-[#efefef] border border-black/10 overflow-hidden group">
+                <div key={idx} className="relative aspect-square flex-1 bg-white border border-black/10 overflow-hidden group">
                   <Image
                     src={item.img}
                     alt={item.alt}
@@ -225,7 +225,7 @@ export default function AboutPage() {
       <SecretDesire />
 
       {/* 4. THE DIRECTION Section */}
-      <section className="relative w-full px-5 sm:px-12 md:px-20 py-12 sm:py-20 bg-[#fcfbfa] overflow-hidden border-b border-black/10">
+      <section className="relative w-full px-5 sm:px-12 md:px-20 py-12 sm:py-20 bg-white overflow-hidden border-b border-black/10">
         <div className="mx-auto max-w-7xl space-y-8 sm:space-y-12">
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between items-center sm:items-start gap-3 sm:gap-4 border-b border-black/10 pb-5 sm:pb-6 text-center sm:text-left">
@@ -256,7 +256,7 @@ export default function AboutPage() {
               <div className="pt-3 sm:pt-4">
                 <Link
                   href="/collections"
-                  className="inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#0F0F10] text-[#FAF8F5] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] hover:bg-[#C9B07A] hover:text-[#0F0F10] transition-all duration-300 shadow-md group"
+                  className="inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#0F0F10] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] hover:bg-[#C9B07A] hover:text-[#0F0F10] transition-all duration-300 shadow-md group"
                 >
                   <span>Explore the latest collection</span>
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -267,7 +267,7 @@ export default function AboutPage() {
             {/* Right Interactive Card Visual */}
             <div className="lg:col-span-6 flex justify-center items-center py-4 sm:py-6">
               <div className="group/card relative w-full sm:w-[500px] aspect-[16/10] cursor-pointer transform origin-center -rotate-3 hover:rotate-0 hover:scale-[1.02] shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.2)] bg-[#FFFFFF] border border-black/10 hover:border-black/30 p-4 sm:p-6 transition-all duration-700 ease-out">
-                <div className="relative size-full overflow-hidden bg-[#fcfbfa] border border-black/10 flex items-center justify-center">
+                <div className="relative size-full overflow-hidden bg-white border border-black/10 flex items-center justify-center">
                   <Image
                     src="/images/products/product5-white.png"
                     alt="Clarté Club frame"
@@ -284,7 +284,7 @@ export default function AboutPage() {
       </section>
 
       {/* 5. STANDARDS & PROMISES */}
-      <section className="w-full px-5 sm:px-12 md:px-20 py-16 sm:py-24 bg-[#fcfbfa] border-b border-black/10">
+      <section className="w-full px-5 sm:px-12 md:px-20 py-16 sm:py-24 bg-white border-b border-black/10">
         <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-16">
           
           <div className="lg:col-span-4 space-y-3 sm:space-y-4 text-left flex flex-col items-start">

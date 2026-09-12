@@ -41,7 +41,7 @@ export default function ReturnsPage() {
   ]
 
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10] font-sans min-h-screen pb-24">
+    <main className="flex-1 bg-white text-[#0F0F10] font-sans min-h-screen pb-24">
       {/* Hero Header */}
       <section className="relative w-full border-b border-black/10 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center space-y-4">
@@ -96,7 +96,7 @@ export default function ReturnsPage() {
           <h3 className="font-heading text-xl uppercase tracking-wider text-[#0F0F10] border-b border-black/10 pb-2">
             2. Eligibility for Exchange
           </h3>
-          <div className="overflow-x-auto border border-black/10 bg-[#fcfbfa]">
+          <div className="overflow-x-auto border border-black/10 bg-white">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-[#f4f4f4] uppercase tracking-wider text-[#0F0F10] font-heading text-[11px]">
                 <tr>

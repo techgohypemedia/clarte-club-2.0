@@ -15,7 +15,7 @@ export function ProductGallery({
 
   if (!images || images.length === 0) {
     return (
-      <div className="relative aspect-[4/5] w-full flex flex-col items-center justify-center p-8 text-center bg-[#F7F4EE] border border-black/5 rounded-[14px]">
+      <div className="relative aspect-square w-full flex flex-col items-center justify-center p-8 text-center bg-white border border-black/5 rounded-[14px]">
         <span className="font-heading text-sm tracking-[0.25em] uppercase font-bold text-black/40">
           CLARTÉ CLUB
         </span>
@@ -62,7 +62,7 @@ export function ProductGallery({
               type="button"
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative aspect-[4/5] w-full overflow-hidden bg-[#F7F4EE] transition-all duration-200 border cursor-pointer rounded-sm",
+                "relative aspect-square w-full overflow-hidden bg-white transition-all duration-200 border cursor-pointer rounded-sm",
                 isSelected
                   ? "border-black ring-1 ring-black"
                   : "border-black/5 opacity-70 hover:opacity-100 hover:border-black/20"
@@ -73,7 +73,7 @@ export function ProductGallery({
                 alt={`View thumbnail ${index + 1}`}
                 fill
                 sizes="80px"
-                className="object-contain object-center"
+                className="object-cover object-center"
               />
             </button>
           )
@@ -81,7 +81,7 @@ export function ProductGallery({
       </div>
 
       {/* Mobile/Tablet Horizontal Swipeable Main Image Gallery (Hides on desktop) */}
-      <div className="relative w-full aspect-[4/5] lg:hidden overflow-hidden border border-black/5 rounded-lg bg-[#F7F4EE]">
+      <div className="relative w-full aspect-square lg:hidden overflow-hidden border border-black/5 rounded-lg bg-white">
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
@@ -90,7 +90,7 @@ export function ProductGallery({
           {images.map((image, index) => (
             <div
               key={`${image.src}-main-mob-${index}`}
-              className="relative w-full h-full shrink-0 snap-start bg-[#F7F4EE] flex items-center justify-center"
+              className="relative w-full h-full shrink-0 snap-start bg-white flex items-center justify-center"
             >
               <Image
                 src={image.src}
@@ -103,7 +103,7 @@ export function ProductGallery({
                     ? { objectPosition: image.objectPosition }
                     : undefined
                 }
-                className="object-contain object-center"
+                className="object-cover object-center"
               />
             </div>
           ))}
@@ -119,7 +119,7 @@ export function ProductGallery({
           const viewportWidth = visibleCount * 8 + (visibleCount - 1) * 4
 
           return (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center z-10 px-1.5 py-0.5 rounded-full bg-white/85 backdrop-blur-md border border-black/10 shadow-[0_1px_3px_rgba(0,0,0,0.08)] select-none">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center z-10 select-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
               <div
                 className="overflow-hidden flex items-center"
                 style={{ width: `${viewportWidth}px` }}
@@ -145,10 +145,10 @@ export function ProductGallery({
                           className={cn(
                             "rounded-full transition-all duration-300",
                             index === activeImageIndex
-                              ? "size-1.5 bg-[#18181b] scale-110 shadow-xs"
+                              ? "size-1.5 bg-white scale-110 shadow-xs"
                               : isShrunk
-                              ? "size-1 bg-[#18181b]/20 scale-75"
-                              : "size-1 bg-[#18181b]/35 hover:bg-[#18181b]/70"
+                              ? "size-1 bg-white/35 scale-75"
+                              : "size-1 bg-white/50 hover:bg-white/90"
                           )}
                         />
                       </button>
@@ -162,7 +162,7 @@ export function ProductGallery({
       </div>
 
       {/* Desktop Main Image View (Hides on mobile/tablet) */}
-      <figure className="hidden lg:block relative aspect-[4/5] w-full overflow-hidden bg-[#F7F4EE] flex-1 border border-black/5 rounded-lg">
+      <figure className="hidden lg:block relative aspect-square w-full overflow-hidden bg-white flex-1 border border-black/5 rounded-lg">
         <Image
           src={activeImage.src}
           alt={activeImage.alt}
@@ -174,7 +174,7 @@ export function ProductGallery({
               ? { objectPosition: activeImage.objectPosition }
               : undefined
           }
-          className="object-contain object-center transition-all duration-300"
+          className="object-cover object-center transition-all duration-300"
         />
       </figure>
 
@@ -188,7 +188,7 @@ export function ProductGallery({
               type="button"
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative h-16 w-14 shrink-0 overflow-hidden bg-[#F7F4EE] transition-all duration-200 border cursor-pointer rounded-sm",
+                "relative size-14 aspect-square shrink-0 overflow-hidden bg-white transition-all duration-200 border cursor-pointer rounded-sm",
                 isSelected
                   ? "border-black ring-1 ring-black"
                   : "border-black/5 opacity-70 hover:opacity-100"
@@ -199,7 +199,7 @@ export function ProductGallery({
                 alt={`View thumbnail ${index + 1}`}
                 fill
                 sizes="56px"
-                className="object-contain object-center"
+                className="object-cover object-center"
               />
             </button>
           )

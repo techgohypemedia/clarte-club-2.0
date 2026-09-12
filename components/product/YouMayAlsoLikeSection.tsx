@@ -44,7 +44,7 @@ export function YouMayAlsoLikeSection({
           <div className="mx-auto h-[1px] w-16 bg-black/10 pt-1" />
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 gap-y-3.5 sm:gap-y-6">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
           {products.map((product) => (
             <ProductCardView key={product.id} product={product} />
           ))}

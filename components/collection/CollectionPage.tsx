@@ -84,8 +84,8 @@ function CollectionContent() {
   const [productCount, setProductCount] = useState<number | undefined>(undefined)
 
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10]">
-      <section className="w-full bg-[#fcfbfa] px-2.5 sm:px-6 lg:px-8 pt-6 pb-16 text-[#0F0F10] md:pt-10">
+    <main className="flex-1 bg-white text-[#0F0F10]">
+      <section className="w-full bg-white px-2.5 sm:px-6 lg:px-8 pt-6 pb-16 text-[#0F0F10] md:pt-10">
         <CollectionHeader 
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}

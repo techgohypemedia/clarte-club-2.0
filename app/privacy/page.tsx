@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="flex-1 bg-[#fcfbfa] text-[#0F0F10] font-sans min-h-screen pb-24">
+    <main className="flex-1 bg-white text-[#0F0F10] font-sans min-h-screen pb-24">
       {/* Hero Header */}
       <section className="relative w-full border-b border-black/10 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center space-y-4">

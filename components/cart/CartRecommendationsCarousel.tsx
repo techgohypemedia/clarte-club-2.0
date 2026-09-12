@@ -19,7 +19,7 @@ type CartRecommendationsCarouselProps = {
 
 function RecommendationCard({ image, alt }: CartRecommendation) {
   return (
-    <article className="relative aspect-[3/4] overflow-hidden bg-[#efefef] rounded border border-black/10">
+    <article className="relative aspect-square overflow-hidden bg-white rounded border border-black/10">
       <Image
         src={image}
         alt={alt}

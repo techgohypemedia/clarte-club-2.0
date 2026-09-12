@@ -9,7 +9,7 @@ function MarqueeStrip() {
       {Array.from({ length: 4 }).map((_, repeatIndex) => (
         <span
           key={`repeat-${repeatIndex}`}
-          className="whitespace-nowrap font-marquee text-[10.08px] font-normal uppercase tracking-[0.25em] text-[#F6F2EA]"
+          className="whitespace-nowrap font-marquee text-[10.08px] font-normal uppercase tracking-[0.25em] text-white"
         >
           {marqueeText}
         </span>

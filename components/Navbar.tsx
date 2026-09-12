@@ -257,7 +257,7 @@ function MobileFloatingNav({
       )}
     >
       {/* Light Theme Glass Pill Navigation Bar - Sized to h-11 / sm:h-12 */}
-      <div className="flex h-11 sm:h-12 items-center gap-5 sm:gap-6 bg-[#F6F2EA]/95 backdrop-blur-xl border border-black/15 px-5 sm:px-6 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.25)] text-black">
+      <div className="flex h-11 sm:h-12 items-center gap-5 sm:gap-6 bg-white/95 backdrop-blur-xl border border-black/15 px-5 sm:px-6 rounded-full shadow-[0_10px_35px_rgba(0,0,0,0.15)] text-black">
         {/* Explore / Collections */}
         <Link
           href="/collections"
@@ -883,7 +883,7 @@ export function Navbar({
               : "pointer-events-none opacity-0 -translate-y-2"
           )}
         >
-          <div className="mx-auto max-w-[1400px] max-h-[calc(82vh-60px)] overflow-y-auto custom-scrollbar rounded-[2.25rem] bg-[#EFEFEF] p-7 sm:p-8 md:p-9 shadow-[0_20px_50px_rgba(0,0,0,0.14)] border border-black/5 text-black">
+          <div className="mx-auto max-w-[1400px] max-h-[calc(82vh-60px)] overflow-y-auto custom-scrollbar rounded-[2.25rem] bg-white p-7 sm:p-8 md:p-9 shadow-[0_20px_50px_rgba(0,0,0,0.14)] border border-black/10 text-black">
             <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_1.2fr_1.2fr] gap-6 xl:gap-10 items-start">
               
               {/* Column 1: Main Eyewear Collections */}
@@ -994,7 +994,7 @@ export function Navbar({
 
 
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" showCloseButton={false} className="w-[300px] sm:w-[350px] p-0 bg-[#F6F2EA] text-black border-r border-black/10 flex flex-col h-full z-[99999]">
+        <SheetContent side="left" showCloseButton={false} className="w-[300px] sm:w-[350px] p-0 bg-white text-black border-r border-black/10 flex flex-col h-full z-[99999]">
           <div className="flex items-center justify-between px-6 py-5 border-b border-black/5">
             <SheetTitle className="text-[12px] font-semibold uppercase tracking-[0.2em] text-black/50">
               Menu
@@ -1054,7 +1054,7 @@ export function Navbar({
           </div>
 
           {/* Mobile Menu Footer */}
-          <div className="px-6 pt-6 pb-10 border-t border-black/5 bg-[#ebe8e1] space-y-4">
+          <div className="px-6 pt-6 pb-10 border-t border-black/5 bg-neutral-50 space-y-4">
             <div className="flex items-center justify-center gap-14">
               <button
                 type="button"

@@ -46,7 +46,7 @@ function CountdownDigit({ value, label }: { value: number; label: string }) {
         style={{
           fontSize: "clamp(1.35rem, 2.6vw, 2.1rem)",
           letterSpacing: "-0.04em",
-          color: "#F6F2EA",
+          color: "#ffffff",
           opacity: flip ? 0 : 1,
           transform: flip ? "translateY(-6px)" : "translateY(0)",
           transition: "opacity 180ms ease, transform 180ms ease",

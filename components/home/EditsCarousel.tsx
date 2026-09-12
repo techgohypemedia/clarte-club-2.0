@@ -181,7 +181,7 @@ export function EditsCarousel() {
   return (
     <section
       id="curated-edits"
-      className="w-full bg-[#0F0F10] px-4 pt-14 pb-12 sm:px-6 lg:px-8 md:pt-16 md:pb-16 text-[#F6F2EA]"
+      className="w-full bg-[#0F0F10] px-4 pt-14 pb-12 sm:px-6 lg:px-8 md:pt-16 md:pb-16 text-white"
     >
       {/* Section header with Prev/Next Controls */}
       <div className="mb-8 flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between text-center sm:text-left items-center sm:items-start">
@@ -189,7 +189,7 @@ export function EditsCarousel() {
           <p className="text-[10px] uppercase font-semibold tracking-[0.25em] text-[#C9B07A] mb-1">
             Curated Selections
           </p>
-          <h2 className="font-heading text-[22px] sm:text-3xl md:text-[40px] font-semibold uppercase leading-none tracking-tight text-[#F6F2EA] flex items-center">
+          <h2 className="font-heading text-[22px] sm:text-3xl md:text-[40px] font-semibold uppercase leading-none tracking-tight text-white flex items-center">
             Edits
             <span className="inline-block size-2 rounded-full bg-[#C9B07A] ml-2 align-middle" />
           </h2>

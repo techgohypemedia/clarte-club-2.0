@@ -21,7 +21,7 @@ export function ShippingAnnouncementBar() {
   }, [])
 
   return (
-    <section className="announcement-bar bg-black text-[#F6F2EA] overflow-hidden select-none border-b border-white/5">
+    <section className="announcement-bar bg-black text-white overflow-hidden select-none border-b border-white/5">
       <div className="relative flex h-full w-full items-center justify-center px-4 font-marquee text-[8.5px] min-[370px]:text-[9.5px] sm:text-[10.5px] font-normal uppercase tracking-[0.1em] min-[370px]:tracking-[0.16em] sm:tracking-[0.22em] leading-none">
         <AnimatePresence mode="wait">
           <motion.p

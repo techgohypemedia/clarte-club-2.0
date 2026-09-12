@@ -105,7 +105,7 @@ export function WishlistSidebar({ open, onOpenChange }: WishlistSidebarProps) {
                 {items.map((item) => (
                   <article key={item.id} className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                     {/* Item Image */}
-                    <div className="relative aspect-[3/4] overflow-hidden bg-neutral-900 border border-white/5">
+                    <div className="relative aspect-square overflow-hidden bg-neutral-900 border border-white/5">
                       <Image
                         src={item.image}
                         alt={item.alt}
