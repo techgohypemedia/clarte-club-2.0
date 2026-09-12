@@ -63,6 +63,7 @@ export function StoriesModal({
   open: boolean
   onClose: () => void
 }) {
+  const [stories, setStories] = useState<StoryItem[]>(defaultStories)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [progress, setProgress] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
@@ -70,6 +71,13 @@ export function StoriesModal({
 
   useEffect(() => {
     setMounted(true)
+    import("@/lib/shopify-adapter").then(({ getShopifyStories }) => {
+      getShopifyStories().then((liveStories) => {
+        if (liveStories && liveStories.length > 0) {
+          setStories(liveStories)
+        }
+      })
+    })
   }, [])
 
   // Lock body scroll when modal is open
@@ -92,13 +100,13 @@ export function StoriesModal({
   }, [open])
 
   const handleNext = useCallback(() => {
-    if (currentIndex < defaultStories.length - 1) {
+    if (currentIndex < stories.length - 1) {
       setCurrentIndex((prev) => prev + 1)
       setProgress(0)
     } else {
       onClose()
     }
-  }, [currentIndex, onClose])
+  }, [currentIndex, stories.length, onClose])
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -128,14 +136,14 @@ export function StoriesModal({
   useEffect(() => {
     if (!open) return
     if (progress >= 100) {
-      if (currentIndex < defaultStories.length - 1) {
+      if (currentIndex < stories.length - 1) {
         setCurrentIndex((prev) => prev + 1)
         setProgress(0)
       } else {
         onClose()
       }
     }
-  }, [open, progress, currentIndex, onClose])
+  }, [open, progress, currentIndex, stories.length, onClose])
 
   // Keyboard navigation
   useEffect(() => {
@@ -157,7 +165,7 @@ export function StoriesModal({
 
   if (!mounted) return null
 
-  const currentStory = defaultStories[currentIndex] || defaultStories[0]
+  const currentStory = stories[currentIndex] || stories[0]
 
   return createPortal(
     <AnimatePresence>
@@ -176,7 +184,7 @@ export function StoriesModal({
         >
           {/* ── Top Progress Bar (Centered directly above card on desktop, adjusted for mobile) ── */}
           <div className="absolute top-4 left-4 right-28 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 flex items-center gap-1.5 sm:w-full sm:max-w-[420px] sm:px-4">
-            {defaultStories.map((s, idx) => {
+            {stories.map((s, idx) => {
               let width = "0%"
               if (idx < currentIndex) width = "100%"
               else if (idx === currentIndex) width = `${progress}%`
@@ -318,7 +326,7 @@ export function StoriesModal({
             </AnimatePresence>
 
             {/* Next Arrow Button (Right of Card, desktop only) */}
-            {currentIndex < defaultStories.length - 1 && (
+            {currentIndex < stories.length - 1 && (
               <button
                 type="button"
                 onClick={(e) => {

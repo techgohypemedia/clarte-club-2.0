@@ -561,3 +561,55 @@ export async function getShopifyCollectionBanners(): Promise<CollectionBanner[]>
     return []
   }
 }
+
+export type ShopifyStoryItem = {
+  id: string
+  category: string
+  title: string
+  subtitle: string
+  image: string
+  link: string
+  ctaText: string
+}
+
+export async function getShopifyStories(): Promise<ShopifyStoryItem[]> {
+  try {
+    const collection = await fetchCollectionByHandle("stories", 12)
+    if (collection?.products && collection.products.length > 0) {
+      console.log(`🛍️ [Shopify API] Loaded ${collection.products.length} live stories from collection 'stories'`)
+      return collection.products.map((p: any, index: number) => {
+        // Pick primary image (prefer featuredImage or image 0)
+        const storyImage = p.featuredImage?.url || p.images?.[0]?.url || ""
+
+        // Extract category tag
+        let category = "NEW DROP"
+        const tags = (p.tags || []).map((t: string) => String(t).toUpperCase())
+        if (tags.includes("BESTSELLER")) category = "BESTSELLER"
+        else if (tags.includes("LIMITED EDIT") || tags.includes("LIMITED")) category = "LIMITED EDIT"
+        else if (tags.includes("EDITORIAL")) category = "EDITORIAL"
+        else if (tags.includes("EXCLUSIVE")) category = "EXCLUSIVE"
+        else if (p.productType) category = String(p.productType).toUpperCase()
+
+        // Clean subtitle from product description (first sentence)
+        let subtitle = p.description ? p.description.split(".")[0].trim() + "." : "Signature luxury eyewear designed for modern character."
+        if (subtitle.length > 90) {
+          subtitle = subtitle.slice(0, 87) + "..."
+        }
+
+        return {
+          id: p.id || `story-${index + 1}`,
+          category,
+          title: p.title || "Signature Frame",
+          subtitle,
+          image: storyImage,
+          link: `/product/${p.handle}`,
+          ctaText: "Shop Now",
+        }
+      })
+    }
+  } catch (error) {
+    console.warn("❌ [Shopify API] Failed to fetch stories from collection 'stories':", error)
+  }
+  return []
+}
+
