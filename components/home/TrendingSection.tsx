@@ -13,6 +13,7 @@ import {
 } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
 import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
 
@@ -62,8 +63,46 @@ export function ProductCardView({
   }, [])
 
   // Touch Swipe Gesture State
+  const imageContainerRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
+
+  // Prevent vertical page scrolling when swiping vertically on the product card
+  useEffect(() => {
+    if (!verticalNavigation) return
+    const el = imageContainerRef.current
+    if (!el) return
+
+    let startX = 0
+    let startY = 0
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      const currentX = e.touches[0].clientX
+      const currentY = e.touches[0].clientY
+      const deltaX = Math.abs(currentX - startX)
+      const deltaY = Math.abs(currentY - startY)
+
+      // If user is dragging vertically to change images, prevent default page scrolling!
+      if (deltaY > deltaX && deltaY > 6) {
+        if (e.cancelable) {
+          e.preventDefault()
+        }
+      }
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true })
+    el.addEventListener("touchmove", onTouchMove, { passive: false })
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart)
+      el.removeEventListener("touchmove", onTouchMove)
+    }
+  }, [verticalNavigation])
 
   const activeImage = gallery[activeImageIndex] ?? product.image ?? ""
   const hasGalleryControls = gallery.length > 1
@@ -197,7 +236,11 @@ export function ProductCardView({
     >
       {/* ── 1. Image Container (1:1 Square Aspect Ratio with Uploaded Studio White Background) ── */}
       <div
-        className="relative aspect-square w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs bg-white border border-black/5"
+        ref={imageContainerRef}
+        className={cn(
+          "relative aspect-square w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs bg-white border border-black/5",
+          verticalNavigation ? "touch-pan-x" : "touch-pan-y"
+        )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
