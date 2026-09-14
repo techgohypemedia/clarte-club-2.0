@@ -68,16 +68,28 @@ export function ProductCardView({
   const activeImage = gallery[activeImageIndex] ?? product.image ?? ""
   const hasGalleryControls = gallery.length > 1
 
+  const isTransitioningRef = useRef(false)
+
   const handlePreviousImage = () => {
+    if (isTransitioningRef.current) return
+    isTransitioningRef.current = true
     setSlideDirection("down")
     setActiveImageIndex(
       (currentIndex) => (currentIndex - 1 + gallery.length) % gallery.length
     )
+    setTimeout(() => {
+      isTransitioningRef.current = false
+    }, 520)
   }
 
   const handleNextImage = () => {
+    if (isTransitioningRef.current) return
+    isTransitioningRef.current = true
     setSlideDirection("up")
     setActiveImageIndex((currentIndex) => (currentIndex + 1) % gallery.length)
+    setTimeout(() => {
+      isTransitioningRef.current = false
+    }, 520)
   }
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -197,17 +209,17 @@ export function ProductCardView({
                 key={`${product.id}-${activeImageIndex}`}
                 custom={slideDirection}
                 initial={{
-                  opacity: 0.85,
+                  opacity: 0.95,
                   y: verticalNavigation ? (slideDirection === "up" ? "100%" : "-100%") : 0,
                   x: verticalNavigation ? 0 : (slideDirection === "up" ? "100%" : "-100%"),
                 }}
                 animate={{ opacity: 1, y: 0, x: 0 }}
                 exit={{
-                  opacity: 0,
+                  opacity: 0.95,
                   y: verticalNavigation ? (slideDirection === "up" ? "-100%" : "100%") : 0,
                   x: verticalNavigation ? 0 : (slideDirection === "up" ? "-100%" : "100%"),
                 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 size-full"
               >
                 <Image
