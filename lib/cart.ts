@@ -129,10 +129,74 @@ export function addToCart(
   }
 }
 
-export async function buyNow(item: Omit<CartItem, "quantity">): Promise<string | null> {
-  addToCart(item, { openCart: false })
-  return await processShopifyCheckout()
+export async function buyNow(
+  item: Omit<CartItem, "quantity"> & { quantity?: number }
+): Promise<string | null> {
+  if (typeof window === "undefined") return null
+
+  const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "shapar-ay.myshopify.com"
+  const quantity = item.quantity && item.quantity > 0 ? item.quantity : 1
+
+  let merchandiseId = item.merchandiseId
+
+  // 1. Auto-resolve missing merchandiseId from live Shopify products if not provided
+  if (!merchandiseId) {
+    try {
+      const liveProducts = await fetchAllProducts(50)
+      if (liveProducts && liveProducts.length > 0) {
+        const matched =
+          liveProducts.find(
+            (p: any) =>
+              (p.title && item.title && p.title.toLowerCase() === item.title.toLowerCase()) ||
+              (p.handle && item.title && p.handle.toLowerCase() === item.title.toLowerCase().replace(/\s+/g, "-")) ||
+              p.id === item.id ||
+              p.handle === item.id
+          ) || liveProducts[0]
+
+        merchandiseId = matched?.variants?.[0]?.id || matched?.id
+      }
+    } catch (err) {
+      console.warn("Could not auto-resolve live Shopify product variant ID for Buy Now:", err)
+    }
+  }
+
+  // 2. Direct Shopify Cart Permalink for ONLY this single item (does not touch or include local cart items)
+  if (merchandiseId) {
+    const numericId = merchandiseId
+      .replace(/^.*\/ProductVariant\//, "")
+      .replace(/^.*\/Product\//, "")
+
+    if (numericId) {
+      const permalinkUrl = `https://${shopifyDomain}/cart/${numericId}:${quantity}`
+      window.location.href = permalinkUrl
+      return permalinkUrl
+    }
+  }
+
+  // 3. Fallback: Create isolated single-item Shopify Cart via Storefront API (without saving over existing cart id)
+  if (merchandiseId) {
+    try {
+      const cart = await cartCreate([
+        {
+          merchandiseId,
+          quantity,
+        },
+      ])
+      if (cart?.checkoutUrl) {
+        window.location.href = cart.checkoutUrl
+        return cart.checkoutUrl
+      }
+    } catch (error) {
+      console.warn("Shopify cartCreate failed for Buy Now:", error)
+    }
+  }
+
+  // Final Fallback: Direct checkout
+  const checkoutUrl = `https://${shopifyDomain}/checkout`
+  window.location.href = checkoutUrl
+  return checkoutUrl
 }
+
 
 export function updateCartQuantity(id: string, size: string, quantity: number) {
   let items = getCartItems()
