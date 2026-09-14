@@ -36,11 +36,11 @@ export function CinematicPreloader() {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Fallback timer: ensure preloader dismisses within 3.6s max
+    // Fallback timer: ensure preloader dismisses within 2.0s max
     const maxTimer = setTimeout(() => {
       setIsLoading(false)
       document.body.style.overflow = prevOverflow
-    }, 3600)
+    }, 2000)
 
     return () => {
       window.removeEventListener("resize", checkIsMobile)
@@ -57,7 +57,7 @@ export function CinematicPreloader() {
       const playPromise = videoRef.current.play()
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          setTimeout(() => setIsLoading(false), 1200)
+          setTimeout(() => setIsLoading(false), 800)
         })
       }
     }
@@ -75,11 +75,12 @@ export function CinematicPreloader() {
           key="cinematic-preloader"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           onAnimationComplete={() => {
             document.body.style.overflow = ""
           }}
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh]"
+          onClick={handleFinish}
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh] cursor-pointer"
         >
           <div className="relative size-full w-full h-full flex items-center justify-center p-0 m-0 overflow-hidden">
             <video
@@ -93,7 +94,7 @@ export function CinematicPreloader() {
               autoPlay
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               onEnded={handleFinish}
               className={`absolute inset-0 size-full w-full h-full pointer-events-none ${
                 isMobile

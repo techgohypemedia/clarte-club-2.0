@@ -12,7 +12,7 @@ import {
   type ProductCard,
 } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
 
@@ -21,21 +21,35 @@ export function ProductCardView({
   expanded = false,
   theme = "light",
   index = 0,
+  verticalNavigation = false,
 }: {
   product: ProductCard
   expanded?: boolean
   theme?: "light" | "dark"
   index?: number
+  verticalNavigation?: boolean
 }) {
   const isDark = theme === "dark"
   const gallery = product.gallery && product.gallery.length > 0 
     ? product.gallery 
     : (product.image ? [product.image] : [])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [slideDirection, setSlideDirection] = useState<"up" | "down">("up")
   const [quickViewOpen, setQuickViewOpen] = useState(false)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [added, setAdded] = useState(false)
   const [isBuying, setIsBuying] = useState(false)
+
+  // Preload all gallery images in background to eliminate black screens/flickers
+  useEffect(() => {
+    if (!gallery || gallery.length <= 1) return
+    gallery.forEach((url) => {
+      if (url) {
+        const img = new window.Image()
+        img.src = url
+      }
+    })
+  }, [gallery])
 
   useEffect(() => {
     const resetBuying = () => setIsBuying(false)
@@ -47,7 +61,7 @@ export function ProductCardView({
     }
   }, [])
 
-  // Touch Swipe Gesture State for Homepage Cards
+  // Touch Swipe Gesture State
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
@@ -55,12 +69,14 @@ export function ProductCardView({
   const hasGalleryControls = gallery.length > 1
 
   const handlePreviousImage = () => {
+    setSlideDirection("down")
     setActiveImageIndex(
       (currentIndex) => (currentIndex - 1 + gallery.length) % gallery.length
     )
   }
 
   const handleNextImage = () => {
+    setSlideDirection("up")
     setActiveImageIndex((currentIndex) => (currentIndex + 1) % gallery.length)
   }
 
@@ -75,14 +91,28 @@ export function ProductCardView({
     const touchEndY = e.changedTouches[0].clientY
 
     const deltaX = touchStartX.current - touchEndX
-    const deltaY = Math.abs(touchStartY.current - touchEndY)
+    const deltaY = touchStartY.current - touchEndY
 
-    // Trigger image slide if horizontal swipe is predominant (> 20px)
-    if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 20) {
-      if (deltaX > 0) {
-        handleNextImage()
-      } else {
-        handlePreviousImage()
+    if (verticalNavigation) {
+      // In vertical navigation (Curated Edits):
+      // Vertical swipe cycles through images of this product (UP = next, DOWN = prev)
+      // Horizontal swipe (left/right) is intentionally NOT handled here so it bubbles
+      // to the parent carousel for switching between products!
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 20) {
+        if (deltaY > 0) {
+          handleNextImage()
+        } else {
+          handlePreviousImage()
+        }
+      }
+    } else {
+      // Standard horizontal gallery swipe
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
+        if (deltaX > 0) {
+          handleNextImage()
+        } else {
+          handlePreviousImage()
+        }
       }
     }
 
@@ -153,24 +183,43 @@ export function ProductCardView({
       }}
       className="group relative flex flex-col w-full cursor-pointer"
     >
-      {/* ── 1. Image Container (1:1 Square Aspect Ratio - perfectly matches 1254x1254 Shopify images full without cropping) ── */}
+      {/* ── 1. Image Container (1:1 Square Aspect Ratio with Uploaded Studio White Background) ── */}
       <div
-        className={`relative aspect-square w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs touch-pan-y ${
-          isDark ? "bg-[#18181b]" : "bg-white border border-black/5"
-        }`}
+        className="relative aspect-square w-full overflow-hidden rounded-[12px] sm:rounded-[14px] select-none shadow-xs bg-white border border-black/5"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <Link href={productHref} className="absolute inset-0 cursor-pointer z-0">
+
+        <Link href={productHref} className="absolute inset-0 cursor-pointer z-0 overflow-hidden">
           {activeImage ? (
-            <Image
-              key={`${product.id}-${activeImageIndex}`}
-              src={activeImage}
-              alt={product.alt || product.name || "Product"}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-            />
+            <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
+              <motion.div
+                key={`${product.id}-${activeImageIndex}`}
+                custom={slideDirection}
+                initial={{
+                  opacity: 0.85,
+                  y: verticalNavigation ? (slideDirection === "up" ? "100%" : "-100%") : 0,
+                  x: verticalNavigation ? 0 : (slideDirection === "up" ? "100%" : "-100%"),
+                }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                exit={{
+                  opacity: 0,
+                  y: verticalNavigation ? (slideDirection === "up" ? "-100%" : "100%") : 0,
+                  x: verticalNavigation ? 0 : (slideDirection === "up" ? "-100%" : "100%"),
+                }}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 size-full"
+              >
+                <Image
+                  src={activeImage}
+                  alt={product.alt || product.name || "Product"}
+                  fill
+                  sizes="(max-width: 640px) 74vw, (max-width: 1024px) 36vw, 25vw"
+                  priority={index < 2}
+                  className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                />
+              </motion.div>
+            </AnimatePresence>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#18181b]">
               <span className="font-heading text-[11px] sm:text-[13px] tracking-[0.22em] uppercase font-bold text-black/40 dark:text-white/40">
@@ -193,7 +242,7 @@ export function ProductCardView({
           </span>
         ) : null}
 
-        {/* Top Right Wishlist Heart Icon Button (White Filled Heart, No Background) */}
+        {/* Top Right Wishlist Heart Icon Button */}
         <button
           type="button"
           aria-label="Add to wishlist"
@@ -209,8 +258,8 @@ export function ProductCardView({
           />
         </button>
 
-        {/* Left & Right Gallery Navigation Arrows (Visible on Desktop Hover) */}
-        {hasGalleryControls ? (
+        {/* Navigation Arrows for Horizontal Gallery (when not in vertical mode) */}
+        {hasGalleryControls && !verticalNavigation ? (
           <>
             <button
               type="button"
@@ -248,8 +297,46 @@ export function ProductCardView({
           </>
         ) : null}
 
-        {/* Carousel Pagination Dots (. . .) - Max 4 Visible, Smooth Sliding Window */}
-        {hasGalleryControls ? (() => {
+        {/* Vertical Pagination Indicator (Curated Edits 2D Mode - Compact & Bottom-Right) */}
+        {hasGalleryControls && verticalNavigation ? (() => {
+          const dotsCount = Math.min(gallery.length, 3)
+          const activeDot = activeImageIndex < dotsCount
+            ? activeImageIndex
+            : (activeImageIndex % dotsCount)
+
+          return (
+            <div className="absolute right-2.5 bottom-2.5 z-20 flex flex-col items-center gap-1 px-1 py-1.5 rounded-full bg-black/45 backdrop-blur-xs border border-white/15 pointer-events-auto select-none shadow-xs">
+              {Array.from({ length: dotsCount }).map((_, idx) => {
+                const isActive = idx === activeDot
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    aria-label={`View image ${idx + 1}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      setSlideDirection(idx > activeImageIndex ? "up" : "down")
+                      setActiveImageIndex(idx)
+                    }}
+                    className="flex items-center justify-center p-0.5 cursor-pointer"
+                  >
+                    <span
+                      className={`rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "size-1.5 bg-white scale-110 shadow-xs"
+                          : "size-1 bg-white/50 hover:bg-white/90"
+                      }`}
+                    />
+                  </button>
+                )
+              })}
+            </div>
+          )
+        })() : null}
+
+        {/* Horizontal Carousel Pagination Dots (Standard Gallery Mode) */}
+        {hasGalleryControls && !verticalNavigation ? (() => {
           const maxVisible = 4
           const total = gallery.length
           const windowStart = total > maxVisible
@@ -282,6 +369,7 @@ export function ProductCardView({
                           onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()
+                            setSlideDirection(idx > activeImageIndex ? "up" : "down")
                             setActiveImageIndex(idx)
                           }}
                           className="flex size-2 shrink-0 items-center justify-center cursor-pointer"
@@ -305,23 +393,9 @@ export function ProductCardView({
           )
         })() : null}
 
-        {/* Buy Now Button on Image Hover (Desktop Only) */}
-        <button
-          type="button"
-          aria-label={`Buy now ${product.name ?? product.alt}`}
-          disabled={isBuying}
-          onClick={handleBuyNow}
-          className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-10 hidden md:inline-flex items-center justify-center px-5 py-2.5 rounded-full backdrop-blur-md text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-60 ${
-            isDark
-              ? "bg-white text-black hover:bg-[#C9B07A] hover:text-black border border-white/30"
-              : "bg-black/90 text-white hover:bg-black border border-white/20"
-          }`}
-        >
-          {isBuying ? "Processing..." : "Buy Now"}
-        </button>
       </div>
 
-      {/* ── 2. Content Details Below Image (Bluorng Style) ── */}
+      {/* ── 2. Content Details Below Image (with Direct BUY NOW Action) ── */}
       <div className="mt-2.5 flex items-center justify-between gap-2 px-0.5">
         <div className="min-w-0 flex-1">
           <Link href={productHref} className="block group/title">
@@ -342,26 +416,43 @@ export function ProductCardView({
           </p>
         </div>
 
-        {/* Quick Add Plus Button (Bluorng Style) */}
-        <button
-          type="button"
-          aria-label="Add to cart"
-          onClick={handleAddToCart}
-          className={`flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
-            added
-              ? "text-emerald-500"
-              : isDark
-              ? "text-white/80 hover:text-white hover:bg-white/10"
-              : "text-black/60 hover:text-black hover:bg-black/5"
-          }`}
-          title="Add to Cart"
-        >
-          {added ? (
-            <Check className="size-4 animate-in zoom-in-50 duration-200 text-emerald-500" />
-          ) : (
-            <Plus className="size-4 stroke-[1.8]" />
-          )}
-        </button>
+        {/* Action Buttons: Direct BUY NOW + Quick Add (+) */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            aria-label={`Buy now ${product.name ?? product.alt}`}
+            disabled={isBuying}
+            onClick={handleBuyNow}
+            className={`h-7 sm:h-7.5 px-2.5 sm:px-3 rounded-[6px] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center border ${
+              isDark
+                ? "bg-white text-black hover:bg-[#C9B07A] hover:text-black border-white/20"
+                : "bg-black text-white hover:bg-neutral-800 border-black"
+            } disabled:opacity-50`}
+          >
+            {isBuying ? "..." : "BUY NOW"}
+          </button>
+
+          {/* Quick Add Plus Button */}
+          <button
+            type="button"
+            aria-label="Add to cart"
+            onClick={handleAddToCart}
+            className={`flex size-7 shrink-0 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+              added
+                ? "text-emerald-500"
+                : isDark
+                ? "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-black/60 hover:text-black hover:bg-black/5"
+            }`}
+            title="Add to Cart"
+          >
+            {added ? (
+              <Check className="size-4 animate-in zoom-in-50 duration-200 text-emerald-500" />
+            ) : (
+              <Plus className="size-4 stroke-[1.8]" />
+            )}
+          </button>
+        </div>
       </div>
 
       <ProductQuickViewModal

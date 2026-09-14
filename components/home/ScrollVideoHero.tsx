@@ -92,12 +92,11 @@ export function ScrollVideoHero() {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Fast Async Progressive Preloader (Instant First Frame + Priority Streaming)
+  // Optimized Async Progressive Preloader (Instant First Frame + Polite Progressive Streaming)
   useEffect(() => {
     let mounted = true
 
-    const desktopImages: HTMLImageElement[] = []
-    const mobileImages: HTMLImageElement[] = []
+    const images: HTMLImageElement[] = []
 
     // Helper to load single image asynchronously
     const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -109,30 +108,40 @@ export function ScrollVideoHero() {
       })
     }
 
-    // Stream frames in priority order: first 10 frames instantly, then rest concurrently
     const streamFrames = async () => {
-      // 1. Instant load first frame for mobile and desktop
-      const firstDesktop = await loadImage(`${DESKTOP_PREFIX}${formatDesktopFrameIndex(0)}${DESKTOP_SUFFIX}`)
-      const firstMobile = await loadImage(`${MOBILE_PREFIX}${formatMobileFrameIndex(0)}${MOBILE_SUFFIX}`)
-
-      if (!mounted) return
-      desktopImages[0] = firstDesktop
-      mobileImages[0] = firstMobile
-      desktopImagesRef.current = desktopImages
-      mobileImagesRef.current = mobileImages
-
-      // 2. Stream remaining active device frames in high-speed parallel batches
       const activePrefix = isMobile ? MOBILE_PREFIX : DESKTOP_PREFIX
       const activeSuffix = isMobile ? MOBILE_SUFFIX : DESKTOP_SUFFIX
       const activeTotal = isMobile ? MOBILE_TOTAL_FRAMES : DESKTOP_TOTAL_FRAMES
       const activeRef = isMobile ? mobileImagesRef : desktopImagesRef
-      const activeArray = isMobile ? mobileImages : desktopImages
       const formatFn = isMobile ? formatMobileFrameIndex : formatDesktopFrameIndex
 
-      // Batch size 15 for maximum parallel HTTP/2 throughput
-      const BATCH_SIZE = 15
-      for (let i = 1; i < activeTotal; i += BATCH_SIZE) {
+      // 1. Instant load first frame for immediate zero-latency render
+      const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`)
+      if (!mounted) return
+      images[0] = firstFrame
+      activeRef.current = [firstFrame]
+
+      // 2. Load immediate next 6 frames so initial scroll feels instantly responsive
+      const INITIAL_BURST = Math.min(7, activeTotal)
+      const burstPromises: Promise<HTMLImageElement>[] = []
+      for (let j = 1; j < INITIAL_BURST; j++) {
+        burstPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`))
+      }
+      const loadedBurst = await Promise.all(burstPromises)
+      if (!mounted) return
+      loadedBurst.forEach((img, idx) => {
+        images[1 + idx] = img
+      })
+      activeRef.current = [...images]
+
+      // 3. Stream remaining frames in lightweight background batches (size 6) with idle breaks
+      const BATCH_SIZE = 6
+      for (let i = INITIAL_BURST; i < activeTotal; i += BATCH_SIZE) {
         if (!mounted) break
+        // Brief idle pause to keep network thread open for critical assets (fonts, Shopify data)
+        await new Promise((r) => setTimeout(r, 40))
+        if (!mounted) break
+
         const batchPromises: Promise<HTMLImageElement>[] = []
         for (let j = i; j < Math.min(i + BATCH_SIZE, activeTotal); j++) {
           batchPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`))
@@ -140,31 +149,9 @@ export function ScrollVideoHero() {
         const loadedBatch = await Promise.all(batchPromises)
         if (!mounted) break
         loadedBatch.forEach((img, idx) => {
-          activeArray[i + idx] = img
+          images[i + idx] = img
         })
-        activeRef.current = [...activeArray]
-      }
-
-      // 3. Secondary background preloading for the other device set
-      const secondaryPrefix = !isMobile ? MOBILE_PREFIX : DESKTOP_PREFIX
-      const secondarySuffix = !isMobile ? MOBILE_SUFFIX : DESKTOP_SUFFIX
-      const secondaryTotal = !isMobile ? MOBILE_TOTAL_FRAMES : DESKTOP_TOTAL_FRAMES
-      const secondaryRef = !isMobile ? mobileImagesRef : desktopImagesRef
-      const secondaryArray = !isMobile ? mobileImages : desktopImages
-      const secondaryFormatFn = !isMobile ? formatMobileFrameIndex : formatDesktopFrameIndex
-
-      for (let i = 1; i < secondaryTotal; i += BATCH_SIZE) {
-        if (!mounted) break
-        const batchPromises: Promise<HTMLImageElement>[] = []
-        for (let j = i; j < Math.min(i + BATCH_SIZE, secondaryTotal); j++) {
-          batchPromises.push(loadImage(`${secondaryPrefix}${secondaryFormatFn(j)}${secondarySuffix}`))
-        }
-        const loadedBatch = await Promise.all(batchPromises)
-        if (!mounted) break
-        loadedBatch.forEach((img, idx) => {
-          secondaryArray[i + idx] = img
-        })
-        secondaryRef.current = [...secondaryArray]
+        activeRef.current = [...images]
       }
     }
 

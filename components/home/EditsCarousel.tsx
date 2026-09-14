@@ -138,7 +138,7 @@ export const curatedEditsProducts: ProductCard[] = [
 ]
 
 export function EditsCarousel() {
-  const [products, setProducts] = useState<ProductCard[]>([])
+  const [products, setProducts] = useState<ProductCard[]>(curatedEditsProducts)
   const [api, setApi] = useState<CarouselApi>()
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(true)
@@ -240,7 +240,7 @@ export function EditsCarousel() {
               key={product.id}
               className="pl-3 sm:pl-4 basis-[74%] sm:basis-[48%] md:basis-[36%] lg:basis-[25%]"
             >
-              <ProductCardView product={product} theme="dark" index={idx} />
+              <ProductCardView product={product} theme="dark" index={idx} verticalNavigation={true} />
             </CarouselItem>
           ))}
         </CarouselContent>
