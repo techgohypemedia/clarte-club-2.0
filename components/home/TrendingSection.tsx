@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, Bookmark, Check, ChevronLeft, ChevronRight, Heart, Plus, ShoppingBag } from "lucide-react"
+import { ArrowLeft, ArrowRight, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Heart, Plus, ShoppingBag } from "lucide-react"
 
 import { ProductQuickViewModal } from "@/components/product/ProductQuickViewModal"
 import {
@@ -326,8 +326,8 @@ export function ProductCardView({
               }}
               className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 items-center justify-center rounded-full backdrop-blur-xs opacity-0 -translate-x-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
                 isDark
-                  ? "bg-black/40 hover:bg-black/70 text-white border-white/15"
-                  : "bg-white/50 hover:bg-white/85 text-black border-black/10"
+                  ? "bg-black/50 hover:bg-black/80 text-white border-white/20"
+                  : "bg-white/60 hover:bg-white/90 text-black border-black/15"
               }`}
             >
               <ArrowLeft className="size-3.5 sm:size-4 stroke-[2]" />
@@ -343,14 +343,54 @@ export function ProductCardView({
               }}
               className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 hidden sm:flex size-8 items-center justify-center rounded-full backdrop-blur-xs opacity-0 translate-x-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
                 isDark
-                  ? "bg-black/40 hover:bg-black/70 text-white border-white/15"
-                  : "bg-white/50 hover:bg-white/85 text-black border-black/10"
+                  ? "bg-black/50 hover:bg-black/80 text-white border-white/20"
+                  : "bg-white/60 hover:bg-white/90 text-black border-black/15"
               }`}
             >
               <ArrowRight className="size-3.5 sm:size-4 stroke-[2]" />
             </button>
           </>
         ) : null}
+
+        {/* Navigation Arrows for Vertical Gallery (Curated Edits Mode) */}
+        {hasGalleryControls && verticalNavigation ? (
+          <>
+            <button
+              type="button"
+              aria-label="Previous product image"
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handlePreviousImage()
+              }}
+              className={`absolute top-2.5 left-1/2 -translate-x-1/2 z-20 hidden sm:flex size-7.5 items-center justify-center rounded-full backdrop-blur-xs opacity-0 -translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
+                isDark
+                  ? "bg-black/55 hover:bg-black/85 text-white border-white/20"
+                  : "bg-white/65 hover:bg-white/95 text-black border-black/15"
+              }`}
+            >
+              <ChevronUp className="size-4 stroke-[2.2]" />
+            </button>
+
+            <button
+              type="button"
+              aria-label="Next product image"
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleNextImage()
+              }}
+              className={`absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 hidden sm:flex size-7.5 items-center justify-center rounded-full backdrop-blur-xs opacity-0 translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto hover:scale-110 active:scale-95 cursor-pointer shadow-xs border ${
+                isDark
+                  ? "bg-black/55 hover:bg-black/85 text-white border-white/20"
+                  : "bg-white/65 hover:bg-white/95 text-black border-black/15"
+              }`}
+            >
+              <ChevronDown className="size-4 stroke-[2.2]" />
+            </button>
+          </>
+        ) : null}
+
 
         {/* Vertical Pagination Indicator (Curated Edits 2D Mode - Compact & Bottom-Right) */}
         {hasGalleryControls && verticalNavigation ? (() => {
