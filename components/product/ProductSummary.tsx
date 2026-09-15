@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
-import { addToCart, buyNow, getAppliedCoupon, setAppliedCoupon as saveAppliedCoupon } from "@/lib/cart"
+import { addToCart, buyNow } from "@/lib/cart"
 
 const deliveryIcons = {
   truck: Truck,
@@ -111,8 +111,7 @@ export function ProductSummary({
   const [isDescExpanded, setIsDescExpanded] = useState(false)
   const [activeAccordion, setActiveAccordion] = useState<"care" | "shipping" | null>(null)
   
-  // Coupon, copy, dialog, and cross-sell states
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
+  // Coupon copy, dialog, and cross-sell states
   const [copiedCouponCode, setCopiedCouponCode] = useState<string | null>(null)
   const [isViewAllCouponsOpen, setIsViewAllCouponsOpen] = useState(false)
   const [addedFitItems, setAddedFitItems] = useState<{ case: boolean; frame: boolean }>({
@@ -121,18 +120,6 @@ export function ProductSummary({
   })
 
   const availableCoupons: ProductCoupon[] = product.coupons || []
-
-  // Sync applied coupon from localStorage on mount and across tabs/windows
-  useEffect(() => {
-    setAppliedCoupon(getAppliedCoupon())
-
-    const handleCouponUpdate = (e: any) => {
-      setAppliedCoupon(e.detail?.code ?? getAppliedCoupon())
-    }
-
-    window.addEventListener("coupon-updated", handleCouponUpdate)
-    return () => window.removeEventListener("coupon-updated", handleCouponUpdate)
-  }, [])
 
   // Fetch reviews count from local storage to display next to the star ratings
   useEffect(() => {
@@ -181,18 +168,15 @@ export function ProductSummary({
     }, 3000)
 
     try {
-      await buyNow(
-        {
-          id: product.slug,
-          merchandiseId: product.merchandiseId,
-          image: product.gallery[0]?.src || "/images/products/product1.png",
-          alt: product.gallery[0]?.alt || product.title,
-          title: product.title,
-          size: selectedSize,
-          price: product.price,
-        },
-        { couponCode: appliedCoupon || undefined }
-      )
+      await buyNow({
+        id: product.slug,
+        merchandiseId: product.merchandiseId,
+        image: product.gallery[0]?.src || "/images/products/product1.png",
+        alt: product.gallery[0]?.alt || product.title,
+        title: product.title,
+        size: selectedSize,
+        price: product.price,
+      })
     } catch (err) {
       console.error("Buy Now error:", err)
       clearTimeout(timer)
@@ -210,19 +194,9 @@ export function ProductSummary({
     }
   }, [])
 
-  const handleApplyCoupon = (code: string) => {
-    if (appliedCoupon === code) {
-      saveAppliedCoupon(null)
-      setAppliedCoupon(null)
-    } else {
-      saveAppliedCoupon(code)
-      setAppliedCoupon(code)
-    }
-  }
-
   const handleCopyCoupon = (code: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
-    if (navigator?.clipboard) {
+    if (typeof navigator !== "undefined" && navigator?.clipboard) {
       navigator.clipboard.writeText(code)
       setCopiedCouponCode(code)
       setTimeout(() => {
@@ -339,28 +313,22 @@ export function ProductSummary({
 
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none w-full min-w-0">
                 {availableCoupons.map((coupon) => {
-                  const isApplied = appliedCoupon === coupon.code
                   const isCopied = copiedCouponCode === coupon.code
 
                   return (
                     <div
                       key={coupon.code}
-                      onClick={() => handleApplyCoupon(coupon.code)}
+                      onClick={() => handleCopyCoupon(coupon.code)}
                       className={cn(
                         "group relative flex items-center justify-between gap-3 shrink-0 w-[260px] border p-3 bg-white transition-all cursor-pointer select-none",
-                        isApplied
-                          ? "border-black shadow-sm bg-neutral-50/50"
+                        isCopied
+                          ? "border-black shadow-sm bg-neutral-50/80"
                           : "border-black/10 hover:border-black/30"
                       )}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className={cn(
-                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors",
-                            isApplied
-                              ? "bg-black text-white"
-                              : "bg-black/5 text-black group-hover:bg-black group-hover:text-white"
-                          )}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[9px] font-bold uppercase tracking-wider bg-black/5 text-black group-hover:bg-black group-hover:text-white transition-colors"
                         >
                           {coupon.badge || (coupon.code.includes("300") ? "FLAT" : coupon.code.includes("BELT") ? "GET" : "OFF")}
                         </div>
@@ -369,9 +337,9 @@ export function ProductSummary({
                             {coupon.title || `CODE: ${coupon.code}`}
                           </p>
                           <p className="text-[9.5px] text-black/50 uppercase leading-tight mt-0.5 truncate">
-                            {isApplied ? (
+                            {isCopied ? (
                               <span className="text-[#3b7a27] font-semibold flex items-center gap-1">
-                                Coupon Applied ✓
+                                Code Copied ✓
                               </span>
                             ) : (
                               `Code: ${coupon.code}`
@@ -385,7 +353,7 @@ export function ProductSummary({
                           type="button"
                           title="Copy code"
                           onClick={(e) => handleCopyCoupon(coupon.code, e)}
-                          className="p-1 text-black/40 hover:text-black transition-colors rounded hover:bg-black/5 cursor-pointer"
+                          className="p-1.5 text-black/40 hover:text-black transition-colors rounded hover:bg-black/5 cursor-pointer"
                         >
                           {isCopied ? (
                             <Check className="size-3.5 text-[#3b7a27]" />
@@ -411,13 +379,12 @@ export function ProductSummary({
                     </DialogTitle>
                   </div>
                   <DialogDescription className="text-[12px] text-black/60 uppercase tracking-wider">
-                    Select a coupon to auto-apply at checkout or copy the code.
+                    Copy a coupon code to use at checkout.
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                   {availableCoupons.map((coupon) => {
-                    const isApplied = appliedCoupon === coupon.code
                     const isCopied = copiedCouponCode === coupon.code
 
                     return (
@@ -425,7 +392,7 @@ export function ProductSummary({
                         key={coupon.code}
                         className={cn(
                           "border p-4 transition-all flex flex-col gap-3",
-                          isApplied
+                          isCopied
                             ? "border-black bg-neutral-50 shadow-sm"
                             : "border-black/10 hover:border-black/30 bg-white"
                         )}
@@ -449,35 +416,33 @@ export function ProductSummary({
                         </div>
 
                         <div className="flex items-center justify-between border-t border-black/5 pt-3 mt-1">
-                          <div className="flex items-center gap-2 bg-black/5 px-2.5 py-1 rounded border border-black/10">
+                          <div className="flex items-center gap-2 bg-black/5 px-2.5 py-1.5 rounded border border-black/10">
                             <span className="font-mono text-[12px] font-bold text-black uppercase tracking-widest">
                               {coupon.code}
                             </span>
-                            <button
-                              type="button"
-                              onClick={(e) => handleCopyCoupon(coupon.code, e)}
-                              className="text-black/50 hover:text-black transition-colors"
-                              title="Copy coupon code"
-                            >
-                              {isCopied ? (
-                                <span className="text-[10px] text-[#3b7a27] font-semibold">Copied!</span>
-                              ) : (
-                                <Copy className="size-3.5" />
-                              )}
-                            </button>
                           </div>
 
                           <button
                             type="button"
-                            onClick={() => handleApplyCoupon(coupon.code)}
+                            onClick={(e) => handleCopyCoupon(coupon.code, e)}
                             className={cn(
-                              "px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer",
-                              isApplied
-                                ? "bg-[#3b7a27] text-white hover:bg-[#326921]"
-                                : "bg-black text-white hover:bg-black/80"
+                              "inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer rounded",
+                              isCopied
+                                ? "bg-[#3b7a27] text-white"
+                                : "bg-black text-white hover:bg-neutral-800"
                             )}
                           >
-                            {isApplied ? "Applied ✓" : "Apply Code"}
+                            {isCopied ? (
+                              <>
+                                <Check className="size-3 text-white" />
+                                <span>Copied ✓</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="size-3 text-white" />
+                                <span>Copy Code</span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>

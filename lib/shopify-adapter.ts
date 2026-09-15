@@ -42,7 +42,7 @@ function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] 
                   code,
                   title: `CODE: ${code}`,
                   badge: "OFF",
-                  description: `Apply code ${code} at checkout`,
+                  description: `Use code ${code} at checkout`,
                 })
               }
             } else if (typeof item === "object") {
@@ -53,7 +53,7 @@ function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] 
                   code,
                   title: item.title || item.heading || item.name || `FLAT OFF`,
                   badge: item.badge || item.tag || (item.title?.includes("%") ? "%" : "OFF"),
-                  description: item.description || item.subtitle || item.desc || `Apply code ${code} at checkout`,
+                  description: item.description || item.subtitle || item.desc || `Use code ${code} at checkout`,
                   discount: item.discount,
                   minOrderValue: item.minOrderValue || item.min_order_value,
                 })
@@ -77,7 +77,7 @@ function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] 
               code,
               title: parts[1] || `CODE: ${code}`,
               badge: parts[2] || "OFF",
-              description: parts[3] || `Apply code ${code} at checkout`,
+              description: parts[3] || `Use code ${code} at checkout`,
             })
           }
         }
@@ -99,7 +99,7 @@ function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] 
           code,
           title: parts[1] || (code.includes("300") ? "FLAT ₹300 OFF" : code.includes("BELT") ? "FREE PREMIUM BELT" : `CODE: ${code}`),
           badge: parts[2] || (code.includes("FLAT") || code.includes("300") ? "FLAT" : code.includes("BELT") ? "GET" : "OFF"),
-          description: parts[3] || `Apply code ${code} at checkout`,
+          description: parts[3] || `Use code ${code} at checkout`,
         })
       }
     }
