@@ -119,6 +119,21 @@ export function FooterSection() {
               </div>
 
               <div>
+                <p className="text-[9px] font-semibold uppercase tracking-wider text-[#B8B0A2]">RETURNS &amp; EXCHANGES</p>
+                <p className="text-xs font-semibold text-[#C9B07A] hover:text-white transition-colors mt-0.5">
+                  <a
+                    href="https://returns.logisy.tech/returns?encipherencode=gAAAAABqqO4dZ_aHEgfDSgFjtzNTqFToTfjUov-gutfGRmGEnxV9zNALDW_8I3vsRe-FCSRd_e17ZDiNVjxpA4KgBtoGryMgUQ=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 group"
+                  >
+                    <span>Raise Request (RMS Portal)</span>
+                    <span className="text-[10px] transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                  </a>
+                </p>
+              </div>
+
+              <div>
                 <p className="text-[9px] font-semibold uppercase tracking-wider text-[#B8B0A2]">SUPPORT HOURS</p>
                 <p className="text-xs font-semibold text-white mt-0.5">
                   11 am – 8 pm IST

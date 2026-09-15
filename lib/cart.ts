@@ -20,6 +20,22 @@ export type CartItem = {
 const CART_KEY = "clarte_cart_items"
 const SHOPIFY_CART_ID_KEY = "clarte_shopify_cart_id"
 const SHOPIFY_CHECKOUT_URL_KEY = "clarte_shopify_checkout_url"
+const APPLIED_COUPON_KEY = "clarte_applied_coupon"
+
+export function getAppliedCoupon(): string | null {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem(APPLIED_COUPON_KEY)
+}
+
+export function setAppliedCoupon(code: string | null) {
+  if (typeof window === "undefined") return
+  if (code) {
+    localStorage.setItem(APPLIED_COUPON_KEY, code)
+  } else {
+    localStorage.removeItem(APPLIED_COUPON_KEY)
+  }
+  window.dispatchEvent(new CustomEvent("coupon-updated", { detail: { code } }))
+}
 
 export function getShopifyCartId(): string | null {
   if (typeof window === "undefined") return null
@@ -130,12 +146,14 @@ export function addToCart(
 }
 
 export async function buyNow(
-  item: Omit<CartItem, "quantity"> & { quantity?: number }
+  item: Omit<CartItem, "quantity"> & { quantity?: number },
+  options?: { couponCode?: string }
 ): Promise<string | null> {
   if (typeof window === "undefined") return null
 
   const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "shapar-ay.myshopify.com"
   const quantity = item.quantity && item.quantity > 0 ? item.quantity : 1
+  const discountCode = options?.couponCode || getAppliedCoupon()
 
   let merchandiseId = item.merchandiseId
 
@@ -167,7 +185,8 @@ export async function buyNow(
       .replace(/^.*\/Product\//, "")
 
     if (numericId) {
-      const permalinkUrl = `https://${shopifyDomain}/cart/${numericId}:${quantity}`
+      const discountParam = discountCode ? `?discount=${encodeURIComponent(discountCode)}` : ""
+      const permalinkUrl = `https://${shopifyDomain}/cart/${numericId}:${quantity}${discountParam}`
       window.location.href = permalinkUrl
       return permalinkUrl
     }
@@ -183,8 +202,11 @@ export async function buyNow(
         },
       ])
       if (cart?.checkoutUrl) {
-        window.location.href = cart.checkoutUrl
-        return cart.checkoutUrl
+        const finalCheckoutUrl = discountCode
+          ? `${cart.checkoutUrl}${cart.checkoutUrl.includes("?") ? "&" : "?"}discount=${encodeURIComponent(discountCode)}`
+          : cart.checkoutUrl
+        window.location.href = finalCheckoutUrl
+        return finalCheckoutUrl
       }
     } catch (error) {
       console.warn("Shopify cartCreate failed for Buy Now:", error)
@@ -192,7 +214,9 @@ export async function buyNow(
   }
 
   // Final Fallback: Direct checkout
-  const checkoutUrl = `https://${shopifyDomain}/checkout`
+  const checkoutUrl = discountCode
+    ? `https://${shopifyDomain}/checkout?discount=${encodeURIComponent(discountCode)}`
+    : `https://${shopifyDomain}/checkout`
   window.location.href = checkoutUrl
   return checkoutUrl
 }
@@ -215,7 +239,7 @@ export function removeFromCart(id: string, size: string) {
   saveCartItems(items)
 }
 
-export async function processShopifyCheckout(): Promise<string | null> {
+export async function processShopifyCheckout(discountCode?: string): Promise<string | null> {
   if (typeof window === "undefined") return null
 
   let items = getCartItems()
@@ -225,6 +249,7 @@ export async function processShopifyCheckout(): Promise<string | null> {
   }
 
   const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "shapar-ay.myshopify.com"
+  const coupon = discountCode || getAppliedCoupon()
 
   // 1. Auto-resolve missing merchandiseIds from live Shopify products if needed
   const missingMerchandise = items.some((item) => !item.merchandiseId)
@@ -268,7 +293,8 @@ export async function processShopifyCheckout(): Promise<string | null> {
     .filter(Boolean)
 
   if (permalinkParts.length > 0) {
-    const permalinkUrl = `https://${shopifyDomain}/cart/${permalinkParts.join(",")}`
+    const discountParam = coupon ? `?discount=${encodeURIComponent(coupon)}` : ""
+    const permalinkUrl = `https://${shopifyDomain}/cart/${permalinkParts.join(",")}${discountParam}`
     window.location.href = permalinkUrl
     return permalinkUrl
   }
@@ -288,8 +314,12 @@ export async function processShopifyCheckout(): Promise<string | null> {
         localStorage.setItem(SHOPIFY_CART_ID_KEY, cart.id)
         localStorage.setItem(SHOPIFY_CHECKOUT_URL_KEY, cart.checkoutUrl)
 
-        window.location.href = cart.checkoutUrl
-        return cart.checkoutUrl
+        const finalUrl = coupon
+          ? `${cart.checkoutUrl}${cart.checkoutUrl.includes("?") ? "&" : "?"}discount=${encodeURIComponent(coupon)}`
+          : cart.checkoutUrl
+
+        window.location.href = finalUrl
+        return finalUrl
       }
     } catch (error) {
       console.warn("Shopify cartCreate failed:", error)
@@ -299,12 +329,17 @@ export async function processShopifyCheckout(): Promise<string | null> {
   // 4. Fallback A: Saved checkout URL
   const existingCheckoutUrl = getShopifyCheckoutUrl()
   if (existingCheckoutUrl) {
-    window.location.href = existingCheckoutUrl
-    return existingCheckoutUrl
+    const finalUrl = coupon
+      ? `${existingCheckoutUrl}${existingCheckoutUrl.includes("?") ? "&" : "?"}discount=${encodeURIComponent(coupon)}`
+      : existingCheckoutUrl
+    window.location.href = finalUrl
+    return finalUrl
   }
 
   // Final Fallback: Direct checkout
-  const checkoutUrl = `https://${shopifyDomain}/checkout`
+  const checkoutUrl = coupon
+    ? `https://${shopifyDomain}/checkout?discount=${encodeURIComponent(coupon)}`
+    : `https://${shopifyDomain}/checkout`
   window.location.href = checkoutUrl
   return checkoutUrl
 }

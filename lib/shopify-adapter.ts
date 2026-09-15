@@ -7,7 +7,106 @@ import {
   toProductCard,
   extractOptionValues,
 } from "./shopify"
-import type { ProductCard, ProductDetail, ProductImage } from "@/components/product/productData"
+import type { ProductCard, ProductDetail, ProductImage, ProductCoupon } from "@/components/product/productData"
+
+function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] {
+  const coupons: ProductCoupon[] = []
+  const seenCodes = new Set<string>()
+
+  // 1. Extract from Shopify Metafields
+  const rawCouponsValue = getMetafieldValue(
+    node,
+    "coupons",
+    "coupon_codes",
+    "coupon_list",
+    "discounts",
+    "offers",
+    "promos",
+    "available_coupons"
+  )
+
+  if (rawCouponsValue) {
+    if (typeof rawCouponsValue === "string") {
+      const trimmed = rawCouponsValue.trim()
+      if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(trimmed)
+          const list = Array.isArray(parsed) ? parsed : [parsed]
+          for (const item of list) {
+            if (!item) continue
+            if (typeof item === "string") {
+              const code = item.toUpperCase().trim()
+              if (code && !seenCodes.has(code)) {
+                seenCodes.add(code)
+                coupons.push({
+                  code,
+                  title: `CODE: ${code}`,
+                  badge: "OFF",
+                  description: `Apply code ${code} at checkout`,
+                })
+              }
+            } else if (typeof item === "object") {
+              const code = String(item.code || item.coupon || item.coupon_code || item.id || "").toUpperCase().trim()
+              if (code && !seenCodes.has(code)) {
+                seenCodes.add(code)
+                coupons.push({
+                  code,
+                  title: item.title || item.heading || item.name || `FLAT OFF`,
+                  badge: item.badge || item.tag || (item.title?.includes("%") ? "%" : "OFF"),
+                  description: item.description || item.subtitle || item.desc || `Apply code ${code} at checkout`,
+                  discount: item.discount,
+                  minOrderValue: item.minOrderValue || item.min_order_value,
+                })
+              }
+            }
+          }
+        } catch {
+          // not JSON, fallback to line parsing
+        }
+      }
+
+      if (coupons.length === 0) {
+        // Line-based or comma-based format (e.g., "CLARTE300:FLAT ₹300 OFF:FLAT, FREEBELT:FREE PREMIUM BELT:GET")
+        const entries = trimmed.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean)
+        for (const entry of entries) {
+          const parts = entry.split(/[:|]/).map((p) => p.trim())
+          const code = parts[0]?.toUpperCase()
+          if (code && !seenCodes.has(code)) {
+            seenCodes.add(code)
+            coupons.push({
+              code,
+              title: parts[1] || `CODE: ${code}`,
+              badge: parts[2] || "OFF",
+              description: parts[3] || `Apply code ${code} at checkout`,
+            })
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Extract from Shopify Tags
+  const couponTagRegex = /^(?:coupon|promo|voucher|discount|offer)\s*[-:=]\s*(.+)$/i
+  for (const rawTag of tags) {
+    const tag = String(rawTag || "").trim()
+    const match = tag.match(couponTagRegex)
+    if (match && match[1]) {
+      const parts = match[1].split(/[:|]/).map((p) => p.trim())
+      const code = parts[0]?.toUpperCase()
+      if (code && !seenCodes.has(code)) {
+        seenCodes.add(code)
+        coupons.push({
+          code,
+          title: parts[1] || (code.includes("300") ? "FLAT ₹300 OFF" : code.includes("BELT") ? "FREE PREMIUM BELT" : `CODE: ${code}`),
+          badge: parts[2] || (code.includes("FLAT") || code.includes("300") ? "FLAT" : code.includes("BELT") ? "GET" : "OFF"),
+          description: parts[3] || `Apply code ${code} at checkout`,
+        })
+      }
+    }
+  }
+
+  return coupons
+}
 
 function getProductFallbackImages(_indexOrId: number | string): string[] {
   return []
@@ -433,6 +532,7 @@ export function shopifyProductToDetail(node: any): ProductDetail {
     ],
     completeLook: gallery.slice(0, 3),
     highlights,
+    coupons: extractProductCoupons(node, Array.isArray(node?.tags) ? node.tags : []),
   }
 }
 

@@ -45,6 +45,15 @@ export type ProductHighlightItem = {
   imageAlt?: string
 }
 
+export type ProductCoupon = {
+  code: string
+  title: string
+  badge?: string
+  description?: string
+  discount?: string
+  minOrderValue?: string
+}
+
 export type ProductDetail = {
   id?: string
   merchandiseId?: string
@@ -70,6 +79,7 @@ export type ProductDetail = {
   deliveryPerks: DeliveryPerk[]
   completeLook: ProductImage[]
   highlights?: ProductHighlightItem[]
+  coupons?: ProductCoupon[]
 }
 
 export const trendingProducts: ProductCard[] = []

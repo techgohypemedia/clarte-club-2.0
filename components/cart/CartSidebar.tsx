@@ -128,7 +128,9 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
     }
 
     window.addEventListener("cart-updated", handleCartUpdated)
-    return () => window.removeEventListener("cart-updated", handleCartUpdated)
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdated)
+    }
   }, [])
 
   useEffect(() => {

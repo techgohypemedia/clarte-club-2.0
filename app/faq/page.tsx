@@ -90,10 +90,19 @@ export default function FAQPage() {
           </div>
           <div className="space-y-4">
             <h2 className="font-heading text-lg font-normal uppercase tracking-wider text-[#0F0F10]">
-              Returns
+              Returns &amp; Exchanges
             </h2>
             <p className="text-[14px] leading-[1.7] text-neutral-600 font-light">
-              Not the right fit? Send it back within our return window and we&apos;ll sort a refund or exchange without a fuss. Original condition, tags on, that&apos;s the only ask.
+              Not the right fit? We work on an easy exchange basis within 7 days of delivery. You can raise a request in seconds via our{" "}
+              <a
+                href="https://returns.logisy.tech/returns?encipherencode=gAAAAABqqO4dZ_aHEgfDSgFjtzNTqFToTfjUov-gutfGRmGEnxV9zNALDW_8I3vsRe-FCSRd_e17ZDiNVjxpA4KgBtoGryMgUQ=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C9B07A] underline underline-offset-4 font-medium hover:text-[#0F0F10] transition-colors"
+              >
+                Online Return Portal
+              </a>
+              . Original condition and tags on, that&apos;s the only ask.
             </p>
           </div>
         </div>

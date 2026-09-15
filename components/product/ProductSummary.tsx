@@ -10,6 +10,9 @@ import {
   ShieldCheck,
   Star,
   Truck,
+  Tag,
+  Copy,
+  Sparkles,
 } from "lucide-react"
 import type { ButtonHTMLAttributes } from "react"
 import { useState, useEffect, useId } from "react"
@@ -19,9 +22,16 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import type { ProductDetail } from "@/components/product/productData"
-import { addToCart, buyNow } from "@/lib/cart"
+import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
+import { addToCart, buyNow, getAppliedCoupon, setAppliedCoupon as saveAppliedCoupon } from "@/lib/cart"
 
 const deliveryIcons = {
   truck: Truck,
@@ -101,12 +111,28 @@ export function ProductSummary({
   const [isDescExpanded, setIsDescExpanded] = useState(false)
   const [activeAccordion, setActiveAccordion] = useState<"care" | "shipping" | null>(null)
   
-  // Coupon and cross-sell states
+  // Coupon, copy, dialog, and cross-sell states
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
+  const [copiedCouponCode, setCopiedCouponCode] = useState<string | null>(null)
+  const [isViewAllCouponsOpen, setIsViewAllCouponsOpen] = useState(false)
   const [addedFitItems, setAddedFitItems] = useState<{ case: boolean; frame: boolean }>({
     case: false,
     frame: false,
   })
+
+  const availableCoupons: ProductCoupon[] = product.coupons || []
+
+  // Sync applied coupon from localStorage on mount and across tabs/windows
+  useEffect(() => {
+    setAppliedCoupon(getAppliedCoupon())
+
+    const handleCouponUpdate = (e: any) => {
+      setAppliedCoupon(e.detail?.code ?? getAppliedCoupon())
+    }
+
+    window.addEventListener("coupon-updated", handleCouponUpdate)
+    return () => window.removeEventListener("coupon-updated", handleCouponUpdate)
+  }, [])
 
   // Fetch reviews count from local storage to display next to the star ratings
   useEffect(() => {
@@ -155,15 +181,18 @@ export function ProductSummary({
     }, 3000)
 
     try {
-      await buyNow({
-        id: product.slug,
-        merchandiseId: product.merchandiseId,
-        image: product.gallery[0]?.src || "/images/products/product1.png",
-        alt: product.gallery[0]?.alt || product.title,
-        title: product.title,
-        size: selectedSize,
-        price: product.price,
-      })
+      await buyNow(
+        {
+          id: product.slug,
+          merchandiseId: product.merchandiseId,
+          image: product.gallery[0]?.src || "/images/products/product1.png",
+          alt: product.gallery[0]?.alt || product.title,
+          title: product.title,
+          size: selectedSize,
+          price: product.price,
+        },
+        { couponCode: appliedCoupon || undefined }
+      )
     } catch (err) {
       console.error("Buy Now error:", err)
       clearTimeout(timer)
@@ -181,13 +210,24 @@ export function ProductSummary({
     }
   }, [])
 
-
-
   const handleApplyCoupon = (code: string) => {
     if (appliedCoupon === code) {
+      saveAppliedCoupon(null)
       setAppliedCoupon(null)
     } else {
+      saveAppliedCoupon(code)
       setAppliedCoupon(code)
+    }
+  }
+
+  const handleCopyCoupon = (code: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(code)
+      setCopiedCouponCode(code)
+      setTimeout(() => {
+        setCopiedCouponCode(null)
+      }, 2000)
     }
   }
 
@@ -278,60 +318,176 @@ export function ProductSummary({
 
 
         {/* AVAILABLE COUPONS */}
-        <section className="space-y-3 pt-4 border-t border-black/15">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-black">
-              Available Coupons
-            </h3>
-            <button className="text-[11px] uppercase text-black/45 hover:underline tracking-wider">
-              View All
-            </button>
-          </div>
+        {availableCoupons.length > 0 && (
+          <>
+            <section className="space-y-3 pt-4 border-t border-black/15">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag className="size-3.5 text-black" />
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wider text-black">
+                    Available Coupons
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsViewAllCouponsOpen(true)}
+                  className="text-[11px] uppercase text-black/50 hover:text-black hover:underline tracking-wider font-medium cursor-pointer"
+                >
+                  View All ({availableCoupons.length})
+                </button>
+              </div>
 
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none w-full min-w-0">
-            {/* Coupon 1 */}
-            <div 
-              onClick={() => handleApplyCoupon("CLARTE300")}
-              className={cn(
-                "flex items-center gap-3 shrink-0 w-[240px] border p-3 bg-white transition-all cursor-pointer select-none",
-                appliedCoupon === "CLARTE300" ? "border-black shadow-sm" : "border-black/10 hover:border-black/30"
-              )}
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-white text-[9px] font-bold uppercase">
-                FLAT
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-black">
-                  FLAT ₹300 OFF
-                </p>
-                <p className="text-[9px] text-black/50 uppercase leading-none mt-0.5">
-                  {appliedCoupon === "CLARTE300" ? "Coupon Applied ✓" : "Code: CLARTE300"}
-                </p>
-              </div>
-            </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none w-full min-w-0">
+                {availableCoupons.map((coupon) => {
+                  const isApplied = appliedCoupon === coupon.code
+                  const isCopied = copiedCouponCode === coupon.code
 
-            {/* Coupon 2 */}
-            <div 
-              onClick={() => handleApplyCoupon("FREEBELT")}
-              className={cn(
-                "flex items-center gap-3 shrink-0 w-[240px] border p-3 bg-white transition-all cursor-pointer select-none",
-                appliedCoupon === "FREEBELT" ? "border-black shadow-sm" : "border-black/10 hover:border-black/30"
-              )}
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-white text-[9px] font-bold uppercase">
-                GET
+                  return (
+                    <div
+                      key={coupon.code}
+                      onClick={() => handleApplyCoupon(coupon.code)}
+                      className={cn(
+                        "group relative flex items-center justify-between gap-3 shrink-0 w-[260px] border p-3 bg-white transition-all cursor-pointer select-none",
+                        isApplied
+                          ? "border-black shadow-sm bg-neutral-50/50"
+                          : "border-black/10 hover:border-black/30"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={cn(
+                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors",
+                            isApplied
+                              ? "bg-black text-white"
+                              : "bg-black/5 text-black group-hover:bg-black group-hover:text-white"
+                          )}
+                        >
+                          {coupon.badge || (coupon.code.includes("300") ? "FLAT" : coupon.code.includes("BELT") ? "GET" : "OFF")}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11.5px] font-bold uppercase tracking-wider text-black truncate">
+                            {coupon.title || `CODE: ${coupon.code}`}
+                          </p>
+                          <p className="text-[9.5px] text-black/50 uppercase leading-tight mt-0.5 truncate">
+                            {isApplied ? (
+                              <span className="text-[#3b7a27] font-semibold flex items-center gap-1">
+                                Coupon Applied ✓
+                              </span>
+                            ) : (
+                              `Code: ${coupon.code}`
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          title="Copy code"
+                          onClick={(e) => handleCopyCoupon(coupon.code, e)}
+                          className="p-1 text-black/40 hover:text-black transition-colors rounded hover:bg-black/5 cursor-pointer"
+                        >
+                          {isCopied ? (
+                            <Check className="size-3.5 text-[#3b7a27]" />
+                          ) : (
+                            <Copy className="size-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-black">
-                  FREE PREMIUM BELT
-                </p>
-                <p className="text-[9px] text-black/50 uppercase leading-none mt-0.5">
-                  {appliedCoupon === "FREEBELT" ? "Coupon Applied ✓" : "Code: FREEBELT"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+            </section>
+
+            {/* VIEW ALL COUPONS DIALOG */}
+            <Dialog open={isViewAllCouponsOpen} onOpenChange={setIsViewAllCouponsOpen}>
+              <DialogContent className="max-w-md bg-white p-6 border border-black/15 shadow-2xl rounded-none">
+                <DialogHeader className="space-y-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-4 text-[#C9B07A]" />
+                    <DialogTitle className="font-heading text-xl uppercase tracking-tight text-black">
+                      Available Coupons &amp; Offers
+                    </DialogTitle>
+                  </div>
+                  <DialogDescription className="text-[12px] text-black/60 uppercase tracking-wider">
+                    Select a coupon to auto-apply at checkout or copy the code.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                  {availableCoupons.map((coupon) => {
+                    const isApplied = appliedCoupon === coupon.code
+                    const isCopied = copiedCouponCode === coupon.code
+
+                    return (
+                      <div
+                        key={coupon.code}
+                        className={cn(
+                          "border p-4 transition-all flex flex-col gap-3",
+                          isApplied
+                            ? "border-black bg-neutral-50 shadow-sm"
+                            : "border-black/10 hover:border-black/30 bg-white"
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-white text-[9px] font-bold uppercase">
+                              {coupon.badge || "OFF"}
+                            </span>
+                            <div>
+                              <h4 className="text-[13px] font-bold uppercase tracking-wider text-black">
+                                {coupon.title}
+                              </h4>
+                              {coupon.description && (
+                                <p className="text-[11.5px] text-black/60 mt-0.5 leading-normal">
+                                  {coupon.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between border-t border-black/5 pt-3 mt-1">
+                          <div className="flex items-center gap-2 bg-black/5 px-2.5 py-1 rounded border border-black/10">
+                            <span className="font-mono text-[12px] font-bold text-black uppercase tracking-widest">
+                              {coupon.code}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyCoupon(coupon.code, e)}
+                              className="text-black/50 hover:text-black transition-colors"
+                              title="Copy coupon code"
+                            >
+                              {isCopied ? (
+                                <span className="text-[10px] text-[#3b7a27] font-semibold">Copied!</span>
+                              ) : (
+                                <Copy className="size-3.5" />
+                              )}
+                            </button>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleApplyCoupon(coupon.code)}
+                            className={cn(
+                              "px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer",
+                              isApplied
+                                ? "bg-[#3b7a27] text-white hover:bg-[#326921]"
+                                : "bg-black text-white hover:bg-black/80"
+                            )}
+                          >
+                            {isApplied ? "Applied ✓" : "Apply Code"}
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
 
 
 

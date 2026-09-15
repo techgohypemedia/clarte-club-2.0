@@ -61,8 +61,40 @@ export default function ReturnsPage() {
       </section>
 
       {/* Main Content */}
-      <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 text-neutral-700 leading-relaxed font-light space-y-12 text-[15px]">
+      <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 text-neutral-700 leading-relaxed font-light space-y-12 text-[15px]">
         
+        {/* RMS Portal Direct Action Card */}
+        <div className="bg-[#0F0F10] text-white p-6 sm:p-8 md:p-10 border border-black flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-md">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#C9B07A]/15 border border-[#C9B07A]/30 text-[#C9B07A] text-[10px] uppercase font-mono tracking-widest">
+              <span>Self-Service Portal</span>
+            </div>
+            <h2 className="font-heading text-xl sm:text-2xl font-normal uppercase tracking-wider text-white">
+              Raise a Return or Exchange
+            </h2>
+            <p className="text-xs sm:text-sm text-[#E2DDD3] font-light leading-relaxed">
+              Initiate an exchange or replacement directly online. Enter your Order Number and phone or email to track, manage, and book reverse pickup.
+            </p>
+          </div>
+          <a
+            href="https://returns.logisy.tech/returns?encipherencode=gAAAAABqqO4dZ_aHEgfDSgFjtzNTqFToTfjUov-gutfGRmGEnxV9zNALDW_8I3vsRe-FCSRd_e17ZDiNVjxpA4KgBtoGryMgUQ=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full md:w-auto shrink-0 inline-flex items-center justify-center gap-2 bg-[#C9B07A] hover:bg-[#b89f6b] text-[#0F0F10] px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors"
+          >
+            <span>Start Return / Exchange</span>
+            <svg
+              className="size-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+
         {/* Core Approach Summary Box */}
         <div className="bg-[#f4f4f4] border border-black/10 p-6 md:p-8 space-y-3 shadow-sm">
           <h2 className="font-heading text-xs uppercase tracking-[0.25em] text-[#C9B07A] font-bold">
@@ -127,17 +159,29 @@ export default function ReturnsPage() {
           </h3>
           <ul className="space-y-2 list-disc pl-5 text-neutral-700">
             <li>
-              Email{" "}
+              Visit our{" "}
+              <a
+                href="https://returns.logisy.tech/returns?encipherencode=gAAAAABqqO4dZ_aHEgfDSgFjtzNTqFToTfjUov-gutfGRmGEnxV9zNALDW_8I3vsRe-FCSRd_e17ZDiNVjxpA4KgBtoGryMgUQ=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C9B07A] underline underline-offset-4 font-semibold"
+              >
+                Online Return &amp; Exchange Portal
+              </a>{" "}
+              within [7 days] of delivery. Enter your Order ID and registered phone number or email to submit your request.
+            </li>
+            <li>
+              If the item arrived damaged, defective, or incorrect, please upload clear photographs of the product and packaging in the portal &mdash; this helps us approve the request quickly, without back and forth.
+            </li>
+            <li>
+              We&apos;ll confirm eligibility within [2 business days] and coordinate the next steps, including reverse pickup where serviceable, or instructions to self-ship the item back to us.
+            </li>
+            <li>
+              If you need any manual assistance, you can also reach our customer support team directly at{" "}
               <a href="mailto:contact@clarte.club" className="text-[#C9B07A] underline underline-offset-4 font-semibold">
                 contact@clarte.club
-              </a>{" "}
-              within [7 days] of delivery, with your order number and the reason for the request.
-            </li>
-            <li>
-              If the item arrived damaged, defective, or incorrect, please include clear photographs of the product and packaging &mdash; this helps us approve the request quickly, without back and forth.
-            </li>
-            <li>
-              We&apos;ll confirm eligibility within [2 business days] and let you know the next step, a reverse pickup where serviceable, or instructions to self-ship the item back to us.
+              </a>
+              .
             </li>
           </ul>
         </div>

@@ -741,7 +741,16 @@ const ALL_PRODUCTS_QUERY = `#graphql
           { namespace: "custom", key: "highlight" },
           { namespace: "custom", key: "product_highlights" },
           { namespace: "custom", key: "product_highlight" },
-          { namespace: "custom", key: "highlights_json" }
+          { namespace: "custom", key: "highlights_json" },
+          { namespace: "custom", key: "coupons" },
+          { namespace: "custom", key: "coupon_codes" },
+          { namespace: "custom", key: "discounts" },
+          { namespace: "custom", key: "offers" },
+          { namespace: "custom", key: "promos" },
+          { namespace: "details", key: "coupons" },
+          { namespace: "details", key: "offers" },
+          { namespace: "global", key: "coupons" },
+          { namespace: "theme", key: "coupons" }
         ]) {
           key
           namespace
@@ -991,7 +1000,17 @@ export async function fetchProductByHandle(handle: string) {
         { namespace: "custom", key: "highlight" },
         { namespace: "custom", key: "product_highlights" },
         { namespace: "custom", key: "product_highlight" },
-        { namespace: "custom", key: "highlights_json" }
+        { namespace: "custom", key: "highlights_json" },
+        { namespace: "custom", key: "coupons" },
+        { namespace: "custom", key: "coupon_codes" },
+        { namespace: "custom", key: "discounts" },
+        { namespace: "custom", key: "offers" },
+        { namespace: "custom", key: "promos" },
+        { namespace: "details", key: "coupons" },
+        { namespace: "details", key: "offers" },
+        { namespace: "global", key: "coupons" },
+        { namespace: "theme", key: "coupons" },
+        { namespace: "clarte", key: "coupons" }
       ]) {
         key
         namespace
