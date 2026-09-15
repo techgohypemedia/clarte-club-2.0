@@ -12,7 +12,6 @@ import {
   Truck,
   Tag,
   Copy,
-  Sparkles,
 } from "lucide-react"
 import type { ButtonHTMLAttributes } from "react"
 import { useState, useEffect, useId } from "react"
@@ -372,12 +371,9 @@ export function ProductSummary({
             <Dialog open={isViewAllCouponsOpen} onOpenChange={setIsViewAllCouponsOpen}>
               <DialogContent className="max-w-md bg-white p-6 border border-black/15 shadow-2xl rounded-none">
                 <DialogHeader className="space-y-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="size-4 text-[#C9B07A]" />
-                    <DialogTitle className="font-heading text-xl uppercase tracking-tight text-black">
-                      Available Coupons &amp; Offers
-                    </DialogTitle>
-                  </div>
+                  <DialogTitle className="font-heading text-xl uppercase tracking-tight text-black">
+                    Available Coupons &amp; Offers
+                  </DialogTitle>
                   <DialogDescription className="text-[12px] text-black/60 uppercase tracking-wider">
                     Copy a coupon code to use at checkout.
                   </DialogDescription>
