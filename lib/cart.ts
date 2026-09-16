@@ -151,6 +151,7 @@ export async function buyNow(
 ): Promise<string | null> {
   if (typeof window === "undefined") return null
 
+  const checkoutDomain = process.env.NEXT_PUBLIC_SHOPIFY_CHECKOUT_DOMAIN || "checkout.clarteclub.in"
   const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "shapar-ay.myshopify.com"
   const quantity = item.quantity && item.quantity > 0 ? item.quantity : 1
   const discountCode = options?.couponCode || getAppliedCoupon()
@@ -178,21 +179,8 @@ export async function buyNow(
     }
   }
 
-  // 2. Direct Shopify Cart Permalink for ONLY this single item (does not touch or include local cart items)
-  if (merchandiseId) {
-    const numericId = merchandiseId
-      .replace(/^.*\/ProductVariant\//, "")
-      .replace(/^.*\/Product\//, "")
-
-    if (numericId) {
-      const discountParam = discountCode ? `?discount=${encodeURIComponent(discountCode)}` : ""
-      const permalinkUrl = `https://${shopifyDomain}/cart/${numericId}:${quantity}${discountParam}`
-      window.location.href = permalinkUrl
-      return permalinkUrl
-    }
-  }
-
-  // 3. Fallback: Create isolated single-item Shopify Cart via Storefront API (without saving over existing cart id)
+  // 2. Primary & Recommended: Create isolated single-item Shopify Cart via Storefront API
+  // Shopify automatically returns cart.checkoutUrl with the store's primary domain (checkout.clarteclub.in)
   if (merchandiseId) {
     try {
       const cart = await cartCreate([
@@ -213,10 +201,26 @@ export async function buyNow(
     }
   }
 
+  // 3. Fallback: Direct Shopify Cart Permalink for ONLY this single item
+  if (merchandiseId) {
+    const numericId = merchandiseId
+      .replace(/^.*\/ProductVariant\//, "")
+      .replace(/^.*\/Product\//, "")
+
+    if (numericId) {
+      const discountParam = discountCode ? `?discount=${encodeURIComponent(discountCode)}` : ""
+      const domainToUse = checkoutDomain || shopifyDomain
+      const permalinkUrl = `https://${domainToUse}/cart/${numericId}:${quantity}${discountParam}`
+      window.location.href = permalinkUrl
+      return permalinkUrl
+    }
+  }
+
   // Final Fallback: Direct checkout
+  const domainToUse = checkoutDomain || shopifyDomain
   const checkoutUrl = discountCode
-    ? `https://${shopifyDomain}/checkout?discount=${encodeURIComponent(discountCode)}`
-    : `https://${shopifyDomain}/checkout`
+    ? `https://${domainToUse}/checkout?discount=${encodeURIComponent(discountCode)}`
+    : `https://${domainToUse}/checkout`
   window.location.href = checkoutUrl
   return checkoutUrl
 }
@@ -248,6 +252,7 @@ export async function processShopifyCheckout(discountCode?: string): Promise<str
     return null
   }
 
+  const checkoutDomain = process.env.NEXT_PUBLIC_SHOPIFY_CHECKOUT_DOMAIN || "checkout.clarteclub.in"
   const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN || "shapar-ay.myshopify.com"
   const coupon = discountCode || getAppliedCoupon()
 
@@ -283,23 +288,7 @@ export async function processShopifyCheckout(discountCode?: string): Promise<str
     }
   }
 
-  // 2. Direct Shopify Cart Permalink (Fastest & 100% reliable direct Checkout redirect)
-  const permalinkParts = items
-    .map((item) => {
-      if (!item.merchandiseId) return null
-      const numericId = item.merchandiseId.replace(/^.*\/ProductVariant\//, "").replace(/^.*\/Product\//, "")
-      return numericId ? `${numericId}:${item.quantity}` : null
-    })
-    .filter(Boolean)
-
-  if (permalinkParts.length > 0) {
-    const discountParam = coupon ? `?discount=${encodeURIComponent(coupon)}` : ""
-    const permalinkUrl = `https://${shopifyDomain}/cart/${permalinkParts.join(",")}${discountParam}`
-    window.location.href = permalinkUrl
-    return permalinkUrl
-  }
-
-  // 3. Fallback: Create Shopify Cart via Storefront API
+  // 2. Primary & Recommended: Create Shopify Cart via Storefront API to get official cart.checkoutUrl
   const validLines = items
     .filter((item) => item.merchandiseId)
     .map((item) => ({
@@ -326,7 +315,7 @@ export async function processShopifyCheckout(discountCode?: string): Promise<str
     }
   }
 
-  // 4. Fallback A: Saved checkout URL
+  // 3. Fallback A: Saved checkout URL from previously created cart
   const existingCheckoutUrl = getShopifyCheckoutUrl()
   if (existingCheckoutUrl) {
     const finalUrl = coupon
@@ -336,10 +325,28 @@ export async function processShopifyCheckout(discountCode?: string): Promise<str
     return finalUrl
   }
 
+  // 4. Fallback B: Direct Shopify Cart Permalink with checkout domain
+  const permalinkParts = items
+    .map((item) => {
+      if (!item.merchandiseId) return null
+      const numericId = item.merchandiseId.replace(/^.*\/ProductVariant\//, "").replace(/^.*\/Product\//, "")
+      return numericId ? `${numericId}:${item.quantity}` : null
+    })
+    .filter(Boolean)
+
+  if (permalinkParts.length > 0) {
+    const discountParam = coupon ? `?discount=${encodeURIComponent(coupon)}` : ""
+    const domainToUse = checkoutDomain || shopifyDomain
+    const permalinkUrl = `https://${domainToUse}/cart/${permalinkParts.join(",")}${discountParam}`
+    window.location.href = permalinkUrl
+    return permalinkUrl
+  }
+
   // Final Fallback: Direct checkout
+  const domainToUse = checkoutDomain || shopifyDomain
   const checkoutUrl = coupon
-    ? `https://${shopifyDomain}/checkout?discount=${encodeURIComponent(coupon)}`
-    : `https://${shopifyDomain}/checkout`
+    ? `https://${domainToUse}/checkout?discount=${encodeURIComponent(coupon)}`
+    : `https://${domainToUse}/checkout`
   window.location.href = checkoutUrl
   return checkoutUrl
 }
