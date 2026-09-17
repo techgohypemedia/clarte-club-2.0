@@ -192,14 +192,14 @@ export function StoriesModal({
                   e.stopPropagation()
                   handlePrev()
                 }}
-                className="hidden sm:flex absolute -left-12 sm:-left-16 z-50 size-11 sm:size-12 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white hover:text-black transition-all cursor-pointer shadow-lg"
+                className="hidden sm:flex absolute -left-12 sm:-left-16 z-50 size-11 sm:size-12 items-center justify-center rounded-full bg-white text-black shadow-xl hover:bg-[#C9B07A] hover:text-black transition-all cursor-pointer border border-black/10"
                 aria-label="Previous story"
               >
                 <ChevronLeft className="size-6" strokeWidth={2.2} />
               </button>
             )}
 
-            {/* ── Main Full-Bleed Story Card ── */}
+            {/* ── Main Full-Bleed Story Card (Light Luxury Aesthetic) ── */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStory.id}
@@ -207,7 +207,7 @@ export function StoriesModal({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.2 }}
-                className="relative flex h-full w-full sm:h-[84vh] sm:max-h-[760px] sm:min-h-[540px] sm:w-[420px] flex-col justify-between overflow-hidden bg-neutral-950 sm:rounded-2xl shadow-2xl select-none sm:border sm:border-white/10"
+                className="relative flex h-full w-full sm:h-[84vh] sm:max-h-[760px] sm:min-h-[540px] sm:w-[420px] flex-col justify-between overflow-hidden bg-[#F5F5F7] sm:rounded-2xl shadow-2xl select-none sm:border sm:border-black/10"
               >
                 {/* ── Top Progress Bars Inside Card ── */}
                 <div className="absolute top-0 inset-x-0 z-40 pt-3 sm:pt-4 px-3.5 sm:px-4 flex items-center gap-1.5 pointer-events-auto">
@@ -219,7 +219,7 @@ export function StoriesModal({
                     return (
                       <div
                         key={s.id}
-                        className="h-1 flex-1 overflow-hidden rounded-full bg-white/30 cursor-pointer"
+                        className="h-1 flex-1 overflow-hidden rounded-full bg-black/15 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation()
                           setCurrentIndex(idx)
@@ -227,7 +227,7 @@ export function StoriesModal({
                         }}
                       >
                         <div
-                          className="h-full bg-white transition-all duration-75 ease-linear"
+                          className="h-full bg-[#0F0F10] transition-all duration-75 ease-linear"
                           style={{ width }}
                         />
                       </div>
@@ -237,7 +237,7 @@ export function StoriesModal({
 
                 {/* ── Top Header Row (Logo Left + Controls Right) ── */}
                 <div className="relative z-40 flex items-center justify-between pt-7 sm:pt-8 px-4 sm:px-5">
-                  <div className="flex size-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md p-1.5 border border-white/20 shadow-md">
+                  <div className="flex size-8 items-center justify-center rounded-full bg-black text-white p-1.5 border border-black/20 shadow-md">
                     <Image
                       src="/logo.svg"
                       alt="Clarté Club"
@@ -254,13 +254,13 @@ export function StoriesModal({
                         e.stopPropagation()
                         setIsPaused((prev) => !prev)
                       }}
-                      className="flex size-8 sm:size-8.5 items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors cursor-pointer backdrop-blur-md border border-white/20"
+                      className="flex size-8 sm:size-8.5 items-center justify-center rounded-full bg-white/90 text-black hover:bg-black hover:text-white transition-colors cursor-pointer backdrop-blur-md border border-black/10 shadow-sm"
                       aria-label={isPaused ? "Play story" : "Pause story"}
                     >
                       {isPaused ? (
-                        <Play className="size-3.5 fill-white text-white ml-0.5" />
+                        <Play className="size-3.5 fill-current ml-0.5" />
                       ) : (
-                        <Pause className="size-3.5 fill-white text-white" />
+                        <Pause className="size-3.5 fill-current" />
                       )}
                     </button>
                     <button
@@ -269,7 +269,7 @@ export function StoriesModal({
                         e.stopPropagation()
                         onClose()
                       }}
-                      className="flex size-8 sm:size-8.5 items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors cursor-pointer backdrop-blur-md border border-white/20"
+                      className="flex size-8 sm:size-8.5 items-center justify-center rounded-full bg-white/90 text-black hover:bg-black hover:text-white transition-colors cursor-pointer backdrop-blur-md border border-black/10 shadow-sm"
                       aria-label="Close stories"
                     >
                       <X className="size-4" />
@@ -277,37 +277,23 @@ export function StoriesModal({
                   </div>
                 </div>
 
-                {/* Ambient Blurred Atmosphere */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <Image
-                    src={currentStory.image}
-                    alt=""
-                    fill
-                    sizes="100px"
-                    className="object-cover object-center blur-3xl opacity-20 scale-125"
-                  />
-                </div>
-
-                {/* Main Product Image (Uncropped & Centered) */}
-                <div className="absolute inset-0 flex items-center justify-center p-8 sm:p-10 pointer-events-none">
-                  <div className="relative w-full h-full max-h-[60%] sm:max-h-[65%] flex items-center justify-center">
+                {/* Main Product Image (Centered on Light Luxury Background) */}
+                <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-8 pointer-events-none z-10">
+                  <div className="relative w-full h-full max-h-[68%] sm:max-h-[72%] flex items-center justify-center">
                     <Image
                       src={currentStory.image}
                       alt={currentStory.title}
                       fill
                       priority
                       sizes="(max-width: 640px) 100vw, 420px"
-                      className="object-contain object-center drop-shadow-2xl"
+                      className="object-contain object-center drop-shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
                     />
                   </div>
                 </div>
 
-                {/* Gradient Shadow Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/50 pointer-events-none z-10" />
-
-                {/* Tap Navigation Click Overlays (No title tooltip) */}
+                {/* Tap Navigation Click Overlays */}
                 <div
-                  className="absolute inset-y-0 left-0 w-[35%] z-20 cursor-pointer"
+                  className="absolute inset-y-0 left-0 w-[35%] z-25 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation()
                     handlePrev()
@@ -315,7 +301,7 @@ export function StoriesModal({
                   aria-label="Previous story"
                 />
                 <div
-                  className="absolute inset-y-0 right-0 w-[65%] z-20 cursor-pointer"
+                  className="absolute inset-y-0 right-0 w-[65%] z-25 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleNext()
@@ -323,15 +309,25 @@ export function StoriesModal({
                   aria-label="Next story"
                 />
 
-                {/* 2. Bottom Floating Glass CTA Button */}
-                <div className="relative z-30 flex flex-col items-center justify-center p-6 text-center pb-10 sm:pb-8 gap-3.5">
-                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-white tracking-wide drop-shadow-md">
+                {/* Bottom Title & Luxury CTA Button */}
+                <div className="relative z-30 flex flex-col items-center justify-center p-6 text-center pb-10 sm:pb-8 gap-2.5">
+                  {currentStory.category ? (
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#C9B07A]">
+                      {currentStory.category}
+                    </span>
+                  ) : null}
+                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#0F0F10] tracking-wide">
                     {currentStory.title}
                   </h3>
+                  {currentStory.subtitle ? (
+                    <p className="text-xs text-neutral-500 max-w-[300px] line-clamp-2">
+                      {currentStory.subtitle}
+                    </p>
+                  ) : null}
                   <Link
                     href={currentStory.link}
                     onClick={onClose}
-                    className="inline-flex items-center justify-center rounded-full bg-white/25 px-8 py-3 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-md border border-white/40 shadow-lg transition-all hover:bg-white hover:text-black active:scale-95 mt-1"
+                    className="inline-flex items-center justify-center rounded-full bg-[#0F0F10] px-8 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-md transition-all hover:bg-[#C9B07A] hover:text-[#0F0F10] active:scale-95 mt-1 border border-black cursor-pointer"
                   >
                     {currentStory.ctaText}
                   </Link>
@@ -347,7 +343,7 @@ export function StoriesModal({
                   e.stopPropagation()
                   handleNext()
                 }}
-                className="hidden sm:flex absolute -right-12 sm:-right-16 z-50 size-11 sm:size-12 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white hover:text-black transition-all cursor-pointer shadow-lg"
+                className="hidden sm:flex absolute -right-12 sm:-right-16 z-50 size-11 sm:size-12 items-center justify-center rounded-full bg-white text-black shadow-xl hover:bg-[#C9B07A] hover:text-black transition-all cursor-pointer border border-black/10"
                 aria-label="Next story"
               >
                 <ChevronRight className="size-6" strokeWidth={2.2} />
