@@ -36,11 +36,11 @@ export function CinematicPreloader() {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Fallback timer: ensure preloader dismisses within 2.0s max
+    // Fallback timer: ensure preloader dismisses if video fails to load (extended to 5s for full playback)
     const maxTimer = setTimeout(() => {
       setIsLoading(false)
       document.body.style.overflow = prevOverflow
-    }, 2000)
+    }, 5000)
 
     return () => {
       window.removeEventListener("resize", checkIsMobile)
@@ -52,12 +52,14 @@ export function CinematicPreloader() {
   // Start video playback when isLoading activates
   useEffect(() => {
     if (isLoading && videoRef.current) {
-      videoRef.current.muted = true
-      videoRef.current.currentTime = 0
-      const playPromise = videoRef.current.play()
+      const vid = videoRef.current
+      vid.muted = true
+      vid.defaultMuted = true
+      vid.currentTime = 0
+      const playPromise = vid.play()
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          setTimeout(() => setIsLoading(false), 800)
+        playPromise.catch((err) => {
+          console.warn("Preloader video autoplay prevented:", err)
         })
       }
     }
@@ -94,16 +96,15 @@ export function CinematicPreloader() {
               autoPlay
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               onEnded={handleFinish}
-              className={`absolute inset-0 size-full w-full h-full pointer-events-none ${
-                isMobile
-                  ? "object-cover object-center"
-                  : "object-contain sm:object-cover object-center"
-              }`}
+              className="absolute inset-0 size-full w-full h-full pointer-events-none object-cover object-center scale-[1.08] transform-gpu"
             />
 
-            {/* Subtle brand watermark & skip action in bottom corner */}
+            {/* Conceal bottom-right corner video watermark */}
+            <div className="pointer-events-none absolute -bottom-2 -right-2 w-44 h-44 bg-gradient-to-tl from-black via-black/95 to-transparent blur-md z-[5]" />
+
+            {/* Skip action in bottom corner */}
             <div className="absolute bottom-6 right-6 pb-[env(safe-area-inset-bottom,0px)] pr-[env(safe-area-inset-right,0px)] z-10 flex items-center gap-4">
               <button
                 type="button"
