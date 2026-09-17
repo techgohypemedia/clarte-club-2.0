@@ -23,6 +23,7 @@ import { SearchSidebar } from "@/components/home/SearchSidebar"
 import { WishlistSidebar } from "@/components/wishlist/WishlistSidebar"
 import { AuthModal, getStoredCustomerToken } from "@/components/auth/AuthModal"
 import { getCartItems } from "@/lib/cart"
+import { useWishlist } from "@/lib/wishlist"
 import {
   Sheet,
   SheetClose,
@@ -224,6 +225,7 @@ function MobileFloatingNav({
 }) {
   const [mounted, setMounted] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+  const { count: wishlistCount } = useWishlist()
   const lastScrollY = useRef(0)
 
   useEffect(() => {
@@ -281,9 +283,14 @@ function MobileFloatingNav({
           type="button"
           onClick={onOpenWishlist}
           aria-label="Wishlist"
-          className="text-black hover:opacity-60 transition-opacity cursor-pointer flex items-center justify-center active:scale-95"
+          className="relative text-black hover:opacity-60 transition-opacity cursor-pointer flex items-center justify-center active:scale-95"
         >
           <Heart className="size-5 stroke-[1.8]" />
+          {wishlistCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#C9B07A] text-[8px] font-bold text-black border border-white">
+              {wishlistCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -463,6 +470,7 @@ export function Navbar({
   const isLightSurface = !isOverlay || (isVideoHero ? isPastHero : isScrolled) || isInteractiveSurface
   const tone: "dark" | "light" = isLightSurface ? "dark" : "light"
   const isWishlistOpen = wishlistOpen
+  const { count: wishlistCount } = useWishlist()
   const [cartCount, setCartCount] = useState(0)
   const [cartToast, setCartToast] = useState<{
     visible: boolean
@@ -768,7 +776,14 @@ export function Navbar({
               ariaHaspopup="menu"
               ariaExpanded={isWishlistOpen}
             >
-              <Heart className="size-[18px] stroke-[1.7]" />
+              <div className="relative">
+                <Heart className="size-[18px] stroke-[1.7]" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2.5 -right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#C9B07A] text-[9px] font-bold text-black border border-white animate-in scale-in duration-200">
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
             </IconButton>
 
             {/* Cart Icon */}
@@ -1109,31 +1124,31 @@ export function Navbar({
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 30, scale: 0.95 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-24 right-6 z-[99999] hidden md:flex items-center gap-3 bg-black border border-[#C9B07A] p-3 text-white shadow-[0_8px_30px_rgba(0,0,0,0.5)] w-[290px]"
+            className="fixed top-24 right-6 z-[99999] hidden md:flex items-center gap-3 bg-white border border-black/15 p-3 text-[#0F0F10] shadow-[0_12px_40px_rgba(0,0,0,0.18)] rounded-md w-[295px]"
           >
-            <div className="relative h-12 w-9 shrink-0 bg-neutral-900 border border-white/5 overflow-hidden">
+            <div className="relative size-12 shrink-0 bg-white border border-black/10 overflow-hidden rounded p-0.5 flex items-center justify-center">
               <Image
                 src={cartToast.item.image}
                 alt={cartToast.item.title}
                 fill
-                sizes="36px"
-                className="object-cover object-center"
+                sizes="48px"
+                className="object-contain object-center p-0.5"
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[8px] font-semibold uppercase tracking-[0.2em] text-[#C9B07A]">
+              <p className="text-[8.5px] font-bold uppercase tracking-[0.2em] text-[#C9B07A]">
                 Added To Cart
               </p>
-              <h4 className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-white truncate leading-none">
+              <h4 className="mt-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[#0F0F10] truncate leading-tight">
                 {cartToast.item.title}
               </h4>
-              <p className="mt-1 text-[9px] text-white/50 uppercase tracking-wider font-light">
-                {cartToast.item.size} • {cartToast.item.price}
+              <p className="mt-1 text-[9.5px] text-neutral-500 uppercase tracking-wider font-medium">
+                {cartToast.item.size} • <span className="font-semibold text-black">{cartToast.item.price}</span>
               </p>
             </div>
             <button
               onClick={() => setCartToast((prev) => ({ ...prev, visible: false }))}
-              className="text-white/40 hover:text-[#C9B07A] transition-colors p-0.5 cursor-pointer shrink-0"
+              className="text-neutral-400 hover:text-black transition-colors p-1 cursor-pointer shrink-0"
               aria-label="Close notification"
             >
               <X className="size-3.5 stroke-[1.8]" />

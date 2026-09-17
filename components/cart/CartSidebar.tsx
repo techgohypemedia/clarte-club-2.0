@@ -5,7 +5,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { Check, X, Loader2 } from "lucide-react"
 
-import { CartOfferProgress } from "@/components/cart/CartOfferProgress"
 import { trendingProducts } from "@/components/product/productData"
 import { CartRecommendationsCarousel } from "@/components/cart/CartRecommendationsCarousel"
 import {
@@ -23,64 +22,81 @@ const promoStripText = "Additional Discount on Pre-paid | Free Return and Exchan
 const recommendations: Array<{ id: string; image: string; alt: string }> = []
 
 function CartItemRow({ item }: { item: CartItem }) {
+  const parseNum = (p: string) => parseFloat(p.replace(/[^0-9.]/g, "")) || 0
+  const unitPrice = parseNum(item.price)
+  const lineTotal = unitPrice * item.quantity
+  const formattedTotal = lineTotal > 0 ? `₹ ${lineTotal.toLocaleString("en-IN")}` : item.price
+
   return (
-    <article className="grid grid-cols-[90px_minmax(0,1fr)] gap-4 p-3 bg-white border border-black/10 rounded-lg shadow-sm">
-      <div className="relative aspect-square overflow-hidden bg-white border border-black/5 rounded">
+    <article className="grid grid-cols-[85px_minmax(0,1fr)] gap-3.5 p-3 bg-white border border-black/10 rounded-lg shadow-sm hover:border-black/20 transition-all">
+      <div className="relative aspect-square w-full overflow-hidden bg-white border border-black/5 rounded flex items-center justify-center">
         <Image
           src={item.image}
           alt={item.alt}
           fill
-          sizes="90px"
+          sizes="85px"
           className="object-cover object-center"
         />
       </div>
 
       <div className="flex min-w-0 flex-col justify-between py-0.5">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="truncate text-[0.85rem] font-semibold uppercase leading-[1.2] tracking-[0.08em] text-[#0F0F10]">
+            <h3 className="truncate text-[0.84rem] font-semibold uppercase leading-snug tracking-[0.06em] text-[#0F0F10]">
               {item.title}
             </h3>
 
-            <div className="mt-1.5 flex items-center gap-3 text-[0.7rem] uppercase tracking-[0.06em] text-neutral-500 font-medium">
-              <span>SIZE: <span className="text-black font-semibold">{item.size}</span></span>
-            </div>
+            {/* Dynamic Variant / Size (Only shown if genuinely present from Shopify) */}
+            {item.size && item.size !== "Default Title" && item.size !== "XS" && item.size.trim() !== "" ? (
+              <div className="mt-1">
+                <span className="bg-neutral-100 px-1.5 py-0.5 rounded text-[9px] font-semibold text-black uppercase tracking-wider inline-block">
+                  Size: {item.size}
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <button
             type="button"
             onClick={() => removeFromCart(item.id, item.size)}
             aria-label={`Remove ${item.title}`}
-            className="text-neutral-400 hover:text-black transition-colors p-1 cursor-pointer"
+            className="text-neutral-400 hover:text-black transition-colors p-1 cursor-pointer shrink-0 -mr-1"
           >
             <X className="size-4 stroke-[1.8]" />
           </button>
         </div>
 
-        <div className="mt-4 flex items-end justify-between border-t border-black/5 pt-2.5">
-          <div className="flex items-center gap-2 text-[0.8rem] leading-none border border-black/20 rounded bg-white px-1.5 py-0.5">
+        <div className="mt-3 flex items-center justify-between border-t border-black/5 pt-2">
+          <div className="flex items-center gap-2 text-[0.8rem] leading-none border border-black/20 rounded bg-white px-2 py-1">
             <button
               type="button"
               onClick={() => updateCartQuantity(item.id, item.size, item.quantity - 1)}
               aria-label="Decrease quantity"
-              className="text-neutral-600 hover:text-black transition-colors px-1 cursor-pointer font-bold"
+              className="text-neutral-600 hover:text-black transition-colors px-1 cursor-pointer font-bold text-[12px]"
             >
               -
             </button>
-            <span className="font-semibold text-[#0F0F10] px-1">{item.quantity}</span>
+            <span className="font-semibold text-[#0F0F10] px-1 text-[11px]">{item.quantity}</span>
             <button
               type="button"
               onClick={() => updateCartQuantity(item.id, item.size, item.quantity + 1)}
               aria-label="Increase quantity"
-              className="text-neutral-600 hover:text-black transition-colors px-1 cursor-pointer font-bold"
+              className="text-neutral-600 hover:text-black transition-colors px-1 cursor-pointer font-bold text-[12px]"
             >
               +
             </button>
           </div>
 
-          <p className="text-[0.85rem] font-extrabold tracking-[0.08em] text-[#0F0F10]">
-            {item.price}
-          </p>
+          <div className="text-right">
+            <p className="text-[0.85rem] font-bold tracking-[0.04em] text-[#0F0F10]">
+              {formattedTotal}
+            </p>
+            {item.quantity > 1 && (
+              <p className="text-[9px] text-neutral-400 font-medium">
+                ({item.price} each)
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </article>
@@ -186,11 +202,6 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
           <SheetDescription className="sr-only">
             Your cart items, offers, recommendations, and checkout actions.
           </SheetDescription>
-
-          {/* Offer Progress */}
-          <div className="flex-none px-5 py-4 bg-[#f4f4f4] border-b border-black/10">
-            <CartOfferProgress dark={false} />
-          </div>
 
           {/* Cart Items List */}
           <div

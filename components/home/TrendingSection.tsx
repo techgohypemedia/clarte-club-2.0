@@ -12,6 +12,7 @@ import {
   type ProductCard,
 } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
+import { useWishlist } from "@/lib/wishlist"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -37,7 +38,8 @@ export function ProductCardView({
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [slideDirection, setSlideDirection] = useState<"up" | "down">("up")
   const [quickViewOpen, setQuickViewOpen] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const isWishlisted = isInWishlist(product.id) || isInWishlist(product.handle || "")
   const [added, setAdded] = useState(false)
   const [isBuying, setIsBuying] = useState(false)
 
@@ -171,10 +173,19 @@ export function ProductCardView({
     touchStartY.current = null
   }
 
-  const toggleWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    setIsWishlisted(!isWishlisted)
+    toggleWishlist({
+      id: product.id,
+      handle: product.handle || product.id,
+      title: product.name ?? "Signature Frame",
+      price: product.price ?? "₹ 4,500",
+      image: product.image,
+      alt: product.alt || product.name,
+      inStock: true,
+      merchandiseId: product.merchandiseId,
+    })
   }
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -186,7 +197,7 @@ export function ProductCardView({
       image: product.image,
       alt: product.alt,
       title: product.name ?? "Signature Frame",
-      size: "XS",
+      size: product.sizes?.[0] || "",
       price: product.price ?? "₹ 4,500",
     })
     setAdded(true)
@@ -210,7 +221,7 @@ export function ProductCardView({
         image: product.image,
         alt: product.alt,
         title: product.name ?? "Signature Frame",
-        size: "XS",
+        size: product.sizes?.[0] || "",
         price: product.price ?? "₹ 4,500",
       })
     } catch (err) {
@@ -300,8 +311,8 @@ export function ProductCardView({
         {/* Top Right Wishlist Heart Icon Button */}
         <button
           type="button"
-          aria-label="Add to wishlist"
-          onClick={toggleWishlist}
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          onClick={handleToggleWishlist}
           className="group/wish absolute right-2.5 top-2.5 sm:right-3 sm:top-3 z-10 flex size-7 sm:size-8 items-center justify-center bg-transparent border-0 shadow-none cursor-pointer transition-transform duration-200 hover:scale-115 active:scale-95"
         >
           <Heart

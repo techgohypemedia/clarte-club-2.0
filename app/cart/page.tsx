@@ -178,9 +178,11 @@ export default function CartPage() {
                               <h3 className="text-base sm:text-lg font-semibold uppercase tracking-wide text-[#0F0F10] truncate mt-0.5">
                                 {item.title}
                               </h3>
-                              <p className="mt-1 text-[12px] text-neutral-500 font-medium">
-                                SIZE: <span className="text-black font-semibold">{item.size}</span>
-                              </p>
+                              {item.size && item.size !== "Default Title" && item.size !== "XS" && item.size.trim() !== "" ? (
+                                <p className="mt-1 text-[12px] text-neutral-500 font-medium">
+                                  SIZE: <span className="text-black font-semibold">{item.size}</span>
+                                </p>
+                              ) : null}
                             </div>
 
                             <button

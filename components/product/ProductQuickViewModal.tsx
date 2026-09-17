@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { ProductDetail } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
+import { useWishlist } from "@/lib/wishlist"
 
 type ProductQuickViewModalProps = {
   open: boolean
@@ -101,9 +102,10 @@ export function ProductQuickViewModal({
   const [activeImageIndex, setActiveImageIndex] = useState(() =>
     Math.min(initialImageIndex, Math.max(gallery.length - 1, 0))
   )
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const isWishlisted = isInWishlist(product.slug) || isInWishlist(product.title)
   const [selectedSize, setSelectedSize] = useState(
-    product.sizes[1] ?? product.sizes[0] ?? ""
+    product.sizes?.[0] || ""
   )
   const [cartState, setCartState] = useState<"idle" | "adding" | "added">("idle")
   const [isBuying, setIsBuying] = useState(false)
@@ -116,7 +118,7 @@ export function ProductQuickViewModal({
       image: product.gallery[0]?.src || "/images/products/product1.png",
       alt: product.gallery[0]?.alt || product.title,
       title: product.title,
-      size: selectedSize || "XS",
+      size: selectedSize || product.sizes?.[0] || "",
       price: product.price,
     })
     setTimeout(() => {
@@ -142,7 +144,7 @@ export function ProductQuickViewModal({
         image: product.gallery[0]?.src || "",
         alt: product.gallery[0]?.alt || product.title,
         title: product.title,
-        size: selectedSize || "XS",
+        size: selectedSize || product.sizes?.[0] || "",
         price: product.price,
       })
     } catch (err) {
@@ -350,12 +352,23 @@ export function ProductQuickViewModal({
                   </button>
                   <button
                     type="button"
-                    aria-label="Add to wishlist"
-                    onClick={() => setIsWishlisted(!isWishlisted)}
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    onClick={() => {
+                      toggleWishlist({
+                        id: product.slug,
+                        handle: product.slug,
+                        title: product.title,
+                        price: product.price,
+                        image: gallery[0] || product.gallery[0]?.src || "/images/products/product1.png",
+                        alt: product.title,
+                        inStock: product.inStock ?? true,
+                        merchandiseId: product.merchandiseId,
+                      })
+                    }}
                     className={cn(
                       "flex h-11 w-11 shrink-0 items-center justify-center border transition-all duration-200 cursor-pointer",
                       isWishlisted
-                        ? "border-black bg-black text-white"
+                        ? "border-[#C9B07A] bg-black text-[#C9B07A]"
                         : "border-black/20 bg-white text-black hover:border-black"
                     )}
                   >

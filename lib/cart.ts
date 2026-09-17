@@ -50,32 +50,17 @@ export function getShopifyCheckoutUrl(): string | null {
 export function getCartItems(): CartItem[] {
   if (typeof window === "undefined") return []
   const stored = localStorage.getItem(CART_KEY)
-  if (!stored) {
-    const initialItems: CartItem[] = [
-      {
-        id: "cart-item-1",
-        image: "/images/products/product1.png",
-        alt: "Model wearing Heritage Oval sunglasses in glossy black frame",
-        title: "Heritage Oval",
-        size: "XS",
-        price: "₹ 4,500",
-        quantity: 1,
-      },
-      {
-        id: "cart-item-2",
-        image: "/images/products/product3.png",
-        alt: "Model wearing Heritage Aviator sunglasses with dark metal frame",
-        title: "Heritage Aviator",
-        size: "XS",
-        price: "₹ 4,500",
-        quantity: 1,
-      },
-    ]
-    localStorage.setItem(CART_KEY, JSON.stringify(initialItems))
-    return initialItems
-  }
+  if (!stored) return []
   try {
-    return JSON.parse(stored)
+    const parsed: CartItem[] = JSON.parse(stored)
+    // Filter out any legacy mock demo items from initial dev
+    const filtered = parsed.filter(
+      (item) => item.id !== "cart-item-1" && item.id !== "cart-item-2"
+    )
+    if (filtered.length !== parsed.length) {
+      localStorage.setItem(CART_KEY, JSON.stringify(filtered))
+    }
+    return filtered
   } catch {
     return []
   }

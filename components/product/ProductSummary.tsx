@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
+import { useWishlist } from "@/lib/wishlist"
 
 const deliveryIcons = {
   truck: Truck,
@@ -100,13 +101,14 @@ export function ProductSummary({
 }) {
   const [selectedColor, setSelectedColor] = useState(product.colorName)
   const [selectedSize, setSelectedSize] = useState(
-    product.sizes[1] ?? product.sizes[0]
+    product.sizes?.[0] || ""
   )
   const [reviewsCount, setReviewsCount] = useState(5)
   const [averageRating, setAverageRating] = useState(4.8)
   const [cartState, setCartState] = useState<"idle" | "adding" | "added">("idle")
   const [isBuying, setIsBuying] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const isWishlisted = isInWishlist(product.id) || isInWishlist(product.slug)
   const [isDescExpanded, setIsDescExpanded] = useState(false)
   const [activeAccordion, setActiveAccordion] = useState<"care" | "shipping" | null>(null)
   
@@ -472,12 +474,23 @@ export function ProductSummary({
             </button>
             <button
               type="button"
-              aria-label="Add to wishlist"
-              onClick={() => setIsWishlisted(!isWishlisted)}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={() => {
+                toggleWishlist({
+                  id: product.id || product.slug,
+                  handle: product.slug,
+                  title: product.title || product.name || "Signature Frame",
+                  price: product.price,
+                  image: product.gallery?.[0]?.src || product.image || "/images/products/product1.png",
+                  alt: product.title || product.name || "Product image",
+                  inStock: product.inStock,
+                  merchandiseId: product.merchandiseId,
+                })
+              }}
               className={cn(
                 "flex h-12 w-12 shrink-0 items-center justify-center border transition-all duration-200 cursor-pointer",
                 isWishlisted
-                  ? "border-black bg-black text-white"
+                  ? "border-[#C9B07A] bg-black text-[#C9B07A]"
                   : "border-black/20 bg-white text-black hover:border-black"
               )}
             >

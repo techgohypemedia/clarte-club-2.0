@@ -60,6 +60,9 @@ export type ProductDetail = {
   slug: string
   editLabel: string
   title: string
+  name?: string
+  image?: string
+  inStock?: boolean
   breadcrumb: Array<{
     label: string
     href?: string
