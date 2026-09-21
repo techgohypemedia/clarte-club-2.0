@@ -60,7 +60,7 @@ export function ProductPage({
         gallery={product.gallery}
         highlights={product.highlights}
       />
-      <ProductReviews productSlug={product.slug} />
+      <ProductReviews productSlug={product.slug} productTitle={product.title} />
       <YouMayAlsoLikeSection currentHandle={product.slug} />
       <LookbookCarousel />
     </main>

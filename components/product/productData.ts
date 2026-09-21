@@ -101,7 +101,7 @@ export const featuredProduct: ProductDetail = {
   ],
   originalPrice: "₹10,500",
   price: "₹8,999",
-  sold: "1,238 Sold",
+  sold: "26 Sold Today",
   rating: "4.8",
   description:
     "An architectural oval frame sculpted from premium polished bio-acetate, featuring custom hardware and signature wire cores. Engineered to balance sharp contours with smooth, beveled edges for an elevated, timeless profile.",

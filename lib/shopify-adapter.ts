@@ -8,6 +8,7 @@ import {
   extractOptionValues,
 } from "./shopify"
 import type { ProductCard, ProductDetail, ProductImage, ProductCoupon } from "@/components/product/productData"
+import { getSoldTodayCount, getProductReviewStats } from "./product-stats"
 
 function extractProductCoupons(node: any, tags: string[] = []): ProductCoupon[] {
   const coupons: ProductCoupon[] = []
@@ -511,8 +512,8 @@ export function shopifyProductToDetail(node: any): ProductDetail {
     ],
     originalPrice,
     price,
-    sold: "1,238 Sold",
-    rating: "4.8",
+    sold: `${getSoldTodayCount(node?.handle || node?.id || "product")} Sold Today`,
+    rating: `${getProductReviewStats(node?.handle || "product", node?.title).averageRating}`,
     description: cleanDescription,
     detailsBody:
       node?.descriptionHtml ||

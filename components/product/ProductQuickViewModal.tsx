@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import type { ProductDetail } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
 import { useWishlist } from "@/lib/wishlist"
+import { getSoldTodayCount, getProductReviewStats } from "@/lib/product-stats"
 
 type ProductQuickViewModalProps = {
   open: boolean
@@ -311,11 +312,11 @@ export function ProductQuickViewModal({
                     {product.price}
                   </span>
                   <span className="inline-flex items-center justify-center bg-black text-white px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
-                    1,238 Sold Today
+                    {getSoldTodayCount(product.slug || product.id || product.title)} Sold Today
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11px] sm:text-[13px] font-semibold uppercase tracking-[0.06em] text-black/60 ml-auto">
                     <Star className="size-3.5 fill-[#f2a33c] text-[#f2a33c]" />
-                    {product.rating}
+                    {getProductReviewStats(product.slug || product.id || product.title, product.title).averageRating}
                   </span>
                 </div>
                 <p className="text-[8px] sm:text-[9px] text-black/40 uppercase tracking-wider font-light">

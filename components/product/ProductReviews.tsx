@@ -1,76 +1,24 @@
 "use client"
 
-import { useState, useEffect, useId } from "react"
+import { useState, useEffect, useId, useMemo } from "react"
 import { Star, Check, X, ThumbsUp } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
+import { getInitialReviewsForProduct, getProductReviewStats, type ProductReview } from "@/lib/product-stats"
 
-type Review = {
-  id: string
-  name: string
-  rating: number
-  title: string
-  body: string
-  date: string
-  verified: boolean
-  helpfulCount: number
-  hasVoted?: boolean
-}
+type Review = ProductReview
 
-const INITIAL_REVIEWS: Review[] = [
-  {
-    id: "rev-1",
-    name: "Arjun M.",
-    rating: 5,
-    title: "Masterpiece in Design",
-    body: "The tortoiseshell color is beautiful in person. The quality of this frame is unlike anything else—lightweight but holds its structure nicely. The fit is perfect and comfortable.",
-    date: "July 12, 2026",
-    verified: true,
-    helpfulCount: 14,
-  },
-  {
-    id: "rev-2",
-    name: "Priya S.",
-    rating: 5,
-    title: "Immaculate Craftsmanship",
-    body: "Immaculate craftsmanship. The frame profile is really clean and fits nicely without putting pressure behind the ears. Perfect for styling with formal or casual looks.",
-    date: "July 08, 2026",
-    verified: true,
-    helpfulCount: 9,
-  },
-  {
-    id: "rev-3",
-    name: "Rahul K.",
-    rating: 4,
-    title: "Very Premium Acetate",
-    body: "Hands down the best oval frames I own. The acetate feels extremely premium and polished, and they don't slide down my nose. Highly recommend Clarte Club.",
-    date: "June 28, 2026",
-    verified: true,
-    helpfulCount: 5,
-  },
-  {
-    id: "rev-4",
-    name: "Neha V.",
-    rating: 5,
-    title: "Rich Editorial Lens Tint",
-    body: "The lens tint is a beautiful shade that looks very editorial. Excellent hinge quality and custom hardware. Will be ordering the Slate Blue next.",
-    date: "June 15, 2026",
-    verified: true,
-    helpfulCount: 11,
-  },
-  {
-    id: "rev-5",
-    name: "Siddharth R.",
-    rating: 5,
-    title: "Stays Secure All Day",
-    body: "Beautifully constructed frame. It feels very sturdy and doesn't slide down throughout the day. The fit is true to size.",
-    date: "May 30, 2026",
-    verified: true,
-    helpfulCount: 3,
-  },
-]
-
-export function ProductReviews({ productSlug }: { productSlug: string }) {
-  const [reviews, setReviews] = useState<Review[]>([])
+export function ProductReviews({
+  productSlug,
+  productTitle,
+}: {
+  productSlug: string
+  productTitle?: string
+}) {
+  const initialReviews = useMemo(
+    () => getInitialReviewsForProduct(productSlug, productTitle),
+    [productSlug, productTitle]
+  )
+  const [reviews, setReviews] = useState<Review[]>(initialReviews)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [showAll, setShowAll] = useState(false)
   
@@ -84,21 +32,23 @@ export function ProductReviews({ productSlug }: { productSlug: string }) {
   const [formError, setFormError] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  // Load reviews from localStorage + static initial data
+  // Load reviews from localStorage + product-specific initial reviews
   useEffect(() => {
     const key = `clarte_reviews_${productSlug}`
-    const stored = localStorage.getItem(key)
+    const stored = typeof window !== "undefined" ? localStorage.getItem(key) : null
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        setReviews([...parsed, ...INITIAL_REVIEWS])
+        if (Array.isArray(parsed)) {
+          setReviews([...parsed, ...initialReviews])
+          return
+        }
       } catch (e) {
-        setReviews(INITIAL_REVIEWS)
+        // fallback
       }
-    } else {
-      setReviews(INITIAL_REVIEWS)
     }
-  }, [productSlug])
+    setReviews(initialReviews)
+  }, [productSlug, initialReviews])
 
   const saveReviewsToStorage = (updatedReviews: Review[]) => {
     const key = `clarte_reviews_${productSlug}`
@@ -107,17 +57,16 @@ export function ProductReviews({ productSlug }: { productSlug: string }) {
     localStorage.setItem(key, JSON.stringify(userReviews))
   }
 
-  // Calculate metrics
-  const totalCount = reviews.length
-  const averageRating = totalCount > 0 
-    ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / totalCount).toFixed(1))
-    : 0
+  // Calculate metrics using product stats with user review delta
+  const userReviewsCount = reviews.filter(r => r.id.startsWith("user-")).length
+  const stats = useMemo(
+    () => getProductReviewStats(productSlug, productTitle, userReviewsCount),
+    [productSlug, productTitle, userReviewsCount]
+  )
 
-  const ratingDistribution = [5, 4, 3, 2, 1].map(stars => {
-    const count = reviews.filter(r => r.rating === stars).length
-    const percentage = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0
-    return { stars, percentage, count }
-  })
+  const totalCount = stats.totalCount
+  const averageRating = stats.averageRating
+  const ratingDistribution = stats.ratingDistribution
 
   // Vote helpfulness
   const handleHelpfulClick = (id: string) => {
@@ -160,6 +109,14 @@ export function ProductReviews({ productSlug }: { productSlug: string }) {
     const nextReviews = [newReview, ...reviews]
     setReviews(nextReviews)
     saveReviewsToStorage(nextReviews)
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("clarte_reviews_updated", {
+          detail: { slug: productSlug },
+        })
+      )
+    }
     
     setIsSubmitted(true)
     setTimeout(() => {
@@ -388,7 +345,7 @@ export function ProductReviews({ productSlug }: { productSlug: string }) {
                   onClick={handleToggleShowAll}
                   className="inline-flex items-center justify-center border border-black/25 hover:border-black px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-black transition-colors bg-white cursor-pointer"
                 >
-                  {showAll ? "Show Less" : "View All Comments"}
+                  {showAll ? "Show Less" : `View All Comments (${totalCount})`}
                 </button>
               </div>
             )}

@@ -15,6 +15,7 @@ import { addToCart, buyNow } from "@/lib/cart"
 import { useWishlist } from "@/lib/wishlist"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { getSoldTodayCount, getProductReviewStats } from "@/lib/product-stats"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
 
@@ -578,8 +579,8 @@ export function ProductCardView({
           ],
           originalPrice: "",
           price: product.price || "₹ 4,500",
-          sold: "1,238 Sold Today",
-          rating: "4.8",
+          sold: `${getSoldTodayCount(product.handle || product.id)} Sold Today`,
+          rating: `${getProductReviewStats(product.handle || product.id, product.name).averageRating}`,
           description:
             product.alt ||
             "An architectural frame sculpted from premium bio-acetate with custom hardware and signature wire cores.",

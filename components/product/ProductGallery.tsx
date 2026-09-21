@@ -97,7 +97,7 @@ export function ProductGallery({
                 alt={image.alt}
                 fill
                 priority={index === 0}
-                sizes="100vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
                 style={
                   image.objectPosition
                     ? { objectPosition: image.objectPosition }

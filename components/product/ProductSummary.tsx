@@ -14,7 +14,7 @@ import {
   Copy,
 } from "lucide-react"
 import type { ButtonHTMLAttributes } from "react"
-import { useState, useEffect, useId } from "react"
+import { useState, useEffect, useId, useMemo } from "react"
 
 import {
   Carousel,
@@ -32,6 +32,11 @@ import { cn } from "@/lib/utils"
 import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
 import { useWishlist } from "@/lib/wishlist"
+import {
+  getSoldTodayCount,
+  getInitialReviewsForProduct,
+  getProductReviewStats,
+} from "@/lib/product-stats"
 
 const deliveryIcons = {
   truck: Truck,
@@ -103,8 +108,22 @@ export function ProductSummary({
   const [selectedSize, setSelectedSize] = useState(
     product.sizes?.[0] || ""
   )
-  const [reviewsCount, setReviewsCount] = useState(5)
-  const [averageRating, setAverageRating] = useState(4.8)
+
+  const initialReviews = useMemo(
+    () => getInitialReviewsForProduct(product.slug, product.title),
+    [product.slug, product.title]
+  )
+  const initialStats = useMemo(
+    () => getProductReviewStats(product.slug, product.title),
+    [product.slug, product.title]
+  )
+  const soldTodayCount = useMemo(
+    () => getSoldTodayCount(product.slug || product.id || product.title),
+    [product.slug, product.id, product.title]
+  )
+
+  const [reviewsCount, setReviewsCount] = useState(initialStats.totalCount)
+  const [averageRating, setAverageRating] = useState(initialStats.averageRating)
   const [cartState, setCartState] = useState<"idle" | "adding" | "added">("idle")
   const [isBuying, setIsBuying] = useState(false)
   const { isInWishlist, toggleWishlist } = useWishlist()
@@ -122,24 +141,41 @@ export function ProductSummary({
 
   const availableCoupons: ProductCoupon[] = product.coupons || []
 
-  // Fetch reviews count from local storage to display next to the star ratings
+  // Fetch reviews count from local storage + initial reviews, and update whenever reviews are modified
   useEffect(() => {
-    const key = `clarte_reviews_${product.slug}`
-    const stored = localStorage.getItem(key)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed)) {
-          const totalRating = parsed.reduce((sum: number, r: any) => sum + Number(r.rating || 5), 0) + 24
-          const totalCount = parsed.length + 5
-          setReviewsCount(totalCount)
-          setAverageRating(Number((totalRating / totalCount).toFixed(1)))
+    const updateStats = () => {
+      const key = `clarte_reviews_${product.slug}`
+      const stored = typeof window !== "undefined" ? localStorage.getItem(key) : null
+      let userReviews: any[] = []
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          if (Array.isArray(parsed)) {
+            userReviews = parsed
+          }
+        } catch (e) {
+          // fallback
         }
-      } catch (e) {
-        // fallback to defaults
+      }
+      const currentStats = getProductReviewStats(product.slug, product.title, userReviews.length)
+      setReviewsCount(currentStats.totalCount)
+      setAverageRating(currentStats.averageRating)
+    }
+
+    updateStats()
+
+    const handleReviewsUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent<{ slug?: string }>
+      if (!customEvent.detail?.slug || customEvent.detail.slug === product.slug) {
+        updateStats()
       }
     }
-  }, [product.slug])
+
+    window.addEventListener("clarte_reviews_updated", handleReviewsUpdated)
+    return () => {
+      window.removeEventListener("clarte_reviews_updated", handleReviewsUpdated)
+    }
+  }, [product.slug, initialReviews, initialStats])
 
   const handleAddToCart = () => {
     setCartState("adding")
@@ -258,7 +294,7 @@ export function ProductSummary({
               {product.price}
             </span>
             <span className="inline-flex items-center justify-center bg-black text-white px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
-              1,238 Sold Today
+              {soldTodayCount} Sold Today
             </span>
           </div>
           <p className="text-[8px] sm:text-[9px] text-black/40 uppercase tracking-wider font-light">
@@ -530,11 +566,11 @@ export function ProductSummary({
                 <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User avatar 3" className="h-full w-full object-cover" />
               </div>
               <div className="relative size-7 rounded-full overflow-hidden border border-white bg-black text-white text-[8px] font-bold uppercase flex items-center justify-center tracking-tighter">
-                +99
+                +{Math.max(soldTodayCount - 3, 5)}
               </div>
             </div>
             <div className="text-[11px] leading-tight text-left">
-              <span className="font-bold text-black uppercase block tracking-wider">1,238+ Sold Today</span>
+              <span className="font-bold text-black uppercase block tracking-wider">{soldTodayCount}+ Sold Today</span>
               <span className="text-black/50 uppercase text-[9px] tracking-wider">Loved by the Clarte Club community</span>
             </div>
           </div>
