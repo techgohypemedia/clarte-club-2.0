@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import "./onecheckout.css";
 import { cn } from "@/lib/utils";
 import { Montserrat, Playfair_Display } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CinematicPreloader } from "@/components/CinematicPreloader";
+import { OneCheckoutModal } from "@/components/onecheckout/OneCheckoutModal";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -19,6 +21,28 @@ const playfair = Playfair_Display({
   variable: "--font-serif",
   weight: ["400", "500", "600"],
 });
+
+const oneCheckoutConfig = {
+  apiKey: process.env.ONECHECKOUT_API_KEY ?? "",
+  apiHost: process.env.ONECHECKOUT_API_HOST ?? "",
+  checkoutHost: process.env.ONECHECKOUT_CHECKOUT_HOST ?? "",
+};
+
+const serializedOneCheckoutConfig = JSON.stringify(oneCheckoutConfig).replace(
+  /</g,
+  "\\u003c"
+);
+
+function getDnsPrefetchHref(value: string) {
+  try {
+    return `//${new URL(value).host}`;
+  } catch {
+    return "";
+  }
+}
+
+const oneCheckoutApiDns = getDnsPrefetchHref(oneCheckoutConfig.apiHost);
+const oneCheckoutPayDns = getDnsPrefetchHref(oneCheckoutConfig.checkoutHost);
 
 export const metadata: Metadata = {
   title: "Clarte Club",
@@ -53,7 +77,22 @@ export default function RootLayout({
         "font-sans"
       )}
     >
+      <head>
+        {oneCheckoutPayDns ? <link rel="dns-prefetch" href={oneCheckoutPayDns} /> : null}
+        {oneCheckoutApiDns ? <link rel="dns-prefetch" href={oneCheckoutApiDns} /> : null}
+        <link rel="dns-prefetch" href="//cdn.1checkout.ai" />
+        {oneCheckoutConfig.checkoutHost ? (
+          <link rel="preconnect" href={oneCheckoutConfig.checkoutHost} crossOrigin="anonymous" />
+        ) : null}
+        {oneCheckoutConfig.apiHost ? (
+          <link rel="preconnect" href={oneCheckoutConfig.apiHost} crossOrigin="anonymous" />
+        ) : null}
+        <link rel="preconnect" href="https://cdn.1checkout.ai" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <Script id="onecheckout-config" strategy="beforeInteractive">
+          {`window.__ONE_CHECKOUT_CONFIG__=${serializedOneCheckoutConfig};`}
+        </Script>
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CR3DZEF9H8"
@@ -103,6 +142,8 @@ export default function RootLayout({
           </div>
           <SiteFooter />
         </div>
+        <OneCheckoutModal />
+        <Script src="/onecheckout/1checkout.js" strategy="afterInteractive" />
       </body>
     </html>
   );

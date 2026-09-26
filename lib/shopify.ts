@@ -11,9 +11,18 @@ const getEnv = (key: string, defaultValue = ''): string => {
   }
   return defaultValue;
 };
-const domain = getEnv('SHOPIFY_DOMAIN', 'shapar-ay.myshopify.com');
-const token = getEnv('SHOPIFY_STOREFRONT_TOKEN', 'caea95c10d1f831c57144abfdca59ca4');
-const apiVersion = getEnv('SHOPIFY_API_VERSION', '2026-07');
+const domain =
+  process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN ||
+  process.env.SHOPIFY_DOMAIN ||
+  getEnv('SHOPIFY_DOMAIN', 'shapar-ay.myshopify.com');
+const token =
+  process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN ||
+  process.env.SHOPIFY_STOREFRONT_TOKEN ||
+  getEnv('SHOPIFY_STOREFRONT_TOKEN', '');
+const apiVersion =
+  process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION ||
+  process.env.SHOPIFY_API_VERSION ||
+  getEnv('SHOPIFY_API_VERSION', '2026-07');
 const hasShopifyConfig = Boolean(domain && token);
 const endpoint = hasShopifyConfig
   ? `https://${domain}/api/${apiVersion}/graphql.json`
