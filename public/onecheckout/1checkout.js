@@ -33,6 +33,9 @@
   let backgroundInteractionState = [];
   let previouslyFocusedElement = null;
   let clientIp = null;
+  let clientIpRequest = null;
+  let razorpayOpen = false;
+  let razorpayScriptRequest = null;
 
   function setExpiringStorage(key, value, expiryHours) {
     const expires = new Date(Date.now() + expiryHours * 60 * 60 * 1000).toUTCString();
@@ -253,11 +256,28 @@
     return cleanButtonText(source).includes("buy") || (source.getAttribute("aria-label") || "").toLowerCase().startsWith("buy now");
   }
 
+  function warmCheckoutDependencies() {
+    if (!clientIpRequest) {
+      clientIpRequest = fetch("https://api64.ipify.org?format=json")
+        .then((response) => {
+          if (!response.ok) throw new Error("Unable to resolve client IP.");
+          return response.json();
+        })
+        .then((data) => {
+          clientIp = data.ip || null;
+        })
+        .catch(() => {
+          clientIpRequest = null;
+        });
+    }
+  }
+
   async function beginCheckout(source, replacement) {
     if (replacement.dataset.onecheckoutLoading === "true") return;
     replacement.dataset.onecheckoutLoading = "true";
     replacement.disabled = true;
     activeSource = source;
+    warmCheckoutDependencies();
 
     try {
       const items = isBuyNow(source) ? [await getBuyNowItem(source)] : getStoredCart();
@@ -295,6 +315,7 @@
   }
 
   function focusModalSurface() {
+    if (razorpayOpen) return;
     const modal = getModal();
     if (!modal) return;
     const iframe = modal.querySelector("iframe:not(.dc-none)");
@@ -348,7 +369,7 @@
   }
 
   function guardModalPointer(event) {
-    if (!isModalOpen()) return;
+    if (!isModalOpen() || razorpayOpen) return;
     const modal = getModal();
     const target = event.target;
     if (!(target instanceof Element) || !modal) return;
@@ -360,7 +381,7 @@
   }
 
   function trapModalFocus(event) {
-    if (!isModalOpen()) return;
+    if (!isModalOpen() || razorpayOpen) return;
 
     if (event.key === "Escape") {
       event.preventDefault();
@@ -389,7 +410,7 @@
   }
 
   function keepFocusInsideModal(event) {
-    if (!isModalOpen()) return;
+    if (!isModalOpen() || razorpayOpen) return;
     const modal = getModal();
     if (modal?.contains(event.target)) return;
     focusModalSurface();
@@ -477,6 +498,8 @@
   }
 
   function resetModal(removeIframe = true) {
+    razorpayOpen = false;
+    document.body.classList.remove("onecheckout-razorpay-open");
     window.clearInterval(messageTimer);
     window.clearTimeout(iframeTimer);
     messageTimer = null;
@@ -680,21 +703,57 @@
   }
 
   function loadRazorpay(config) {
+    const setRazorpayOpen = (open) => {
+      razorpayOpen = open;
+      document.body.classList.toggle("onecheckout-razorpay-open", open);
+    };
+
     const open = () => {
       const iframe = document.querySelector(".checkoutmodal iframe");
+      setRazorpayOpen(true);
+      const razorpayModalOptions = config?.modal || {};
       const instance = new window.Razorpay({
         ...config,
-        handler: () => iframe?.contentWindow?.postMessage({ topic: "RAZORPAYSUCCESS" }, CHECKOUT_HOST),
+        modal: {
+          ...razorpayModalOptions,
+          ondismiss: () => {
+            setRazorpayOpen(false);
+            razorpayModalOptions.ondismiss?.();
+          },
+        },
+        handler: (...args) => {
+          setRazorpayOpen(false);
+          iframe?.contentWindow?.postMessage({ topic: "RAZORPAYSUCCESS" }, CHECKOUT_HOST);
+          config?.handler?.(...args);
+        },
       });
-      instance.on("payment.failed", () => iframe?.contentWindow?.postMessage({ topic: "RAZORPAYFAILURE" }, CHECKOUT_HOST));
+      instance.on("payment.failed", () => {
+        setRazorpayOpen(false);
+        iframe?.contentWindow?.postMessage({ topic: "RAZORPAYFAILURE" }, CHECKOUT_HOST);
+      });
       instance.open();
     };
     if (window.Razorpay) return open();
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = open;
-    document.body.appendChild(script);
+    if (!razorpayScriptRequest) {
+      razorpayScriptRequest = new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+        const script = existing || document.createElement("script");
+        script.addEventListener("load", resolve, { once: true });
+        script.addEventListener("error", reject, { once: true });
+        if (!existing) {
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.async = true;
+          document.body.appendChild(script);
+        }
+      }).catch(() => {
+        razorpayScriptRequest = null;
+        throw new Error("Payment gateway could not load.");
+      });
+    }
+    razorpayScriptRequest.then(open).catch((error) => {
+      setRazorpayOpen(false);
+      showError(error.message, true);
+    });
   }
 
   function handleCheckoutMessage(event) {
@@ -777,12 +836,6 @@
       scanButtons();
     });
     window.addEventListener("cart-updated", () => requestAnimationFrame(() => scanButtons()));
-    fetch("https://api64.ipify.org?format=json")
-      .then((response) => response.json())
-      .then((data) => { clientIp = data.ip || null; })
-      .catch(() => {});
-    if (CHECKOUT_HOST) fetch(`${CHECKOUT_HOST}/health`).catch(() => {});
-    if (API_HOST) fetch(`${API_HOST}/health`).catch(() => {});
   }
 
   window.oneCheckout = {

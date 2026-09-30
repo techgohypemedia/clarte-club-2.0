@@ -132,6 +132,18 @@ body.onecheckout-modal-open > .checkoutmodal {
   user-select: auto;
 }
 
+/* Razorpay is injected as a sibling of .checkoutmodal. Let its overlay receive
+   input while keeping the underlying OneCheckout iframe completely inert. */
+body.onecheckout-razorpay-open > .checkoutmodal {
+  pointer-events: none !important;
+}
+
+body.onecheckout-razorpay-open > .razorpay-container,
+body.onecheckout-razorpay-open > .razorpay-backdrop {
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+}
+
 .checkout-progressbar {
   display: flex;
   align-items: center;

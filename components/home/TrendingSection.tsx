@@ -530,7 +530,7 @@ export function ProductCardView({
             aria-label={`Buy now ${product.name ?? product.alt}`}
             disabled={isBuying}
             onClick={handleBuyNow}
-            className={`hidden sm:flex h-7 sm:h-7.5 px-2.5 sm:px-3 rounded-[6px] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 items-center justify-center border ${
+            className={`h-7 sm:h-7.5 px-2.5 sm:px-3 rounded-[6px] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 flex items-center justify-center border ${
               isDark
                 ? "bg-white text-black hover:bg-[#C9B07A] hover:text-black border-white/20"
                 : "bg-black text-white hover:bg-neutral-800 border-black"
