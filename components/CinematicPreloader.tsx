@@ -1,14 +1,28 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function CinematicPreloader() {
+  const pathname = usePathname()
+  const isHomePage = pathname === "/"
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobile, setIsMobile] = useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
+    // If not on the home page, never show the preloader and mark session as seen
+    if (!isHomePage) {
+      try {
+        sessionStorage.setItem("clarte_preloader_seen", "true")
+      } catch {
+        // Storage access fallback
+      }
+      return
+    }
+
     // 1. Detect if viewport is mobile (< 768px)
     const checkIsMobile = () => {
       if (typeof window !== "undefined") {
@@ -36,23 +50,24 @@ export function CinematicPreloader() {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
-    // Fallback timer: ensure preloader dismisses if video fails to load (extended to 5s for full playback)
+    // Fallback timer: ensure preloader dismisses if video fails to load (adjusted for 1.5x playback)
     const maxTimer = setTimeout(() => {
       setIsLoading(false)
       document.body.style.overflow = prevOverflow
-    }, 5000)
+    }, 4000)
 
     return () => {
       window.removeEventListener("resize", checkIsMobile)
       clearTimeout(maxTimer)
       document.body.style.overflow = prevOverflow
     }
-  }, [])
+  }, [isHomePage])
 
-  // Start video playback when isLoading activates
+  // Start video playback when isLoading activates & enforce 1.5x speed
   useEffect(() => {
     if (isLoading && videoRef.current) {
       const vid = videoRef.current
+      vid.playbackRate = 1.5
       vid.muted = true
       vid.defaultMuted = true
       vid.currentTime = 0
@@ -68,6 +83,11 @@ export function CinematicPreloader() {
   const handleFinish = () => {
     setIsLoading(false)
     document.body.style.overflow = ""
+  }
+
+  // Preloader should ONLY ever exist on the home page
+  if (!isHomePage) {
+    return null
   }
 
   return (
@@ -97,6 +117,12 @@ export function CinematicPreloader() {
               muted
               playsInline
               preload="auto"
+              onPlay={(e) => {
+                e.currentTarget.playbackRate = 1.5
+              }}
+              onLoadedMetadata={(e) => {
+                e.currentTarget.playbackRate = 1.5
+              }}
               onEnded={handleFinish}
               className="absolute inset-0 size-full w-full h-full pointer-events-none object-cover object-center scale-[1.08] transform-gpu"
             />
@@ -120,4 +146,5 @@ export function CinematicPreloader() {
     </AnimatePresence>
   )
 }
+
 

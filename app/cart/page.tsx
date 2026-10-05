@@ -6,7 +6,6 @@ import Link from "next/link"
 import { ArrowLeft, Check, X, ShieldCheck, Truck, RefreshCw, Loader2, ShoppingBag } from "lucide-react"
 
 import { ProductCardView } from "@/components/home/TrendingSection"
-import { CartOfferProgress } from "@/components/cart/CartOfferProgress"
 import { trendingProducts, type ProductCard } from "@/components/product/productData"
 import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckout, type CartItem } from "@/lib/cart"
 
@@ -132,13 +131,8 @@ export default function CartPage() {
           ) : (
             /* FULL VIEW LAYOUT WITH ITEMS */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-              {/* Left Column: Cart Progress & Items List */}
+              {/* Left Column: Items List */}
               <div className="lg:col-span-8 space-y-8">
-                {/* Offer Progress Box */}
-                <div className="bg-[#f4f4f4] border border-black/10 p-6 sm:p-8 rounded-lg shadow-sm">
-                  <CartOfferProgress dark={false} />
-                </div>
-
                 {/* Items Header */}
                 <div className="flex items-center justify-between border-b border-black/10 pb-3">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
@@ -157,29 +151,29 @@ export default function CartPage() {
                       className="grid grid-cols-[100px_minmax(0,1fr)] sm:grid-cols-[130px_minmax(0,1fr)] gap-5 sm:gap-6 p-4 sm:p-6 bg-white border border-black/10 rounded-lg shadow-sm transition-all hover:border-black/20"
                     >
                       {/* Product Thumbnail */}
-                      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#efefef] border border-black/5 rounded">
+                      <div className="relative aspect-square w-full overflow-hidden bg-[#efefef] border border-black/5 rounded flex items-center justify-center p-1.5">
                         <Image
                           src={item.image}
                           alt={item.alt}
                           fill
                           sizes="(max-width: 640px) 100px, 130px"
-                          className="object-cover object-center"
+                          className="object-contain object-center"
                         />
                       </div>
 
                       {/* Details & Actions */}
                       <div className="flex min-w-0 flex-col justify-between py-1">
                         <div>
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#C9B07A]">
-                                CLARTÉ EYWEAR
+                          <div className="flex items-start justify-between gap-3 sm:gap-4">
+                            <div className="min-w-0 flex-1">
+                              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#C9B07A] block">
+                                CLARTÉ EYEWEAR
                               </span>
-                              <h3 className="text-base sm:text-lg font-semibold uppercase tracking-wide text-[#0F0F10] truncate mt-0.5">
+                              <h3 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-[#0F0F10] leading-snug break-words mt-0.5">
                                 {item.title}
                               </h3>
                               {item.size && item.size !== "Default Title" && item.size !== "XS" && item.size.trim() !== "" ? (
-                                <p className="mt-1 text-[12px] text-neutral-500 font-medium">
+                                <p className="mt-1 text-[11px] sm:text-[12px] text-neutral-500 font-medium">
                                   SIZE: <span className="text-black font-semibold">{item.size}</span>
                                 </p>
                               ) : null}
@@ -188,7 +182,7 @@ export default function CartPage() {
                             <button
                               type="button"
                               onClick={() => removeFromCart(item.id, item.size)}
-                              className="text-neutral-400 hover:text-black transition-colors p-1 cursor-pointer"
+                              className="text-neutral-400 hover:text-black transition-colors p-1 cursor-pointer flex-shrink-0 -mr-1 -mt-0.5"
                               aria-label={`Remove ${item.title}`}
                             >
                               <X className="size-4 stroke-[2]" />

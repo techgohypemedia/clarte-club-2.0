@@ -17,7 +17,7 @@ import {
 
 import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckout, type CartItem } from "@/lib/cart"
 
-const promoStripText = "Additional Discount on Pre-paid | Free Return and Exchange"
+const promoStripText = "Additional Discount on Pre-paid | Easy Exchange"
 
 const recommendations: Array<{ id: string; image: string; alt: string }> = []
 
@@ -29,13 +29,13 @@ function CartItemRow({ item }: { item: CartItem }) {
 
   return (
     <article className="grid grid-cols-[85px_minmax(0,1fr)] gap-3.5 p-3 bg-white border border-black/10 rounded-lg shadow-sm hover:border-black/20 transition-all">
-      <div className="relative aspect-square w-full overflow-hidden bg-white border border-black/5 rounded flex items-center justify-center">
+      <div className="relative aspect-square w-full overflow-hidden bg-white border border-black/5 rounded flex items-center justify-center p-1">
         <Image
           src={item.image}
           alt={item.alt}
           fill
           sizes="85px"
-          className="object-cover object-center"
+          className="object-contain object-center"
         />
       </div>
 
