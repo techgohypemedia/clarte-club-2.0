@@ -60,8 +60,11 @@ export function ProductPage({
         gallery={product.gallery}
         highlights={product.highlights}
       />
-      <ProductReviews productSlug={product.slug} productTitle={product.title} />
-      <YouMayAlsoLikeSection currentHandle={product.slug} />
+      <YouMayAlsoLikeSection
+        currentHandle={product.slug}
+        currentId={product.id}
+        currentTitle={product.title}
+      />
       <LookbookCarousel />
     </main>
   )

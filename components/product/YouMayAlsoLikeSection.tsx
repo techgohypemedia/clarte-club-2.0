@@ -9,25 +9,58 @@ import type { ProductCard } from "@/components/product/productData"
 
 export function YouMayAlsoLikeSection({
   currentHandle = "",
+  currentId = "",
+  currentTitle = "",
 }: {
   currentHandle?: string
+  currentId?: string
+  currentTitle?: string
 }) {
   const [products, setProducts] = useState<ProductCard[]>([])
 
   useEffect(() => {
     let isMounted = true
     import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
-      getShopifyProducts(8).then((liveProducts) => {
+      getShopifyProducts(16).then((liveProducts) => {
         if (isMounted && liveProducts && liveProducts.length > 0) {
-          const filtered = liveProducts.filter((p) => p.handle !== currentHandle).slice(0, 4)
-          setProducts(filtered.length > 0 ? filtered : liveProducts.slice(0, 4))
+          const normHandle = currentHandle.toLowerCase().trim()
+          const normTitle = currentTitle.toLowerCase().trim()
+          const normId = String(currentId).toLowerCase().trim()
+
+          // Exclude the current viewing product by handle, ID, or title
+          const filtered = liveProducts.filter((p) => {
+            const pHandle = (p.handle || "").toLowerCase().trim()
+            const pId = String(p.id || "").toLowerCase().trim()
+            const pMerchId = String(p.merchandiseId || "").toLowerCase().trim()
+            const pName = (p.name || "").toLowerCase().trim()
+
+            if (normHandle && pHandle) {
+              if (pHandle === normHandle || pHandle.includes(normHandle) || normHandle.includes(pHandle)) {
+                return false
+              }
+            }
+
+            if (normId && (pId === normId || pMerchId === normId)) {
+              return false
+            }
+
+            if (normTitle && pName) {
+              if (pName === normTitle || pName.includes(normTitle) || normTitle.includes(pName)) {
+                return false
+              }
+            }
+
+            return true
+          })
+
+          setProducts(filtered.slice(0, 4))
         }
       })
     })
     return () => {
       isMounted = false
     }
-  }, [currentHandle])
+  }, [currentHandle, currentId, currentTitle])
 
   if (products.length === 0) return null
 

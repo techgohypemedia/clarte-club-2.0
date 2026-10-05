@@ -11,6 +11,7 @@ import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckou
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [catalogProducts, setCatalogProducts] = useState<ProductCard[]>([])
   const [recommendedProducts, setRecommendedProducts] = useState<ProductCard[]>([])
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
@@ -25,9 +26,9 @@ export default function CartPage() {
 
     let isMounted = true
     import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
-      getShopifyProducts(4).then((products) => {
+      getShopifyProducts(20).then((products) => {
         if (isMounted && products && products.length > 0) {
-          setRecommendedProducts(products)
+          setCatalogProducts(products)
         }
       })
     })
@@ -37,6 +38,37 @@ export default function CartPage() {
       isMounted = false
     }
   }, [])
+
+  // Filter recommendations so items in the cart are never recommended
+  useEffect(() => {
+    if (catalogProducts.length === 0) return
+
+    const cartIds = new Set(cartItems.map((ci) => String(ci.id).toLowerCase().trim()))
+    const cartTitles = cartItems.map((ci) => String(ci.title || "").toLowerCase().trim())
+
+    const filtered = catalogProducts.filter((product) => {
+      const pId = String(product.id || "").toLowerCase().trim()
+      const pMerchId = String(product.merchandiseId || "").toLowerCase().trim()
+      const pHandle = String(product.handle || "").toLowerCase().trim()
+      const pName = String(product.name || "").toLowerCase().trim()
+
+      if (cartIds.has(pId) || (pMerchId && cartIds.has(pMerchId))) {
+        return false
+      }
+
+      if (cartTitles.some((title) => title === pName || (title && pName && (title.includes(pName) || pName.includes(title))))) {
+        return false
+      }
+
+      if (pHandle && cartItems.some((ci) => String(ci.id).toLowerCase().includes(pHandle))) {
+        return false
+      }
+
+      return true
+    })
+
+    setRecommendedProducts(filtered.slice(0, 4))
+  }, [catalogProducts, cartItems])
 
   const handleCheckout = async () => {
     if (isCheckingOut) return

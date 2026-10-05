@@ -17,9 +17,18 @@ export default function WishlistPage() {
   useEffect(() => {
     let isMounted = true
     import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
-      getShopifyProducts(4).then((products) => {
+      getShopifyProducts(16).then((products) => {
         if (isMounted && products && products.length > 0) {
-          setRecommendedProducts(products)
+          const currentIds = new Set(items.map((it) => String(it.id).toLowerCase().trim()))
+          const currentTitles = items.map((it) => String(it.title || "").toLowerCase().trim())
+          const filtered = products.filter((p) => {
+            const pId = String(p.id || "").toLowerCase().trim()
+            const pName = String(p.name || "").toLowerCase().trim()
+            if (currentIds.has(pId)) return false
+            if (currentTitles.some((t) => t === pName || (t && pName && (t.includes(pName) || pName.includes(t))))) return false
+            return true
+          })
+          setRecommendedProducts(filtered.slice(0, 4))
         }
       })
     })
@@ -27,7 +36,7 @@ export default function WishlistPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [items])
 
   const handleAddToCart = (item: WishlistItem) => {
     moveItemToCart(item)
