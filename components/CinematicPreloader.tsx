@@ -9,7 +9,6 @@ export function CinematicPreloader() {
   const isHomePage = pathname === "/"
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isMobile, setIsMobile] = useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -23,32 +22,55 @@ export function CinematicPreloader() {
       return
     }
 
-    // 1. Detect if viewport is mobile (< 768px)
+    // 1. Detect if viewport or device is mobile (< 768px or mobile user agent)
     const checkIsMobile = () => {
-      if (typeof window !== "undefined") {
-        setIsMobile(window.innerWidth < 768)
-      }
+      if (typeof window === "undefined") return false
+      const isMobileWidth =
+        window.innerWidth < 768 ||
+        window.matchMedia("(max-width: 767px)").matches
+      const isMobileUA =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent || ""
+        )
+      return isMobileWidth || isMobileUA
     }
-    checkIsMobile()
-    window.addEventListener("resize", checkIsMobile)
 
-    // 2. Only show on the first visit of the session
+    // Mobile users: immediately bypass preloader
+    if (checkIsMobile()) {
+      try {
+        sessionStorage.setItem("clarte_preloader_seen", "true")
+      } catch {
+        // Storage access fallback
+      }
+      return
+    }
+
+    // 2. Only show on the first visit of the session for desktop users
     try {
       const hasSeen = sessionStorage.getItem("clarte_preloader_seen")
       if (hasSeen) {
-        return () => window.removeEventListener("resize", checkIsMobile)
+        return
       }
       sessionStorage.setItem("clarte_preloader_seen", "true")
     } catch {
       // Storage access fallback
     }
 
-    // Activate preloader
+    // Activate preloader for desktop users
     setIsLoading(true)
 
     // Lock scroll during preloader
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
+
+    // Resize listener: if resized to mobile viewport, immediately dismiss
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsLoading(false)
+        document.body.style.overflow = ""
+      }
+    }
+    window.addEventListener("resize", handleResize)
 
     // Fallback timer: ensure preloader dismisses if video fails to load (adjusted for 1.5x playback)
     const maxTimer = setTimeout(() => {
@@ -57,7 +79,7 @@ export function CinematicPreloader() {
     }, 4000)
 
     return () => {
-      window.removeEventListener("resize", checkIsMobile)
+      window.removeEventListener("resize", handleResize)
       clearTimeout(maxTimer)
       document.body.style.overflow = prevOverflow
     }
@@ -78,7 +100,7 @@ export function CinematicPreloader() {
         })
       }
     }
-  }, [isLoading, isMobile])
+  }, [isLoading])
 
   const handleFinish = () => {
     setIsLoading(false)
@@ -102,17 +124,13 @@ export function CinematicPreloader() {
             document.body.style.overflow = ""
           }}
           onClick={handleFinish}
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh] cursor-pointer"
+          className="fixed inset-0 z-[999999] hidden md:flex items-center justify-center bg-black overflow-hidden select-none pointer-events-auto w-screen h-[100dvh] cursor-pointer"
         >
           <div className="relative size-full w-full h-full flex items-center justify-center p-0 m-0 overflow-hidden">
             <video
               ref={videoRef}
-              key={isMobile ? "preloader-mobile-video" : "preloader-desktop-video"}
-              src={
-                isMobile
-                  ? "/video/clarte%20logo%20%20animation_gwr_video_mvp.mp4"
-                  : "/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
-              }
+              key="preloader-desktop-video"
+              src="/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
               autoPlay
               muted
               playsInline

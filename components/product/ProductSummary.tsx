@@ -302,6 +302,19 @@ export function ProductSummary({
           </p>
         </div>
 
+        {/* PREPAID DISCOUNT CALLOUT */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 py-1.5 px-2.5 sm:px-3 border border-black/10 text-black">
+          <div className="flex items-center gap-1.5">
+            <Tag className="size-3 text-[#C9B07A] shrink-0" />
+            <span className="text-[10px] min-[360px]:text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-black">
+              10% OFF ON PREPAID ORDERS
+            </span>
+          </div>
+          <span className="text-[9px] min-[360px]:text-[9.5px] sm:text-[10px] text-black/45 uppercase tracking-wide">
+            • AUTO-APPLIED AT CHECKOUT
+          </span>
+        </div>
+
         {/* DESCRIPTION BLOCK */}
         <section className="space-y-2">
           <p className="text-[13px] sm:text-[14px] md:text-[15px] font-bold uppercase tracking-wider text-black">

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react"
 
 const ANNOUNCEMENTS = [
   "FREE SHIPPING ACROSS INDIA",
+  "10% OFF ON PREPAID ORDERS",
   "EASY EXCHANGE ACROSS INDIA",
 ]
 

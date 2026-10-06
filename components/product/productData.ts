@@ -114,6 +114,7 @@ export const featuredProduct: ProductDetail = {
     "Rinse with lukewarm water and mild soap if needed.",
   ],
   shippingNotes: [
+    "10% off on all prepaid orders (UPI, Cards, Net Banking).",
     "Standard delivery in 2-4 business days.",
     "Free exchange within 14 days.",
     "Cash on delivery available on select pin codes.",
