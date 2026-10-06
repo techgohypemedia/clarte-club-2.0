@@ -12,7 +12,7 @@ interface Footer3DCanvasProps {
 
 export function Footer3DCanvas({
   className = "",
-  modelPath = "/untitled (2).glb",
+  modelPath = "https://cdn.shopify.com/3d/models/e596dbeec10409f4/untitled_2_.glb",
 }: Footer3DCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
