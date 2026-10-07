@@ -9,8 +9,8 @@ const DESKTOP_TOTAL_FRAMES = 201
 const DESKTOP_PREFIX = "/video frame/video_frames_webp_1280x720/frame_"
 const DESKTOP_SUFFIX = ".webp"
 
-const MOBILE_TOTAL_FRAMES = 216
-const MOBILE_PREFIX = "/video frame/mobile/mobile_view_webp_frames_720x1280/Mobile_display_clarte_webp_frames/Mobile_display_clarte_webp_frames/output/mobile_display_clarte_frames_webp/frame_"
+const MOBILE_TOTAL_FRAMES = 108
+const MOBILE_PREFIX = "https://pub-cc1aedfde6bb4a59bc28137b88a01290.r2.dev/mobile%20mobile%20frames/frame_"
 const MOBILE_SUFFIX = ".webp"
 
 const DESKTOP_POSTER = `${DESKTOP_PREFIX}0001${DESKTOP_SUFFIX}`
@@ -105,7 +105,9 @@ export function ScrollVideoHero() {
     const images: HTMLImageElement[] = []
 
     // Helper to load and decode single image asynchronously
-    const loadImage = (src: string, highPriority = false): Promise<HTMLImageElement> => {
+    // On mobile only the first frames are decoded up front; the rest are decoded near the playhead
+    // (see render loop) so we never hold hundreds of full-size bitmaps in memory.
+    const loadImage = (src: string, highPriority = false, decodeNow = true): Promise<HTMLImageElement> => {
       return new Promise((resolve) => {
         const img = new Image()
         if (highPriority) {
@@ -114,7 +116,7 @@ export function ScrollVideoHero() {
         img.src = src
 
         const handleReady = () => {
-          if ("decode" in img) {
+          if (decodeNow && "decode" in img) {
             img.decode().then(() => resolve(img)).catch(() => resolve(img))
           } else {
             resolve(img)
@@ -143,22 +145,33 @@ export function ScrollVideoHero() {
       images[0] = firstFrame
       activeRef.current = images
 
-      // 2. Load a sparse "keyframe" pass first (every 6th frame) so scrubbing anywhere
-      //    shows a nearby frame immediately, then fill in the gaps.
+      // 2. Load order: the opening frames first (where every visit starts scrolling), then a sparse
+      //    "keyframe" pass (every 6th) so scrubbing anywhere shows a nearby frame, then the gaps.
       const STEP = 6
+      const HEAD = 12
       const order: number[] = []
-      for (let i = STEP; i < activeTotal; i += STEP) order.push(i)
-      for (let i = 1; i < activeTotal; i++) {
-        if (i % STEP !== 0) order.push(i)
+      const queued = new Set<number>([0])
+      const push = (i: number) => {
+        if (i < activeTotal && !queued.has(i)) {
+          queued.add(i)
+          order.push(i)
+        }
       }
+      for (let i = 1; i < HEAD; i++) push(i)
+      for (let i = STEP; i < activeTotal; i += STEP) push(i)
+      for (let i = 1; i < activeTotal; i++) push(i)
 
-      // 3. Bounded-concurrency pool (browsers cap ~6 parallel HTTP/1.1 connections per host)
-      const CONCURRENCY = 6
+      // 3. Bounded-concurrency pool (fewer parallel requests on mobile so the opening frames aren't starved)
+      const CONCURRENCY = isMobile ? 4 : 6
       let cursor = 0
       const worker = async () => {
         while (mounted && cursor < order.length) {
           const idx = order[cursor++]
-          const img = await loadImage(`${activePrefix}${formatFn(idx)}${activeSuffix}`, idx < 2 * STEP)
+          const img = await loadImage(
+            `${activePrefix}${formatFn(idx)}${activeSuffix}`,
+            idx < HEAD,
+            !isMobile || idx < HEAD
+          )
           if (!mounted) return
           images[idx] = img
           activeRef.current = images
@@ -182,6 +195,7 @@ export function ScrollVideoHero() {
     if (!ctx) return
 
     let animationFrameId: number
+    const decodedRef = new WeakSet<HTMLImageElement>()
 
     // Cached layout dimensions to prevent DOM reflow thrashing inside RAF
     let cachedWidth = 0
@@ -194,7 +208,8 @@ export function ScrollVideoHero() {
     let lastDrawnHeight = 0
 
     const resizeCanvas = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      // Lower cap on mobile: extra canvas pixels beyond ~1.5x just cost GPU
+      dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
       cachedWidth = canvas.clientWidth
       cachedHeight = canvas.clientHeight
       canvas.width = cachedWidth * dpr
@@ -245,6 +260,17 @@ export function ScrollVideoHero() {
       // Use exact rounded frame index for clean single-frame rendering (eliminates ghosting / double-image outlines)
       const frameIndex = Math.round(rawCurrent)
       const img = getBestAvailableImage(frameIndex, activeImages)
+
+      // Mobile: pre-decode only the frames just ahead of / behind the playhead, off the draw path
+      if (isMobile) {
+        for (let i = frameIndex - 2; i <= frameIndex + 8; i++) {
+          const near = activeImages[i]
+          if (near && near.complete && near.naturalWidth > 0 && !decodedRef.has(near)) {
+            decodedRef.add(near)
+            near.decode().catch(() => {})
+          }
+        }
+      }
 
       // Short-circuit: do not burn CPU/GPU if the exact same frame is already on the canvas
       if (
