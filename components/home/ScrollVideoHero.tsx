@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { useScroll, useTransform, motion, AnimatePresence } from "framer-motion"
+import { useScroll, useTransform, useMotionValue, animate, motion, AnimatePresence } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 
 const DESKTOP_TOTAL_FRAMES = 201
@@ -12,6 +12,21 @@ const DESKTOP_SUFFIX = ".webp"
 const MOBILE_TOTAL_FRAMES = 108
 const MOBILE_PREFIX = "https://pub-cc1aedfde6bb4a59bc28137b88a01290.r2.dev/mobile%20mobile%20frames/frame_"
 const MOBILE_SUFFIX = ".webp"
+
+// Mobile loader waits only for the opening frames (not all of them) before revealing the hero
+const GATE_FRAMES = 24
+const LOADER_SEEN_KEY = "clarte-hero-loader-seen-v1"
+const LOADER_FAILSAFE_MS = 8000
+const LOGO_MASK = {
+  WebkitMaskImage: "url(/clarte-club-full-logo.svg)",
+  maskImage: "url(/clarte-club-full-logo.svg)",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+} as const
 
 const DESKTOP_POSTER = `${DESKTOP_PREFIX}0001${DESKTOP_SUFFIX}`
 const MOBILE_POSTER = `${MOBILE_PREFIX}0001${MOBILE_SUFFIX}`
@@ -34,6 +49,14 @@ export function ScrollVideoHero() {
   const isMobile = isMobileState === true
   const [showScrollCue, setShowScrollCue] = useState(true)
   const [showCTA, setShowCTA] = useState(false)
+
+  // Mobile loading phase: real progress of the opening frames, eased for a smooth premium fill
+  const [loadProgress, setLoadProgress] = useState(0)
+  const [loaderDone, setLoaderDone] = useState(false)
+  const progressMV = useMotionValue(0)
+  const logoClip = useTransform(progressMV, (v) => `inset(0 ${(1 - v) * 100}% 0 0)`)
+  const percentText = useTransform(progressMV, (v) => `${String(Math.round(v * 100)).padStart(2, "0")}%`)
+  const showLoader = isMobileState !== false && !loaderDone
 
   // Preloading & Frame Cache
   const desktopImagesRef = useRef<HTMLImageElement[]>([])
@@ -78,13 +101,13 @@ export function ScrollVideoHero() {
 
   // Timer to animate scroll cue for 2 seconds on mobile on initial load, then hide
   useEffect(() => {
-    if (!isMobile) return
+    if (!isMobile || !loaderDone) return
     const timer = setTimeout(() => {
       setShowScrollCue(false)
     }, 2200)
 
     return () => clearTimeout(timer)
-  }, [isMobile])
+  }, [isMobile, loaderDone])
 
   // Screen size listener
   useEffect(() => {
@@ -96,6 +119,55 @@ export function ScrollVideoHero() {
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
+
+  // Loader is first-visit only: if this browser has already seen it, drop it right away
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(LOADER_SEEN_KEY) === "1") setLoaderDone(true)
+    } catch {}
+  }, [])
+
+  // Loader: ease the displayed progress toward the real one for a smooth premium fill
+  useEffect(() => {
+    if (isMobileState !== true) return
+    const controls = animate(progressMV, loadProgress, {
+      duration: loadProgress >= 1 ? 0.7 : 1.1,
+      ease: [0.22, 1, 0.36, 1],
+    })
+    return () => controls.stop()
+  }, [loadProgress, isMobileState, progressMV])
+
+  // Loader: dismiss once the fill completes (short beat on 100%), with a failsafe so it can never get stuck
+  useEffect(() => {
+    if (isMobileState !== true || loaderDone) return
+    let doneTimer: ReturnType<typeof setTimeout> | undefined
+    const finish = () => {
+      try {
+        localStorage.setItem(LOADER_SEEN_KEY, "1")
+      } catch {}
+      setLoaderDone(true)
+    }
+    const unsub = progressMV.on("change", (v) => {
+      if (v >= 0.999 && !doneTimer) doneTimer = setTimeout(finish, 350)
+    })
+    const failsafe = setTimeout(finish, LOADER_FAILSAFE_MS)
+    return () => {
+      unsub()
+      clearTimeout(failsafe)
+      if (doneTimer) clearTimeout(doneTimer)
+    }
+  }, [isMobileState, loaderDone, progressMV])
+
+  // Loader: lock page scroll while it is on screen
+  useEffect(() => {
+    if (!showLoader) return
+    const html = document.documentElement
+    const prev = html.style.overflow
+    html.style.overflow = "hidden"
+    return () => {
+      html.style.overflow = prev
+    }
+  }, [showLoader])
 
   // Optimized Async Progressive Preloader (Instant First Frame + Accelerated Decode + Background Streaming)
   useEffect(() => {
@@ -144,11 +216,13 @@ export function ScrollVideoHero() {
       if (!mounted) return
       images[0] = firstFrame
       activeRef.current = images
+      let gateLoaded = 1
+      setLoadProgress(gateLoaded / GATE_FRAMES)
 
       // 2. Load order: the opening frames first (where every visit starts scrolling), then a sparse
       //    "keyframe" pass (every 6th) so scrubbing anywhere shows a nearby frame, then the gaps.
       const STEP = 6
-      const HEAD = 12
+      const HEAD = isMobile ? GATE_FRAMES : 12
       const order: number[] = []
       const queued = new Set<number>([0])
       const push = (i: number) => {
@@ -175,6 +249,10 @@ export function ScrollVideoHero() {
           if (!mounted) return
           images[idx] = img
           activeRef.current = images
+          if (idx < GATE_FRAMES) {
+            gateLoaded++
+            setLoadProgress(Math.min(1, gateLoaded / GATE_FRAMES))
+          }
         }
       }
       await Promise.all(Array.from({ length: CONCURRENCY }, worker))
@@ -343,6 +421,92 @@ export function ScrollVideoHero() {
 
   return (
     <div ref={containerRef} className="relative w-full h-[300vh] bg-black">
+      {/* Premium mobile loading phase: logo fills with champagne gold as the opening frames arrive.
+          md:hidden keeps it out of desktop even before JS decides which layout applies. */}
+      {/* Runs before first paint: marks <html> for returning visitors so the server-rendered loader never flashes */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `try{if(localStorage.getItem(${JSON.stringify(LOADER_SEEN_KEY)})==="1")document.documentElement.setAttribute("data-hero-seen","1")}catch(e){}`,
+        }}
+      />
+      <style>{`html[data-hero-seen] .hero-loader{display:none!important}`}</style>
+      <AnimatePresence>
+        {showLoader && (
+          <motion.div
+            key="hero-loader"
+            className="hero-loader fixed inset-0 z-100 md:hidden flex flex-col items-center justify-center bg-[#0A0A0B]"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            role="status"
+            aria-label="Loading"
+          >
+            {/* Soft champagne glow behind the mark */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(60% 40% at 50% 50%, rgba(201,176,122,0.10) 0%, rgba(201,176,122,0.03) 45%, transparent 75%)",
+              }}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.03 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-[64vw] max-w-[300px] aspect-[926/394]"
+            >
+              {/* Dim base mark */}
+              <div aria-hidden className="absolute inset-0 bg-white/12" style={LOGO_MASK} />
+              {/* Gold fill, revealed left to right with real progress */}
+              <motion.div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  ...LOGO_MASK,
+                  clipPath: logoClip,
+                  background: "linear-gradient(90deg, #F4EBD7 0%, #DFC893 45%, #C9B07A 100%)",
+                }}
+              />
+              {/* Slow light sweep across the whole mark */}
+              <motion.div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  ...LOGO_MASK,
+                  backgroundImage:
+                    "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%)",
+                  backgroundSize: "250% 100%",
+                }}
+                animate={{ backgroundPosition: ["150% 0%", "-50% 0%"] }}
+                transition={{ duration: 2.6, ease: "linear", repeat: Infinity }}
+              />
+            </motion.div>
+
+            {/* Hairline progress + percentage */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="mt-12 flex flex-col items-center gap-4"
+            >
+              <div className="relative h-px w-[42vw] max-w-[190px] overflow-hidden bg-white/10">
+                <motion.div
+                  className="absolute inset-0 origin-left bg-[#C9B07A]"
+                  style={{ scaleX: progressMV }}
+                />
+              </div>
+              <motion.span className="font-heading text-[9px] font-medium tracking-[0.4em] text-white/45 tabular-nums">
+                {percentText}
+              </motion.span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Sticky Container pinning canvas over 300vh container track */}
       <div className="sticky top-0 h-[100dvh] min-h-[100dvh] w-full overflow-hidden">
         
