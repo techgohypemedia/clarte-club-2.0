@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { Footer3DCanvas } from "@/components/footer/Footer3DCanvas"
+import { LazyFooter3D } from "@/components/footer/LazyFooter3D"
 
 function FacebookIcon(props: React.ComponentProps<"svg">) {
   return (
@@ -144,7 +144,7 @@ export function FooterSection() {
 
           {/* Column 4: 3D Shopping Bag Model */}
           <div className="col-span-2 md:col-span-3 flex flex-col items-center md:items-start justify-center">
-            <Footer3DCanvas className="w-full h-[200px] sm:h-[220px]" />
+            <LazyFooter3D className="w-full h-[200px] sm:h-[220px]" />
           </div>
 
         </div>

@@ -13,6 +13,9 @@ const MOBILE_TOTAL_FRAMES = 216
 const MOBILE_PREFIX = "/video frame/mobile/mobile_view_webp_frames_720x1280/Mobile_display_clarte_webp_frames/Mobile_display_clarte_webp_frames/output/mobile_display_clarte_frames_webp/frame_"
 const MOBILE_SUFFIX = ".webp"
 
+const DESKTOP_POSTER = `${DESKTOP_PREFIX}0001${DESKTOP_SUFFIX}`
+const MOBILE_POSTER = `${MOBILE_PREFIX}0001${MOBILE_SUFFIX}`
+
 function formatDesktopFrameIndex(index: number): string {
   return String(index + 1).padStart(4, "0")
 }
@@ -26,7 +29,9 @@ export function ScrollVideoHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Screen size detection
-  const [isMobile, setIsMobile] = useState<boolean>(false)
+  // null until measured on the client, so we never download the wrong frame set first
+  const [isMobileState, setIsMobile] = useState<boolean | null>(null)
+  const isMobile = isMobileState === true
   const [showScrollCue, setShowScrollCue] = useState(true)
   const [showCTA, setShowCTA] = useState(false)
 
@@ -94,6 +99,7 @@ export function ScrollVideoHero() {
 
   // Optimized Async Progressive Preloader (Instant First Frame + Accelerated Decode + Background Streaming)
   useEffect(() => {
+    if (isMobileState === null) return
     let mounted = true
 
     const images: HTMLImageElement[] = []
@@ -135,46 +141,30 @@ export function ScrollVideoHero() {
       const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`, true)
       if (!mounted) return
       images[0] = firstFrame
-      activeRef.current = [firstFrame]
+      activeRef.current = images
 
-      // 2. Load immediate initial burst of frames (frames 1..12) with high priority
-      const INITIAL_BURST = Math.min(13, activeTotal)
-      const burstPromises: Promise<HTMLImageElement>[] = []
-      for (let j = 1; j < INITIAL_BURST; j++) {
-        burstPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`, true))
+      // 2. Load a sparse "keyframe" pass first (every 6th frame) so scrubbing anywhere
+      //    shows a nearby frame immediately, then fill in the gaps.
+      const STEP = 6
+      const order: number[] = []
+      for (let i = STEP; i < activeTotal; i += STEP) order.push(i)
+      for (let i = 1; i < activeTotal; i++) {
+        if (i % STEP !== 0) order.push(i)
       }
-      const loadedBurst = await Promise.all(burstPromises)
-      if (!mounted) return
-      loadedBurst.forEach((img, idx) => {
-        images[1 + idx] = img
-      })
-      activeRef.current = [...images]
 
-      // 3. Stream remaining frames in background batches with minimal yield
-      const BATCH_SIZE = 10
-      for (let i = INITIAL_BURST; i < activeTotal; i += BATCH_SIZE) {
-        if (!mounted) break
-
-        const batchPromises: Promise<HTMLImageElement>[] = []
-        for (let j = i; j < Math.min(i + BATCH_SIZE, activeTotal); j++) {
-          batchPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`, false))
+      // 3. Bounded-concurrency pool (browsers cap ~6 parallel HTTP/1.1 connections per host)
+      const CONCURRENCY = 6
+      let cursor = 0
+      const worker = async () => {
+        while (mounted && cursor < order.length) {
+          const idx = order[cursor++]
+          const img = await loadImage(`${activePrefix}${formatFn(idx)}${activeSuffix}`, idx < 2 * STEP)
+          if (!mounted) return
+          images[idx] = img
+          activeRef.current = images
         }
-        const loadedBatch = await Promise.all(batchPromises)
-        if (!mounted) break
-        loadedBatch.forEach((img, idx) => {
-          images[i + idx] = img
-        })
-        activeRef.current = [...images]
-
-        // Cooperative yield using requestIdleCallback or brief timeout
-        await new Promise((r) => {
-          if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-            window.requestIdleCallback(() => r(null), { timeout: 30 })
-          } else {
-            setTimeout(r, 20)
-          }
-        })
       }
+      await Promise.all(Array.from({ length: CONCURRENCY }, worker))
     }
 
     streamFrames()
@@ -182,7 +172,7 @@ export function ScrollVideoHero() {
     return () => {
       mounted = false
     }
-  }, [isMobile])
+  }, [isMobile, isMobileState])
 
   // Canvas drawing & Seamless Coasting Physics (Zero-Reflow 60fps Canvas Render)
   useEffect(() => {
@@ -331,6 +321,18 @@ export function ScrollVideoHero() {
       <div className="sticky top-0 h-[100dvh] min-h-[100dvh] w-full overflow-hidden">
         
         {/* High Performance Pure Video Canvas (Instant Hydration, Zero Loading Screen) */}
+        {/* Server-rendered poster: visible instantly (before JS/frames load), covered by the canvas once drawing starts */}
+        <picture>
+          <source media="(max-width: 767px)" srcSet={MOBILE_POSTER} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={DESKTOP_POSTER}
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 size-full object-cover z-0 pointer-events-none"
+          />
+        </picture>
         <canvas
           ref={canvasRef}
           className="absolute inset-0 size-full z-0 pointer-events-none"
