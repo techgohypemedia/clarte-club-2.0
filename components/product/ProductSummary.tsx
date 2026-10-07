@@ -12,6 +12,8 @@ import {
   Truck,
   Tag,
   Copy,
+  Sun,
+  Layers,
 } from "lucide-react"
 import type { ButtonHTMLAttributes } from "react"
 import { useState, useEffect, useId, useMemo } from "react"
@@ -302,12 +304,46 @@ export function ProductSummary({
           </p>
         </div>
 
-        {/* PREPAID DISCOUNT CALLOUT */}
-        <div className="inline-flex w-fit items-center gap-1.5 py-1 px-2.5 sm:px-3 border border-black/10 text-black">
-          <Tag className="size-3 text-[#C9B07A] shrink-0" />
-          <span className="text-[10px] min-[360px]:text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-black">
-            10% OFF ON PREPAID ORDERS
-          </span>
+        {/* OFFERS & CRAFTSMANSHIP HALLMARKS */}
+        <div className="space-y-2.5">
+          {/* PREPAID DISCOUNT CALLOUT */}
+          <div className="inline-flex w-fit items-center gap-1.5 py-1 px-2.5 sm:px-3 border border-black/10 bg-[#FAF8F5]/60 text-black">
+            <Tag className="size-3 text-[#C9B07A] shrink-0" />
+            <span className="text-[10px] min-[360px]:text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-black">
+              10% OFF ON PREPAID ORDERS
+            </span>
+          </div>
+
+          {/* UV 400 & PREMIUM MATERIALS HALLMARKS */}
+          <div className="grid grid-cols-2 divide-x divide-black/[0.08] border border-black/[0.08] bg-[#FAF8F5] py-2 sm:py-2.5 px-2.5 sm:px-4 transition-colors duration-200 hover:border-[#C9B07A]/40">
+            <div className="flex items-center gap-2 sm:gap-2.5 pr-1.5 sm:pr-2">
+              <div className="flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full bg-[#C9B07A]/15 border border-[#C9B07A]/30">
+                <Sun className="size-3 sm:size-3.5 text-[#9E7A36] stroke-[1.8]" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[9px] min-[390px]:text-[10px] sm:text-[11.5px] font-bold uppercase tracking-[0.05em] sm:tracking-[0.12em] text-black leading-tight whitespace-nowrap">
+                  UV 400
+                </span>
+                <span className="text-[7.5px] min-[390px]:text-[8.5px] sm:text-[9.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black/50 leading-tight whitespace-nowrap">
+                  PROTECTION
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-2.5 pl-2.5 sm:pl-4">
+              <div className="flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full bg-[#C9B07A]/15 border border-[#C9B07A]/30">
+                <Layers className="size-3 sm:size-3.5 text-[#9E7A36] stroke-[1.8]" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[9px] min-[390px]:text-[10px] sm:text-[11.5px] font-bold uppercase tracking-[0.05em] sm:tracking-[0.12em] text-black leading-tight whitespace-nowrap">
+                  PREMIUM-GRADE
+                </span>
+                <span className="text-[7.5px] min-[390px]:text-[8.5px] sm:text-[9.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black/50 leading-tight whitespace-nowrap">
+                  {(product as any).material ? `${(product as any).material}`.toUpperCase() : "MATERIALS"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* DESCRIPTION BLOCK */}
