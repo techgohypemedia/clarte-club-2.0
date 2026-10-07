@@ -92,19 +92,35 @@ export function ScrollVideoHero() {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Optimized Async Progressive Preloader (Instant First Frame + Polite Progressive Streaming)
+  // Optimized Async Progressive Preloader (Instant First Frame + Accelerated Decode + Background Streaming)
   useEffect(() => {
     let mounted = true
 
     const images: HTMLImageElement[] = []
 
-    // Helper to load single image asynchronously
-    const loadImage = (src: string): Promise<HTMLImageElement> => {
+    // Helper to load and decode single image asynchronously
+    const loadImage = (src: string, highPriority = false): Promise<HTMLImageElement> => {
       return new Promise((resolve) => {
         const img = new Image()
+        if (highPriority) {
+          img.fetchPriority = "high"
+        }
         img.src = src
-        img.onload = () => resolve(img)
-        img.onerror = () => resolve(img)
+
+        const handleReady = () => {
+          if ("decode" in img) {
+            img.decode().then(() => resolve(img)).catch(() => resolve(img))
+          } else {
+            resolve(img)
+          }
+        }
+
+        if (img.complete && img.naturalWidth > 0) {
+          handleReady()
+        } else {
+          img.onload = handleReady
+          img.onerror = () => resolve(img)
+        }
       })
     }
 
@@ -115,17 +131,17 @@ export function ScrollVideoHero() {
       const activeRef = isMobile ? mobileImagesRef : desktopImagesRef
       const formatFn = isMobile ? formatMobileFrameIndex : formatDesktopFrameIndex
 
-      // 1. Instant load first frame for immediate zero-latency render
-      const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`)
+      // 1. Instant load first frame for immediate zero-latency render (high priority)
+      const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`, true)
       if (!mounted) return
       images[0] = firstFrame
       activeRef.current = [firstFrame]
 
-      // 2. Load immediate next 6 frames so initial scroll feels instantly responsive
-      const INITIAL_BURST = Math.min(7, activeTotal)
+      // 2. Load immediate initial burst of frames (frames 1..12) with high priority
+      const INITIAL_BURST = Math.min(13, activeTotal)
       const burstPromises: Promise<HTMLImageElement>[] = []
       for (let j = 1; j < INITIAL_BURST; j++) {
-        burstPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`))
+        burstPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`, true))
       }
       const loadedBurst = await Promise.all(burstPromises)
       if (!mounted) return
@@ -134,17 +150,14 @@ export function ScrollVideoHero() {
       })
       activeRef.current = [...images]
 
-      // 3. Stream remaining frames in lightweight background batches (size 6) with idle breaks
-      const BATCH_SIZE = 6
+      // 3. Stream remaining frames in background batches with minimal yield
+      const BATCH_SIZE = 10
       for (let i = INITIAL_BURST; i < activeTotal; i += BATCH_SIZE) {
-        if (!mounted) break
-        // Brief idle pause to keep network thread open for critical assets (fonts, Shopify data)
-        await new Promise((r) => setTimeout(r, 40))
         if (!mounted) break
 
         const batchPromises: Promise<HTMLImageElement>[] = []
         for (let j = i; j < Math.min(i + BATCH_SIZE, activeTotal); j++) {
-          batchPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`))
+          batchPromises.push(loadImage(`${activePrefix}${formatFn(j)}${activeSuffix}`, false))
         }
         const loadedBatch = await Promise.all(batchPromises)
         if (!mounted) break
@@ -152,6 +165,15 @@ export function ScrollVideoHero() {
           images[i + idx] = img
         })
         activeRef.current = [...images]
+
+        // Cooperative yield using requestIdleCallback or brief timeout
+        await new Promise((r) => {
+          if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            window.requestIdleCallback(() => r(null), { timeout: 30 })
+          } else {
+            setTimeout(r, 20)
+          }
+        })
       }
     }
 

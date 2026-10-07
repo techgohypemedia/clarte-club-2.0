@@ -88,6 +88,23 @@ export default function RootLayout({
           <link rel="preconnect" href={oneCheckoutConfig.apiHost} crossOrigin="anonymous" />
         ) : null}
         <link rel="preconnect" href="https://cdn.1checkout.ai" crossOrigin="anonymous" />
+        {/* Preload first video hero frame for immediate zero-latency render */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/webp"
+          href="/video frame/video_frames_webp_1280x720/frame_0001.webp"
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          type="image/webp"
+          href="/video frame/mobile/mobile_view_webp_frames_720x1280/Mobile_display_clarte_webp_frames/Mobile_display_clarte_webp_frames/output/mobile_display_clarte_frames_webp/frame_0001.webp"
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Script id="onecheckout-config" strategy="beforeInteractive">
