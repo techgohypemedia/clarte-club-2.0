@@ -88,6 +88,8 @@ export default function RootLayout({
           <link rel="preconnect" href={oneCheckoutConfig.apiHost} crossOrigin="anonymous" />
         ) : null}
         <link rel="preconnect" href="https://cdn.1checkout.ai" crossOrigin="anonymous" />
+        {/* Mobile hero frames are served from R2: open the connection early */}
+        <link rel="preconnect" href="https://pub-cc1aedfde6bb4a59bc28137b88a01290.r2.dev" />
         {/* Preload first video hero frame for immediate zero-latency render */}
         <link
           rel="preload"
@@ -101,7 +103,7 @@ export default function RootLayout({
           rel="preload"
           as="image"
           type="image/webp"
-          href="/video frame/mobile/mobile_view_webp_frames_720x1280/Mobile_display_clarte_webp_frames/Mobile_display_clarte_webp_frames/output/mobile_display_clarte_frames_webp/frame_0001.webp"
+          href="https://pub-cc1aedfde6bb4a59bc28137b88a01290.r2.dev/mobile%20mobile%20frames/frame_0001.webp"
           media="(max-width: 767px)"
           fetchPriority="high"
         />

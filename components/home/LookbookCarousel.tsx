@@ -53,7 +53,7 @@ function SocialCard({ slide }: { slide: LookbookSlide }) {
 
   if (slide.link) {
     return (
-      <Link href={slide.link} className="block shrink-0">
+      <Link href={slide.link} prefetch={false} className="block shrink-0">
         {card}
       </Link>
     )

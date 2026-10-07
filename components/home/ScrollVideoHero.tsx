@@ -317,7 +317,14 @@ export function ScrollVideoHero() {
       return images[0] || null
     }
 
+    let inView = true
+    let running = true
+
     const render = () => {
+      if (!inView) {
+        running = false
+        return
+      }
       const activeFramesCount = isMobile ? MOBILE_TOTAL_FRAMES : DESKTOP_TOTAL_FRAMES
       const activeImages = isMobile ? mobileImagesRef.current : desktopImagesRef.current
 
@@ -411,7 +418,21 @@ export function ScrollVideoHero() {
 
     render()
 
+    // Stop the draw loop entirely while the hero is off screen; restart when it scrolls back in
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting
+        if (inView && !running) {
+          running = true
+          animationFrameId = requestAnimationFrame(render)
+        }
+      },
+      { rootMargin: "200px" }
+    )
+    if (containerRef.current) observer.observe(containerRef.current)
+
     return () => {
+      observer.disconnect()
       window.removeEventListener("resize", resizeCanvas)
       cancelAnimationFrame(animationFrameId)
     }

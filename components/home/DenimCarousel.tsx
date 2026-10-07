@@ -56,6 +56,7 @@ function DenimSlideCard({ slide }: { slide: DenimSlide }) {
   return (
     <Link
       href={`/collections?category=${slide.categorySlug}`}
+      prefetch={false}
       className="group relative block h-[500px] w-full overflow-hidden bg-white sm:h-[580px] md:h-[640px] lg:h-[700px]"
     >
       <Image

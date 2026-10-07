@@ -44,16 +44,8 @@ export function ProductCardView({
   const [added, setAdded] = useState(false)
   const [isBuying, setIsBuying] = useState(false)
 
-  // Preload all gallery images in background to eliminate black screens/flickers
-  useEffect(() => {
-    if (!gallery || gallery.length <= 1) return
-    gallery.forEach((url) => {
-      if (url) {
-        const img = new window.Image()
-        img.src = url
-      }
-    })
-  }, [gallery])
+  // Gallery images are NOT preloaded up front: doing that downloaded every full-size photo of every
+  // card on page load. next/image fetches the right-sized version of the visible slide on demand.
 
   useEffect(() => {
     const resetBuying = () => setIsBuying(false)
@@ -257,7 +249,7 @@ export function ProductCardView({
         onTouchEnd={handleTouchEnd}
       >
 
-        <Link href={productHref} className="absolute inset-0 cursor-pointer z-0 overflow-hidden">
+        <Link href={productHref} prefetch={false} className="absolute inset-0 cursor-pointer z-0 overflow-hidden">
           {activeImage ? (
             <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
               <motion.div
@@ -505,7 +497,7 @@ export function ProductCardView({
       {/* ── 2. Content Details Below Image (with Direct BUY NOW Action) ── */}
       <div className="mt-2.5 flex items-center justify-between gap-2 px-0.5">
         <div className="min-w-0 flex-1">
-          <Link href={productHref} className="block group/title">
+          <Link href={productHref} prefetch={false} className="block group/title">
             <h3
               className={`text-xs sm:text-[13px] font-semibold truncate transition-colors group-hover/title:text-[#C9B07A] ${
                 isDark ? "text-white" : "text-black"

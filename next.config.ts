@@ -4,9 +4,10 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   compress: true,
   images: {
-    // Set to true so images load directly from Shopify CDN without hitting Vercel's Image Optimization monthly quota limit (402 Payment Required)
-    unoptimized: true,
-    formats: ["image/avif", "image/webp"],
+    // Self-hosted on a VPS (no Vercel quota), so use Next's built-in optimizer: every <Image> is
+    // resized to the `sizes` it declares and served as WebP, then cached on disk.
+    // WebP only: AVIF encoding is much slower on a first (uncached) request.
+    formats: ["image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     remotePatterns: [
       {
