@@ -4,8 +4,10 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   compress: true,
   images: {
-    // Self-hosted on a VPS (no Vercel quota), so use Next's built-in optimizer: every <Image> is
-    // resized to the `sizes` it declares and served as WebP, then cached on disk.
+    // On the VPS (no Vercel quota) use Next's built-in optimizer: every <Image> is resized to the
+    // `sizes` it declares and served as WebP, then cached on disk.
+    // On Vercel keep images unoptimized so we never hit its Image Optimization quota (402 errors).
+    unoptimized: process.env.VERCEL === "1",
     // WebP only: AVIF encoding is much slower on a first (uncached) request.
     formats: ["image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
