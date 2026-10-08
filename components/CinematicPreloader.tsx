@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import { lockPageScroll } from "@/lib/scroll-lock"
 
 export function CinematicPreloader() {
   const pathname = usePathname()
@@ -84,6 +85,13 @@ export function CinematicPreloader() {
       document.body.style.overflow = prevOverflow
     }
   }, [isHomePage])
+
+  // body overflow:hidden does not stop Lenis (it scrolls programmatically), so take the shared lock while the
+  // intro is up. Otherwise wheel input scrolls the hero behind the intro before its frames have loaded.
+  useEffect(() => {
+    if (!isLoading) return
+    return lockPageScroll()
+  }, [isLoading])
 
   // Start video playback when isLoading activates & enforce 1.5x speed
   useEffect(() => {

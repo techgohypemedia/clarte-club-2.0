@@ -4,19 +4,25 @@ import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useScroll, useTransform, useMotionValue, animate, motion, AnimatePresence } from "framer-motion"
 import { ArrowRight } from "lucide-react"
+import { getLenis, lockPageScroll } from "@/lib/scroll-lock"
 
 const DESKTOP_TOTAL_FRAMES = 201
 const DESKTOP_PREFIX = "/video frame/video_frames_webp_1280x720/frame_"
 const DESKTOP_SUFFIX = ".webp"
 
 const MOBILE_TOTAL_FRAMES = 108
-const MOBILE_PREFIX = "https://pub-cc1aedfde6bb4a59bc28137b88a01290.r2.dev/mobile%20mobile%20frames/frame_"
+// Served from our own origin (same HTTP/2 connection as the page, 1-year immutable cache via next.config)
+const MOBILE_PREFIX = "/video frame/mobile_600x1067/frame_"
 const MOBILE_SUFFIX = ".webp"
 
-// Mobile loader waits only for the opening frames (not all of them) before revealing the hero
-const GATE_FRAMES = 24
-const LOADER_SEEN_KEY = "clarte-hero-loader-seen-v1"
-const LOADER_FAILSAFE_MS = 8000
+// Frames streamed first, in scroll order; the loader only waits for these (not the whole sequence)
+const HEAD_FRAMES_MOBILE = 24
+const HEAD_FRAMES_DESKTOP = 12
+// Desktop also loads every Nth frame up front so scrubbing anywhere has a nearby frame to show
+const KEYFRAME_STEP = 6
+const LOADER_SEEN_KEY = "clarte-hero-loader-seen-v2"
+// Failsafe so a very slow connection is never trapped behind the loader
+const LOADER_FAILSAFE_MS = 12000
 const LOGO_MASK = {
   WebkitMaskImage: "url(/clarte-club-full-logo.svg)",
   maskImage: "url(/clarte-club-full-logo.svg)",
@@ -56,7 +62,7 @@ export function ScrollVideoHero() {
   const progressMV = useMotionValue(0)
   const logoClip = useTransform(progressMV, (v) => `inset(0 ${(1 - v) * 100}% 0 0)`)
   const percentText = useTransform(progressMV, (v) => `${String(Math.round(v * 100)).padStart(2, "0")}%`)
-  const showLoader = isMobileState !== false && !loaderDone
+  const showLoader = !loaderDone
 
   // Preloading & Frame Cache
   const desktopImagesRef = useRef<HTMLImageElement[]>([])
@@ -129,7 +135,7 @@ export function ScrollVideoHero() {
 
   // Loader: ease the displayed progress toward the real one for a smooth premium fill
   useEffect(() => {
-    if (isMobileState !== true) return
+    if (isMobileState === null) return
     const controls = animate(progressMV, loadProgress, {
       duration: loadProgress >= 1 ? 0.7 : 1.1,
       ease: [0.22, 1, 0.36, 1],
@@ -137,20 +143,22 @@ export function ScrollVideoHero() {
     return () => controls.stop()
   }, [loadProgress, isMobileState, progressMV])
 
-  // Loader: dismiss once the fill completes (short beat on 100%), with a failsafe so it can never get stuck
+  // Loader: dismiss once the fill completes (short beat on 100%), with a failsafe so it can never get stuck.
+  // Only a real completion is remembered: if the failsafe fires, the next visit gets the loader again.
   useEffect(() => {
-    if (isMobileState !== true || loaderDone) return
+    if (isMobileState === null || loaderDone) return
     let doneTimer: ReturnType<typeof setTimeout> | undefined
-    const finish = () => {
-      try {
-        localStorage.setItem(LOADER_SEEN_KEY, "1")
-      } catch {}
-      setLoaderDone(true)
-    }
     const unsub = progressMV.on("change", (v) => {
-      if (v >= 0.999 && !doneTimer) doneTimer = setTimeout(finish, 350)
+      if (v >= 0.999 && !doneTimer) {
+        doneTimer = setTimeout(() => {
+          try {
+            localStorage.setItem(LOADER_SEEN_KEY, "1")
+          } catch {}
+          setLoaderDone(true)
+        }, 350)
+      }
     })
-    const failsafe = setTimeout(finish, LOADER_FAILSAFE_MS)
+    const failsafe = setTimeout(() => setLoaderDone(true), LOADER_FAILSAFE_MS)
     return () => {
       unsub()
       clearTimeout(failsafe)
@@ -158,14 +166,17 @@ export function ScrollVideoHero() {
     }
   }, [isMobileState, loaderDone, progressMV])
 
-  // Loader: lock page scroll while it is on screen
+  // Loader: lock page scroll while it is on screen (shared lock, also stops Lenis). When the loader closes
+  // the page starts from the top, so the first scroll always plays the sequence from frame one.
   useEffect(() => {
-    if (!showLoader) return
-    const html = document.documentElement
-    const prev = html.style.overflow
-    html.style.overflow = "hidden"
+    // Returning visitors never see the loader (hidden by the pre-paint script below), so leave their scroll alone
+    if (!showLoader || document.documentElement.hasAttribute("data-hero-seen")) return
+    window.scrollTo(0, 0)
+    const unlock = lockPageScroll()
     return () => {
-      html.style.overflow = prev
+      unlock()
+      window.scrollTo(0, 0)
+      getLenis()?.scrollTo(0, { immediate: true, force: true })
     }
   }, [showLoader])
 
@@ -211,18 +222,10 @@ export function ScrollVideoHero() {
       const activeRef = isMobile ? mobileImagesRef : desktopImagesRef
       const formatFn = isMobile ? formatMobileFrameIndex : formatDesktopFrameIndex
 
-      // 1. Instant load first frame for immediate zero-latency render (high priority)
-      const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`, true)
-      if (!mounted) return
-      images[0] = firstFrame
-      activeRef.current = images
-      let gateLoaded = 1
-      setLoadProgress(gateLoaded / GATE_FRAMES)
-
-      // 2. Load order: the opening frames first (where every visit starts scrolling), then a sparse
-      //    "keyframe" pass (every 6th) so scrubbing anywhere shows a nearby frame, then the gaps.
-      const STEP = 6
-      const HEAD = isMobile ? GATE_FRAMES : 12
+      // 1. Load order: the opening frames first (where every visit starts scrolling), then on desktop a
+      //    sparse "keyframe" pass so scrubbing anywhere shows a nearby frame, then the gaps.
+      //    Mobile has few, tiny frames: load them in scroll order so the frames just ahead are ready.
+      const HEAD = isMobile ? HEAD_FRAMES_MOBILE : HEAD_FRAMES_DESKTOP
       const order: number[] = []
       const queued = new Set<number>([0])
       const push = (i: number) => {
@@ -232,11 +235,23 @@ export function ScrollVideoHero() {
         }
       }
       for (let i = 1; i < HEAD; i++) push(i)
-      for (let i = STEP; i < activeTotal; i += STEP) push(i)
+      if (!isMobile) {
+        for (let i = KEYFRAME_STEP; i < activeTotal; i += KEYFRAME_STEP) push(i)
+      }
+      // The loader gate is frame 0 plus everything queued so far (head, and keyframes on desktop)
+      const gate = new Set<number>([0, ...order])
       for (let i = 1; i < activeTotal; i++) push(i)
 
+      // 2. Instant load first frame for immediate zero-latency render (high priority)
+      const firstFrame = await loadImage(`${activePrefix}${formatFn(0)}${activeSuffix}`, true)
+      if (!mounted) return
+      images[0] = firstFrame
+      activeRef.current = images
+      let gateLoaded = 1
+      setLoadProgress(gateLoaded / gate.size)
+
       // 3. Bounded-concurrency pool (fewer parallel requests on mobile so the opening frames aren't starved)
-      const CONCURRENCY = isMobile ? 4 : 6
+      const CONCURRENCY = 6
       let cursor = 0
       const worker = async () => {
         while (mounted && cursor < order.length) {
@@ -249,9 +264,9 @@ export function ScrollVideoHero() {
           if (!mounted) return
           images[idx] = img
           activeRef.current = images
-          if (idx < GATE_FRAMES) {
+          if (gate.has(idx)) {
             gateLoaded++
-            setLoadProgress(Math.min(1, gateLoaded / GATE_FRAMES))
+            setLoadProgress(Math.min(1, gateLoaded / gate.size))
           }
         }
       }
@@ -274,6 +289,7 @@ export function ScrollVideoHero() {
 
     let animationFrameId: number
     const decodedRef = new WeakSet<HTMLImageElement>()
+    let lastWindowFrame = -1
 
     // Cached layout dimensions to prevent DOM reflow thrashing inside RAF
     let cachedWidth = 0
@@ -346,13 +362,17 @@ export function ScrollVideoHero() {
       const frameIndex = Math.round(rawCurrent)
       const img = getBestAvailableImage(frameIndex, activeImages)
 
-      // Mobile: pre-decode only the frames just ahead of / behind the playhead, off the draw path
-      if (isMobile) {
-        for (let i = frameIndex - 2; i <= frameIndex + 8; i++) {
-          const near = activeImages[i]
-          if (near && near.complete && near.naturalWidth > 0 && !decodedRef.has(near)) {
-            decodedRef.add(near)
-            near.decode().catch(() => {})
+      // Mobile: pre-decode a window around the playhead (mostly ahead, nearest first), off the draw path.
+      // Decoding is async/off-thread, so frames are ready by the time the scroll reaches them.
+      if (isMobile && frameIndex !== lastWindowFrame) {
+        lastWindowFrame = frameIndex
+        for (let d = 0; d <= 30; d++) {
+          for (const i of d === 0 ? [frameIndex] : [frameIndex + d, d <= 6 ? frameIndex - d : -1]) {
+            const near = activeImages[i]
+            if (near && near.complete && near.naturalWidth > 0 && !decodedRef.has(near)) {
+              decodedRef.add(near)
+              near.decode().catch(() => {})
+            }
           }
         }
       }
@@ -442,8 +462,8 @@ export function ScrollVideoHero() {
 
   return (
     <div ref={containerRef} className="relative w-full h-[300vh] bg-black">
-      {/* Premium mobile loading phase: logo fills with champagne gold as the opening frames arrive.
-          md:hidden keeps it out of desktop even before JS decides which layout applies. */}
+      {/* Premium loading phase (mobile and desktop): logo fills with champagne gold as the opening frames
+          arrive. On a desktop first visit it sits under the cinematic intro and takes over if frames are still loading. */}
       {/* Runs before first paint: marks <html> for returning visitors so the server-rendered loader never flashes */}
       <script
         dangerouslySetInnerHTML={{
@@ -455,7 +475,7 @@ export function ScrollVideoHero() {
         {showLoader && (
           <motion.div
             key="hero-loader"
-            className="hero-loader fixed inset-0 z-100 md:hidden flex flex-col items-center justify-center bg-[#0A0A0B]"
+            className="hero-loader fixed inset-0 z-100 flex flex-col items-center justify-center bg-[#0A0A0B]"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}

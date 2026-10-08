@@ -26,6 +26,17 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // Hero frames. Browsers request the folder as "video%20frame", which the plain "video frame" source
+      // never matched, so frames were served with max-age=0 and re-checked on every visit.
+      {
+        source: "/video%20frame/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/video frame/:path*",
         headers: [
