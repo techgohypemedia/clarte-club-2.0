@@ -5,8 +5,8 @@ import { LookbookCarousel } from "@/components/home/LookbookCarousel"
 import { ProductGallery } from "@/components/product/ProductGallery"
 import { ProductSummary } from "@/components/product/ProductSummary"
 import { YouMayAlsoLikeSection } from "@/components/product/YouMayAlsoLikeSection"
-import { ProductReviews } from "@/components/product/ProductReviews"
 import { ProductHighlights } from "@/components/product/ProductHighlights"
+import { RenderWhenNear } from "@/components/ui/RenderWhenNear"
 import type { ProductDetail } from "@/components/product/productData"
 
 export function ProductPage({
@@ -55,17 +55,25 @@ export function ProductPage({
           </div>
         </div>
       </section>
-      <ProductHighlights
-        productTitle={product.title}
-        gallery={product.gallery}
-        highlights={product.highlights}
-      />
-      <YouMayAlsoLikeSection
-        currentHandle={product.slug}
-        currentId={product.id}
-        currentTitle={product.title}
-      />
-      <LookbookCarousel />
+      {/* Below the fold: mounted as the customer scrolls near them, so tapping a product only renders the
+          gallery and buy box first */}
+      <RenderWhenNear minHeight={600}>
+        <ProductHighlights
+          productTitle={product.title}
+          gallery={product.gallery}
+          highlights={product.highlights}
+        />
+      </RenderWhenNear>
+      <RenderWhenNear minHeight={500}>
+        <YouMayAlsoLikeSection
+          currentHandle={product.slug}
+          currentId={product.id}
+          currentTitle={product.title}
+        />
+      </RenderWhenNear>
+      <RenderWhenNear minHeight={500}>
+        <LookbookCarousel />
+      </RenderWhenNear>
     </main>
   )
 }

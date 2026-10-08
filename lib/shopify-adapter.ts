@@ -1,3 +1,4 @@
+import { cache } from "react"
 import {
   fetchAllProducts,
   fetchCollectionByHandle,
@@ -590,7 +591,11 @@ export async function getShopifyCollectionProducts(handle: string, limit = 50): 
   return []
 }
 
-export async function getShopifyProductByHandle(handle: string): Promise<ProductDetail | null> {
+// cache(): generateMetadata and the page both ask for the product; within one request they now share a
+// single Shopify call instead of making two
+export const getShopifyProductByHandle = cache(loadShopifyProductByHandle)
+
+async function loadShopifyProductByHandle(handle: string): Promise<ProductDetail | null> {
   if (!handle) return null
   try {
     // 1. Direct handle lookup

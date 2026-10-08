@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useScroll, useTransform, useMotionValue, animate, motion, AnimatePresence } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { getLenis, lockPageScroll } from "@/lib/scroll-lock"
+import { HERO_LOADER_SEEN_KEY } from "@/lib/hero-loader"
 
 const DESKTOP_TOTAL_FRAMES = 201
 const DESKTOP_PREFIX = "/video frame/video_frames_webp_1280x720/frame_"
@@ -20,7 +21,7 @@ const HEAD_FRAMES_MOBILE = 24
 const HEAD_FRAMES_DESKTOP = 12
 // Desktop also loads every Nth frame up front so scrubbing anywhere has a nearby frame to show
 const KEYFRAME_STEP = 6
-const LOADER_SEEN_KEY = "clarte-hero-loader-seen-v2"
+const LOADER_SEEN_KEY = HERO_LOADER_SEEN_KEY
 // Failsafe so a very slow connection is never trapped behind the loader
 const LOADER_FAILSAFE_MS = 12000
 const LOGO_MASK = {
@@ -154,6 +155,8 @@ export function ScrollVideoHero() {
           try {
             localStorage.setItem(LOADER_SEEN_KEY, "1")
           } catch {}
+          // Also hide it for the rest of this page session (e.g. product page -> back to the homepage)
+          document.documentElement.setAttribute("data-hero-seen", "1")
           setLoaderDone(true)
         }, 350)
       }
@@ -464,12 +467,7 @@ export function ScrollVideoHero() {
     <div ref={containerRef} className="relative w-full h-[300vh] bg-black">
       {/* Premium loading phase (mobile and desktop): logo fills with champagne gold as the opening frames
           arrive. On a desktop first visit it sits under the cinematic intro and takes over if frames are still loading. */}
-      {/* Runs before first paint: marks <html> for returning visitors so the server-rendered loader never flashes */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `try{if(localStorage.getItem(${JSON.stringify(LOADER_SEEN_KEY)})==="1")document.documentElement.setAttribute("data-hero-seen","1")}catch(e){}`,
-        }}
-      />
+      {/* Returning visitors: <html data-hero-seen> is set before first paint by the script in app/layout.tsx */}
       <style>{`html[data-hero-seen] .hero-loader{display:none!important}`}</style>
       <AnimatePresence>
         {showLoader && (

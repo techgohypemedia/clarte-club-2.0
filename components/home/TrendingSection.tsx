@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import Link, { useLinkStatus } from "next/link"
 import { ArrowLeft, ArrowRight, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Heart, Plus, ShoppingBag } from "lucide-react"
 
 import { ProductQuickViewModal } from "@/components/product/ProductQuickViewModal"
@@ -18,6 +18,22 @@ import { cn } from "@/lib/utils"
 import { getSoldTodayCount, getProductReviewStats } from "@/lib/product-stats"
 
 const eyewearDetails = { shape: "Round", lens: "UV400" }
+
+// Instant tap feedback while the product page opens (must render inside the card's <Link>)
+function CardPendingOverlay() {
+  const { pending } = useLinkStatus()
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-0 z-2 flex items-center justify-center bg-white/45 transition-opacity duration-150",
+        pending ? "opacity-100" : "opacity-0"
+      )}
+    >
+      {pending ? <span className="size-6 rounded-full border-2 border-[#C9B07A]/30 border-t-[#C9B07A] animate-spin" /> : null}
+    </span>
+  )
+}
 
 export function ProductCardView({
   product,
@@ -249,7 +265,7 @@ export function ProductCardView({
         onTouchEnd={handleTouchEnd}
       >
 
-        <Link href={productHref} prefetch={false} className="absolute inset-0 cursor-pointer z-0 overflow-hidden">
+        <Link href={productHref} className="absolute inset-0 cursor-pointer z-0 overflow-hidden">
           {activeImage ? (
             <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
               <motion.div
@@ -289,6 +305,7 @@ export function ProductCardView({
               </span>
             </div>
           )}
+          <CardPendingOverlay />
         </Link>
 
         {/* Badge */}
@@ -497,7 +514,7 @@ export function ProductCardView({
       {/* ── 2. Content Details Below Image (with Direct BUY NOW Action) ── */}
       <div className="mt-2.5 flex items-center justify-between gap-2 px-0.5">
         <div className="min-w-0 flex-1">
-          <Link href={productHref} prefetch={false} className="block group/title">
+          <Link href={productHref} className="block group/title">
             <h3
               className={`text-xs sm:text-[13px] font-semibold truncate transition-colors group-hover/title:text-[#C9B07A] ${
                 isDark ? "text-white" : "text-black"

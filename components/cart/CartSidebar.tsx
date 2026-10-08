@@ -214,7 +214,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
               </div>
             ) : (
               cartItems.map((item) => (
-                <CartItemRow key={`scroll-${item.id}`} item={item} />
+                <CartItemRow key={`scroll-${item.id}-${item.size}`} item={item} />
               ))
             )}
           </div>

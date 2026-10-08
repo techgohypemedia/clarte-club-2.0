@@ -1211,7 +1211,8 @@ export async function cartCreate(lines: any[] = []) {
   const input = {
     lines,
     buyerIdentity: {
-      countryCode: (getEnv('SHOPIFY_COUNTRY', 'US')).toUpperCase(),
+      // Indian store (INR); 'US' here priced carts in the wrong market
+      countryCode: (getEnv('SHOPIFY_COUNTRY', 'IN')).toUpperCase(),
     },
   };
   const data = await graphql(q, { input });
@@ -1433,6 +1434,27 @@ export async function cartQuery(id: string) {
   }`;
   const data = await graphql(q, { id });
   return data?.cart || null;
+}
+
+// Variant details for cart links that only carry variant IDs (e.g. /cart/123:1,456:2)
+export async function fetchVariantsByIds(ids: string[]) {
+  if (!ids.length) return [];
+  const q = `#graphql
+  query($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      __typename
+      ... on ProductVariant {
+        id
+        title
+        availableForSale
+        price { amount currencyCode }
+        selectedOptions { name value }
+        product { id handle title featuredImage { url altText } }
+      }
+    }
+  }`;
+  const data = await graphql(q, { ids });
+  return (data?.nodes ?? []).filter((node: any) => node?.__typename === 'ProductVariant');
 }
 
 export async function cartLinesAdd(cartId: string, lines: any[]) {

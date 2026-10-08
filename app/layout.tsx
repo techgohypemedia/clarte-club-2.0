@@ -9,6 +9,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CinematicPreloader } from "@/components/CinematicPreloader";
 import { OneCheckoutModal } from "@/components/onecheckout/OneCheckoutModal";
+import { CartSync } from "@/components/cart/CartSync";
+import { HERO_LOADER_SEEN_SCRIPT } from "@/lib/hero-loader";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -76,8 +78,12 @@ export default function RootLayout({
         playfair.variable,
         "font-sans"
       )}
+      // The head script below sets data-hero-seen on <html> before React loads; only this element's attributes
+      // are exempt from the hydration check
+      suppressHydrationWarning
     >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: HERO_LOADER_SEEN_SCRIPT }} />
         {oneCheckoutPayDns ? <link rel="dns-prefetch" href={oneCheckoutPayDns} /> : null}
         {oneCheckoutApiDns ? <link rel="dns-prefetch" href={oneCheckoutApiDns} /> : null}
         <link rel="dns-prefetch" href="//cdn.1checkout.ai" />
@@ -160,6 +166,7 @@ export default function RootLayout({
           <SiteFooter />
         </div>
         <OneCheckoutModal />
+        <CartSync />
         <Script src="/onecheckout/1checkout.js" strategy="afterInteractive" />
       </body>
     </html>

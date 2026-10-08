@@ -3,7 +3,15 @@ import { ProductPage } from "@/components/product/ProductPage"
 import { featuredProduct } from "@/components/product/productData"
 import { getShopifyProductByHandle } from "@/lib/shopify-adapter"
 
-export const dynamic = "force-dynamic"
+// Cached product pages (ISR): rendered on first visit, then served instantly from cache and refreshed in the
+// background at most every 60s, so price/stock changes in Shopify show up within a minute.
+// Previously force-dynamic: every click waited for a fresh server render + Shopify round trip.
+export const revalidate = 60
+
+// No pages at build time; each product page is generated the first time it is visited
+export function generateStaticParams() {
+  return []
+}
 
 export async function generateMetadata({
   params,

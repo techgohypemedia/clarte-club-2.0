@@ -266,7 +266,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-semibold uppercase tracking-wider text-neutral-700">Subtotal ({totalItemCount} {totalItemCount === 1 ? "item" : "items"})</span>
                     <span className="text-lg font-extrabold tracking-wider text-[#0F0F10]">
-                      ₹ {subtotal ? subtotal.toLocaleString("en-IN") : "4,500"}
+                      ₹ {subtotal.toLocaleString("en-IN")}
                     </span>
                   </div>
 
