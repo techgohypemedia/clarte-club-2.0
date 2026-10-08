@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { ProductPage } from "@/components/product/ProductPage"
-import { featuredProduct } from "@/components/product/productData"
+import { notFound } from "next/navigation"
 import { getShopifyProductByHandle } from "@/lib/shopify-adapter"
 
 // Cached product pages (ISR): rendered on first visit, then served instantly from cache and refreshed in the
@@ -35,6 +35,8 @@ export default async function Page({
 }) {
   const { handle } = await params
   const liveProduct = await getShopifyProductByHandle(handle)
+  // Unknown handle (deleted or mistyped link): show the 404 page, not a different product
+  if (!liveProduct) notFound()
 
-  return <ProductPage product={liveProduct || featuredProduct} />
+  return <ProductPage product={liveProduct} />
 }
