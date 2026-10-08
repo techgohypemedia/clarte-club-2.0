@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/sheet"
 
 import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckout, type CartItem } from "@/lib/cart"
+import { getCartOffer } from "@/lib/cart-offers"
+import { CartRewardsProgress, CartTotals, FreeKitRow } from "@/components/cart/CartOffers"
 
 const promoStripText = "Additional Discount on Pre-paid | Easy Exchange"
 
@@ -123,6 +125,7 @@ type CartSidebarProps = {
 export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const offer = getCartOffer(cartItems)
 
   const handleCheckout = async () => {
     if (isCheckingOut) return
@@ -184,7 +187,7 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
           <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 bg-[#f4f4f4]">
             <div className="flex items-center gap-2 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-[#0F0F10]">
               <Check className="size-4 stroke-[2.4] text-[#C9B07A]" />
-              <span>{cartItems.length} {cartItems.length === 1 ? "ITEM" : "ITEMS"} ADDED</span>
+              <span>{offer.itemCount} {offer.itemCount === 1 ? "ITEM" : "ITEMS"} ADDED</span>
             </div>
 
             <SheetClose asChild>
@@ -208,14 +211,18 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
             data-lenis-prevent
             className="cart-item-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-white"
           >
+            <CartRewardsProgress offer={offer} className="pb-1" />
             {cartItems.length === 0 ? (
               <div className="py-12 text-center text-neutral-500 text-sm">
                 Your cart is currently empty.
               </div>
             ) : (
-              cartItems.map((item) => (
-                <CartItemRow key={`scroll-${item.id}-${item.size}`} item={item} />
-              ))
+              <>
+                {cartItems.map((item) => (
+                  <CartItemRow key={`scroll-${item.id}-${item.size}`} item={item} />
+                ))}
+                <FreeKitRow quantity={offer.kitQuantity} compact />
+              </>
             )}
           </div>
 
@@ -233,7 +240,13 @@ export function CartSidebar({ open, onOpenChange }: CartSidebarProps) {
             <div className="px-5 py-4 bg-[#f4f4f4]">
               <CartRecommendationsCarousel items={recommendations} dark={false} />
 
-              <div className="mt-5 pb-2">
+              {cartItems.length > 0 ? (
+                <div className="mt-4">
+                  <CartTotals offer={offer} compact />
+                </div>
+              ) : null}
+
+              <div className="mt-4 pb-2">
                 <button
                   type="button"
                   onClick={handleCheckout}

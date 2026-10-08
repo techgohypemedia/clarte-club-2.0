@@ -1,5 +1,6 @@
 import {
   cartCreate,
+  cartDiscountCodesUpdate,
   cartLinesAdd,
   cartLinesUpdate,
   cartLinesRemove,
@@ -9,6 +10,7 @@ import {
   fetchVariantsByIds,
   formatMoney,
 } from "./shopify"
+import { getOfferCode, isOfferCode, setVerifiedOfferCode } from "./cart-offers"
 
 export type CartItem = {
   id: string
@@ -293,7 +295,9 @@ async function pushLocalToShopify() {
       )
       if (!created?.id) throw new Error("cartCreate returned no cart")
       setShopifyCartId(created.id, created.checkoutUrl)
+      await syncOfferCode(created.id)
     }
+    if (wanted.size === 0) await syncOfferCode(null)
     if (!syncTimer) setDirty(false)
     return
   }
@@ -321,6 +325,7 @@ async function pushLocalToShopify() {
   if (toRemove.length) assertNoUserErrors(await cartLinesRemove(cart.id, toRemove), "cartLinesRemove")
   if (toUpdate.length) assertNoUserErrors(await cartLinesUpdate(cart.id, toUpdate), "cartLinesUpdate")
   if (toAdd.length) assertNoUserErrors(await cartLinesAdd(cart.id, toAdd), "cartLinesAdd")
+  await syncOfferCode(cart.id)
 
   // Only clear the flag if nothing changed locally while we were syncing
   if (!syncTimer) setDirty(false)
@@ -343,6 +348,33 @@ async function pullShopifyToLocal() {
   if (isDirty() || syncTimer) return
   writeLocalItems(itemsFromShopifyCart(cart, getCartItems()))
   setDirty(false)
+  await syncOfferCode(cart.id)
+}
+
+/*
+ * Multi-frame offer: apply the code for the current number of frames to the Shopify cart and save it as the
+ * applied coupon (Pragma's checkout script sends that coupon as discount_codes, so it is what gets charged).
+ * The cart only shows the discount once Shopify confirms the code is applicable.
+ * A coupon the customer brought themselves (e.g. ?discount= on a cart link) is never replaced.
+ */
+async function syncOfferCode(cartId: string | null) {
+  const current = getAppliedCoupon()
+  if (current && !isOfferCode(current)) {
+    setVerifiedOfferCode(null)
+    return
+  }
+  const wanted = getOfferCode(getCartItems())
+
+  let verified: string | null = null
+  if (cartId) {
+    const result = await cartDiscountCodesUpdate(cartId, wanted ? [wanted] : [])
+    const codes: { code: string; applicable: boolean }[] = result?.cart?.discountCodes ?? []
+    if (wanted && codes.some((c) => c.code.toUpperCase() === wanted.toUpperCase() && c.applicable)) verified = wanted
+  }
+  // Only hand checkout a code Shopify accepted, so customers never see an "invalid coupon" error
+  if ((current ?? null) !== verified) setAppliedCoupon(verified)
+  setVerifiedOfferCode(verified)
+  window.dispatchEvent(new CustomEvent("cart-updated"))
 }
 
 /** Waits until the Shopify cart reflects the local cart (used before checkout so the cart token is real). */
@@ -378,6 +410,7 @@ async function replaceCartWith(items: CartItem[], cart: { id: string; checkoutUr
   if (cart) {
     setShopifyCartId(cart.id, cart.checkoutUrl)
     setDirty(false)
+    await enqueue(() => syncOfferCode(cart.id))
   } else {
     // Built from variant IDs: create a fresh Shopify cart for it right away
     setShopifyCartId(null)
@@ -449,6 +482,8 @@ export function clearCart() {
   if (typeof window === "undefined") return
   setShopifyCartId(null)
   setDirty(false)
+  if (isOfferCode(getAppliedCoupon())) setAppliedCoupon(null)
+  setVerifiedOfferCode(null)
   writeLocalItems([])
 }
 

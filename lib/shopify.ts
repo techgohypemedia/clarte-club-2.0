@@ -1494,7 +1494,7 @@ export async function cartDiscountCodesUpdate(cartId: string, discountCodes: str
   const q = `#graphql
   mutation($cartId:ID!, $discountCodes:[String!]!){
     cartDiscountCodesUpdate(cartId:$cartId, discountCodes:$discountCodes){
-      cart{ id }
+      cart{ id discountCodes{ code applicable } }
       userErrors{ field message }
     }
   }`;

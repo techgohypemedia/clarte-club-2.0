@@ -8,6 +8,8 @@ import { ArrowLeft, Check, X, ShieldCheck, Truck, RefreshCw, Loader2, ShoppingBa
 import { ProductCardView } from "@/components/home/TrendingSection"
 import { trendingProducts, type ProductCard } from "@/components/product/productData"
 import { getCartItems, updateCartQuantity, removeFromCart, processShopifyCheckout, type CartItem } from "@/lib/cart"
+import { getCartOffer } from "@/lib/cart-offers"
+import { CartRewardsProgress, CartTotals, FreeKitRow } from "@/components/cart/CartOffers"
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -82,13 +84,8 @@ export default function CartPage() {
     }
   }
 
-  const parsePrice = (priceStr: string): number => {
-    const numeric = priceStr.replace(/[^0-9.]/g, "")
-    return parseFloat(numeric) || 0
-  }
-
-  const subtotal = cartItems.reduce((sum, item) => sum + parsePrice(item.price) * item.quantity, 0)
-  const totalItemCount = cartItems.reduce((acc, i) => acc + i.quantity, 0)
+  const offer = getCartOffer(cartItems)
+  const totalItemCount = offer.itemCount
 
   return (
     <main className="min-h-screen bg-white text-[#0F0F10] font-sans">
@@ -165,6 +162,8 @@ export default function CartPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
               {/* Left Column: Items List */}
               <div className="lg:col-span-8 space-y-8">
+                <CartRewardsProgress offer={offer} className="mx-auto max-w-xl" />
+
                 {/* Items Header */}
                 <div className="flex items-center justify-between border-b border-black/10 pb-3">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
@@ -253,6 +252,7 @@ export default function CartPage() {
                       </div>
                     </article>
                   ))}
+                  <FreeKitRow quantity={offer.kitQuantity} />
                 </div>
               </div>
 
@@ -263,12 +263,7 @@ export default function CartPage() {
                     ORDER SUMMARY
                   </h2>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold uppercase tracking-wider text-neutral-700">Subtotal ({totalItemCount} {totalItemCount === 1 ? "item" : "items"})</span>
-                    <span className="text-lg font-extrabold tracking-wider text-[#0F0F10]">
-                      ₹ {subtotal.toLocaleString("en-IN")}
-                    </span>
-                  </div>
+                  <CartTotals offer={offer} />
 
                   {/* Pre-paid discount highlight */}
                   <div className="rounded bg-neutral-100 border border-black/10 p-3.5 text-center">
