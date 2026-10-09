@@ -8,7 +8,6 @@ import {
   Heart,
   RefreshCcw,
   ShieldCheck,
-  Star,
   Truck,
   Tag,
   Copy,
@@ -16,7 +15,7 @@ import {
   Layers,
 } from "lucide-react"
 import type { ButtonHTMLAttributes } from "react"
-import { useState, useEffect, useId, useMemo } from "react"
+import { useState, useEffect } from "react"
 
 import {
   Carousel,
@@ -34,11 +33,6 @@ import { cn } from "@/lib/utils"
 import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
 import { useWishlist } from "@/lib/wishlist"
-import {
-  getSoldTodayCount,
-  getInitialReviewsForProduct,
-  getProductReviewStats,
-} from "@/lib/product-stats"
 
 const deliveryIcons = {
   truck: Truck,
@@ -73,34 +67,6 @@ function OptionButton({
   )
 }
 
-function StarIcon({ filled, half }: { filled: boolean; half: boolean }) {
-  const gradId = useId()
-  return (
-    <svg
-      className={`h-4.5 w-4.5 ${filled ? "text-black fill-black" : half ? "text-black/50" : "text-black/15"}`}
-      fill="currentColor"
-      viewBox="0 0 24 24"
-    >
-      {half ? (
-        <>
-          <defs>
-            <linearGradient id={gradId}>
-              <stop offset="50%" stopColor="black" />
-              <stop offset="50%" stopColor="#efefef" />
-            </linearGradient>
-          </defs>
-          <path
-            fill={`url(#${gradId})`}
-            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-          />
-        </>
-      ) : (
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      )}
-    </svg>
-  )
-}
-
 export function ProductSummary({
   product,
 }: {
@@ -111,21 +77,13 @@ export function ProductSummary({
     product.sizes?.[0] || ""
   )
 
-  const initialReviews = useMemo(
-    () => getInitialReviewsForProduct(product.slug, product.title),
-    [product.slug, product.title]
-  )
-  const initialStats = useMemo(
-    () => getProductReviewStats(product.slug, product.title),
-    [product.slug, product.title]
-  )
-  const soldTodayCount = useMemo(
-    () => getSoldTodayCount(product.slug || product.id || product.title),
-    [product.slug, product.id, product.title]
-  )
+  // Shopify titles are "Collection / Frame" (e.g. "Atelier / Cobalt Muse"): show the collection as the small label
+  const [titleCollection, titleFrame] = product.title.includes("/")
+    ? product.title.split("/").map((part) => part.trim())
+    : [product.editLabel, product.title]
+  const collectionLabel = titleCollection || product.editLabel
+  const frameName = titleFrame || product.title
 
-  const [reviewsCount, setReviewsCount] = useState(initialStats.totalCount)
-  const [averageRating, setAverageRating] = useState(initialStats.averageRating)
   const [cartState, setCartState] = useState<"idle" | "adding" | "added">("idle")
   const [isBuying, setIsBuying] = useState(false)
   const { isInWishlist, toggleWishlist } = useWishlist()
@@ -142,42 +100,6 @@ export function ProductSummary({
   })
 
   const availableCoupons: ProductCoupon[] = product.coupons || []
-
-  // Fetch reviews count from local storage + initial reviews, and update whenever reviews are modified
-  useEffect(() => {
-    const updateStats = () => {
-      const key = `clarte_reviews_${product.slug}`
-      const stored = typeof window !== "undefined" ? localStorage.getItem(key) : null
-      let userReviews: any[] = []
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          if (Array.isArray(parsed)) {
-            userReviews = parsed
-          }
-        } catch (e) {
-          // fallback
-        }
-      }
-      const currentStats = getProductReviewStats(product.slug, product.title, userReviews.length)
-      setReviewsCount(currentStats.totalCount)
-      setAverageRating(currentStats.averageRating)
-    }
-
-    updateStats()
-
-    const handleReviewsUpdated = (e: Event) => {
-      const customEvent = e as CustomEvent<{ slug?: string }>
-      if (!customEvent.detail?.slug || customEvent.detail.slug === product.slug) {
-        updateStats()
-      }
-    }
-
-    window.addEventListener("clarte_reviews_updated", handleReviewsUpdated)
-    return () => {
-      window.removeEventListener("clarte_reviews_updated", handleReviewsUpdated)
-    }
-  }, [product.slug, initialReviews, initialStats])
 
   const handleAddToCart = () => {
     setCartState("adding")
@@ -254,104 +176,61 @@ export function ProductSummary({
   return (
     <aside className="self-start w-full">
       <div className="space-y-5 text-black lg:w-full lg:max-w-[480px] xl:max-w-[573px] lg:justify-self-end">
-        {/* RATINGS & REVIEWS AT THE TOP */}
+        {/* COLLECTION + NAME ("Atelier / Cobalt Muse" -> ATELIER above COBALT MUSE) */}
         <div className="space-y-2">
-          <button
-            onClick={() => {
-              document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" })
-            }}
-            className="inline-flex items-center gap-1.5 text-black hover:opacity-70 transition-opacity cursor-pointer focus:outline-none"
-          >
-            <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => {
-                const isFilled = averageRating >= star
-                const isHalf = !isFilled && averageRating >= star - 0.5
-                return (
-                  <StarIcon key={star} filled={isFilled} half={isHalf} />
-                )
-              })}
-            </div>
-            <span className="text-[11px] sm:text-[13px] font-semibold tracking-[0.06em] text-black/50 uppercase">
-              {averageRating} ({reviewsCount} REVIEWS)
-            </span>
-          </button>
-
-          <div className="space-y-1">
-            <p className="text-[11px] sm:text-[13px] font-semibold uppercase tracking-[0.22em] text-[#C9B07A]">
-              {product.editLabel}
-            </p>
-            <h1 className="font-heading text-[28px] sm:text-[34px] md:text-[40px] font-normal uppercase leading-[0.9] tracking-[-0.06em]">
-              {product.title}
-            </h1>
-          </div>
+          <p className="text-[11px] sm:text-[12px] font-medium uppercase tracking-[0.32em] text-[#C9B07A]">
+            {collectionLabel}
+          </p>
+          <h1 className="font-heading text-[32px] sm:text-[38px] md:text-[44px] font-normal uppercase leading-[0.95] tracking-[-0.04em]">
+            {frameName}
+          </h1>
         </div>
 
-        {/* PRICE BLOCK WITH SOLD BADGE AND TAXES */}
-        <div className="space-y-1.5 border-b border-black/10 pb-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-[15px] sm:text-[18px] leading-none text-black/45 line-through">
+        {/* PRICE */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+            <span className="text-[16px] sm:text-[18px] leading-none text-black/40 line-through">
               {product.originalPrice}
             </span>
-            <span className="font-heading text-[20px] sm:text-[24px] font-medium leading-none tracking-[-0.04em] text-black">
+            <span className="font-heading text-[22px] sm:text-[26px] font-medium leading-none tracking-[-0.03em] text-black">
               {product.price}
             </span>
-            <span className="inline-flex items-center justify-center bg-black text-white px-2.5 py-1 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider leading-none">
-              {soldTodayCount} Sold Today
+            <span className="inline-flex items-center border border-black/70 px-2.5 py-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.18em] leading-none text-black">
+              Limited Stock
             </span>
           </div>
-          <p className="text-[8px] sm:text-[9px] text-black/40 uppercase tracking-wider font-light">
-            INCL. OF ALL TAXES
-          </p>
+          <p className="text-[9px] sm:text-[10px] text-black/45 uppercase tracking-[0.16em]">Incl. of all taxes</p>
         </div>
 
-        {/* OFFERS & CRAFTSMANSHIP HALLMARKS */}
-        <div className="space-y-2.5">
-          {/* PREPAID DISCOUNT CALLOUT */}
-          <div className="inline-flex w-fit items-center gap-1.5 py-1 px-2.5 sm:px-3 border border-black/10 bg-[#FAF8F5]/60 text-black">
-            <Tag className="size-3 text-[#C9B07A] shrink-0" />
-            <span className="text-[10px] min-[360px]:text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-black">
-              10% OFF ON PREPAID ORDERS
-            </span>
-          </div>
+        {/* PREPAID OFFER */}
+        <div className="inline-flex w-fit items-center gap-1.5 border border-black/10 px-2.5 py-1 sm:px-3 text-black">
+          <Tag className="size-3 shrink-0 text-[#C9B07A]" />
+          <span className="text-[10px] min-[360px]:text-[11px] sm:text-[11.5px] font-semibold uppercase tracking-[0.12em]">
+            10% off on prepaid orders
+          </span>
+        </div>
 
-          {/* UV 400 & PREMIUM MATERIALS HALLMARKS */}
-          <div className="grid grid-cols-2 divide-x divide-black/[0.08] border border-black/[0.08] bg-[#FAF8F5] py-2 sm:py-2.5 px-2.5 sm:px-4 transition-colors duration-200 hover:border-[#C9B07A]/40">
-            <div className="flex items-center gap-2 sm:gap-2.5 pr-1.5 sm:pr-2">
-              <div className="flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full bg-[#C9B07A]/15 border border-[#C9B07A]/30">
-                <Sun className="size-3 sm:size-3.5 text-[#9E7A36] stroke-[1.8]" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9px] min-[390px]:text-[10px] sm:text-[11.5px] font-bold uppercase tracking-[0.05em] sm:tracking-[0.12em] text-black leading-tight whitespace-nowrap">
-                  UV 400
-                </span>
-                <span className="text-[7.5px] min-[390px]:text-[8.5px] sm:text-[9.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black/50 leading-tight whitespace-nowrap">
-                  PROTECTION
-                </span>
-              </div>
+        {/* HALLMARKS */}
+        <div className="grid grid-cols-2 border-y border-black/10 py-4">
+          <div className="flex items-center gap-3 pr-3">
+            <Sun className="size-7 shrink-0 text-black" strokeWidth={1.2} />
+            <div className="min-w-0 leading-tight">
+              <p className="whitespace-nowrap text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black">UV 400</p>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-black/50">Protection</p>
             </div>
-
-            <div className="flex items-center gap-2 sm:gap-2.5 pl-2.5 sm:pl-4">
-              <div className="flex size-6 sm:size-7 shrink-0 items-center justify-center rounded-full bg-[#C9B07A]/15 border border-[#C9B07A]/30">
-                <Layers className="size-3 sm:size-3.5 text-[#9E7A36] stroke-[1.8]" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9px] min-[390px]:text-[10px] sm:text-[11.5px] font-bold uppercase tracking-[0.05em] sm:tracking-[0.12em] text-black leading-tight whitespace-nowrap">
-                  PREMIUM-GRADE
-                </span>
-                <span className="text-[7.5px] min-[390px]:text-[8.5px] sm:text-[9.5px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black/50 leading-tight whitespace-nowrap">
-                  {(product as any).material ? `${(product as any).material}`.toUpperCase() : "MATERIALS"}
-                </span>
-              </div>
+          </div>
+          <div className="flex items-center gap-3 border-l border-black/10 pl-4">
+            <Layers className="size-7 shrink-0 text-black" strokeWidth={1.2} />
+            <div className="min-w-0 leading-tight">
+              <p className="whitespace-nowrap text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.08em] sm:tracking-[0.14em] text-black">Premium-grade</p>
+              <p className="mt-0.5 text-[10px] sm:text-[11px] uppercase tracking-[0.14em] text-black/50">Materials</p>
             </div>
           </div>
         </div>
 
-        {/* DESCRIPTION BLOCK */}
-        <section className="space-y-2">
-          <p className="text-[13px] sm:text-[14px] md:text-[15px] font-bold uppercase tracking-wider text-black">
-            Description:
-          </p>
-          <p className="max-w-[38rem] font-sans text-[13.5px] sm:text-[15px] font-normal leading-[1.75] text-black/75">
+        {/* DESCRIPTION */}
+        <section>
+          <p className="max-w-[38rem] font-sans text-[14px] sm:text-[15px] font-normal leading-[1.75] text-black/70">
             {isDescExpanded || product.description.length <= 220
               ? product.description
               : `${product.description.slice(0, 220)}... `}
@@ -596,87 +475,62 @@ export function ProductSummary({
             Buy Now
           </button>
 
-
-          {/* COMMUNITY PROOF */}
-          <div className="flex items-center justify-center gap-3 py-1 text-center">
-            <div className="flex shrink-0 items-center -space-x-2.5">
-              <div className="relative size-7 rounded-full overflow-hidden border border-white bg-black/10">
-                <img src="https://randomuser.me/api/portraits/men/11.jpg" alt="User avatar 1" className="h-full w-full object-cover" />
-              </div>
-              <div className="relative size-7 rounded-full overflow-hidden border border-white bg-black/10">
-                <img src="https://randomuser.me/api/portraits/women/21.jpg" alt="User avatar 2" className="h-full w-full object-cover" />
-              </div>
-              <div className="relative size-7 rounded-full overflow-hidden border border-white bg-black/10">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User avatar 3" className="h-full w-full object-cover" />
-              </div>
-              <div className="relative size-7 rounded-full overflow-hidden border border-white bg-black text-white text-[8px] font-bold uppercase flex items-center justify-center tracking-tighter">
-                +{Math.max(soldTodayCount - 3, 5)}
-              </div>
-            </div>
-            <div className="text-[11px] leading-tight text-left">
-              <span className="font-bold text-black uppercase block tracking-wider">{soldTodayCount}+ Sold Today</span>
-              <span className="text-black/50 uppercase text-[9px] tracking-wider">Loved by the Clarte Club community</span>
-            </div>
-          </div>
         </div>
 
-        {/* PRODUCT DETAILS ACCORDIONS */}
-        <section id="details" className="border-t border-black/15 pt-4">
-          <h2 className="text-[16px] sm:text-[18px] md:text-[22px] font-medium uppercase">
-            Product Details
-          </h2>
-          {typeof product.detailsBody === "string" && product.detailsBody.includes("<") ? (
-            <div
-              className="mt-3 max-w-[36rem] font-sans text-[15px] sm:text-[16px] font-normal leading-[1.72] text-black/75 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_li]:text-[14px] sm:[&_li]:text-[15px] [&_em]:italic [&_strong]:font-semibold"
-              dangerouslySetInnerHTML={{ __html: product.detailsBody }}
-            />
-          ) : (
-            <p className="mt-3 max-w-[36rem] font-sans text-[16px] font-normal leading-[1.72] text-black/68">
-              {product.detailsBody}
-            </p>
-          )}
-        </section>
-
-        <div className="space-y-4 border-t border-black/15 pt-3">
-          <div className="border-b border-black/10 pb-3">
+        {/* ACCORDIONS: product details live under Details & Care (no separate repeated block) */}
+        <div className="border-t border-black/10">
+          <div className="border-b border-black/10">
             <button
               type="button"
+              id="details"
+              aria-expanded={activeAccordion === "care"}
               onClick={() => setActiveAccordion(activeAccordion === "care" ? null : "care")}
-              className="flex w-full items-center justify-between text-[16px] sm:text-[18px] md:text-[22px] font-medium uppercase tracking-normal transition-opacity hover:opacity-70 cursor-pointer"
+              className="flex w-full items-center justify-between py-4 text-[12.5px] sm:text-[13px] font-medium uppercase tracking-[0.2em] transition-opacity hover:opacity-70 cursor-pointer"
             >
               <span>Details &amp; Care</span>
-              <span className="text-[16px] sm:text-[20px] font-light">{activeAccordion === "care" ? "−" : "+"}</span>
+              <span className="text-[18px] font-light leading-none">{activeAccordion === "care" ? "−" : "+"}</span>
             </button>
             <div
               className={cn(
                 "overflow-hidden transition-all duration-300 ease-in-out",
-                activeAccordion === "care" ? "max-h-[500px] mt-3" : "max-h-0"
+                activeAccordion === "care" ? "max-h-300 pb-5" : "max-h-0"
               )}
             >
-              <ul className="list-disc pl-5 space-y-1.5 text-[15px] font-normal leading-relaxed text-black/68">
-                {product.careNotes.map((note, index) => (
-                  <li key={index}>{note}</li>
-                ))}
-              </ul>
+              {typeof product.detailsBody === "string" && product.detailsBody.includes("<") ? (
+                <div
+                  className="max-w-xl font-sans text-[14px] sm:text-[15px] leading-[1.7] text-black/70 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1.5 [&_em]:italic [&_strong]:font-semibold"
+                  dangerouslySetInnerHTML={{ __html: product.detailsBody }}
+                />
+              ) : product.detailsBody && product.detailsBody !== product.description ? (
+                <p className="max-w-xl font-sans text-[14px] sm:text-[15px] leading-[1.7] text-black/70">{product.detailsBody}</p>
+              ) : null}
+              {product.careNotes.length > 0 ? (
+                <ul className="mt-3 list-disc pl-5 space-y-1.5 text-[14px] sm:text-[15px] leading-relaxed text-black/70">
+                  {product.careNotes.map((note, index) => (
+                    <li key={index}>{note}</li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           </div>
 
-          <div className="border-b border-black/10 pb-3">
+          <div className="border-b border-black/10">
             <button
               type="button"
+              aria-expanded={activeAccordion === "shipping"}
               onClick={() => setActiveAccordion(activeAccordion === "shipping" ? null : "shipping")}
-              className="flex w-full items-center justify-between text-[16px] sm:text-[18px] md:text-[22px] font-medium uppercase tracking-normal transition-opacity hover:opacity-70 cursor-pointer"
+              className="flex w-full items-center justify-between py-4 text-[12.5px] sm:text-[13px] font-medium uppercase tracking-[0.2em] transition-opacity hover:opacity-70 cursor-pointer"
             >
-              <span>Shipping &amp; Payment</span>
-              <span className="text-[16px] sm:text-[20px] font-light">{activeAccordion === "shipping" ? "−" : "+"}</span>
+              <span>Shipping &amp; Exchanges</span>
+              <span className="text-[18px] font-light leading-none">{activeAccordion === "shipping" ? "−" : "+"}</span>
             </button>
             <div
               className={cn(
                 "overflow-hidden transition-all duration-300 ease-in-out",
-                activeAccordion === "shipping" ? "max-h-[500px] mt-3" : "max-h-0"
+                activeAccordion === "shipping" ? "max-h-200 pb-5" : "max-h-0"
               )}
             >
-              <ul className="list-disc pl-5 space-y-1.5 text-[15px] font-normal leading-relaxed text-black/68">
+              <ul className="list-disc pl-5 space-y-1.5 text-[14px] sm:text-[15px] leading-relaxed text-black/70">
                 {product.shippingNotes.map((note, index) => (
                   <li key={index}>{note}</li>
                 ))}

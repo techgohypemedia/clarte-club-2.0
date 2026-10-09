@@ -23,8 +23,8 @@ export const MULTI_FRAME_TIERS: { minItems: number; rate: number; code: string }
 // Display-only gift: one kit per frame, never added to the stored cart or sent to checkout
 export const FREE_KIT = {
   name: "Clarté Club Kit",
-  includes: "Gift box · Hard case · Cleaning cloth · Pouch",
-  image: "/images/clarte-club-kit.jpeg",
+  includes: "Gift box · Hard case · Cleaning cloth · Pouch · Member card",
+  image: "/images/clarte-club-kit.webp",
 }
 
 const VERIFIED_OFFER_KEY = "clarte_offer_code_verified"

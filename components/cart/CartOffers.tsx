@@ -8,11 +8,6 @@ import { cn } from "@/lib/utils"
 
 /* ---------- Rewards progress: 1 frame = free kit, then the multi-frame discount tiers ---------- */
 
-const milestones = [
-  { items: 1, label: "Free Kit", icon: Gift },
-  ...MULTI_FRAME_TIERS.map((t) => ({ items: t.minItems, label: `${Math.round(t.rate * 100)}% OFF`, icon: Percent })),
-]
-
 function rewardsHeadline(offer: CartOffer) {
   if (offer.itemCount === 0) return <>Add a frame to unlock your <span className="text-[#C9B07A]">free Clarté Club Kit</span></>
   if (offer.next) {
@@ -28,6 +23,10 @@ function rewardsHeadline(offer: CartOffer) {
 }
 
 export function CartRewardsProgress({ offer, className }: { offer: CartOffer; className?: string }) {
+  const milestones = [
+    { items: 1, label: "Free Kit", icon: Gift },
+    ...MULTI_FRAME_TIERS.map((t) => ({ items: t.minItems, label: `${Math.round(t.rate * 100)}% OFF`, icon: Percent })),
+  ]
   const last = milestones[milestones.length - 1].items
   // Nodes are centred in equal columns (1/6, 3/6, 5/6 for three) so the outer labels never touch the edge;
   // the fill runs from the left edge to the node of the current item count
@@ -83,34 +82,38 @@ export function FreeKitRow({ quantity, compact = false }: { quantity: number; co
   return (
     <article
       className={cn(
-        "grid gap-3.5 bg-white border border-dashed border-[#C9B07A]/70 rounded-lg",
-        compact ? "grid-cols-[85px_minmax(0,1fr)] p-3" : "grid-cols-[100px_minmax(0,1fr)] sm:grid-cols-[130px_minmax(0,1fr)] gap-5 sm:gap-6 p-4 sm:p-6"
+        "grid items-center bg-white border border-black/10 rounded-lg shadow-sm",
+        compact
+          ? "grid-cols-[110px_minmax(0,1fr)_auto] gap-3.5 p-3"
+          : "grid-cols-[120px_minmax(0,1fr)_auto] sm:grid-cols-[170px_minmax(0,1fr)_auto] gap-4 sm:gap-6 p-4 sm:p-5"
       )}
       aria-label={`${FREE_KIT.name}, quantity ${quantity}, included free`}
     >
-      <div className="relative aspect-square w-full overflow-hidden rounded border border-black/5 bg-[#f4f1ec]">
-        <Image src={FREE_KIT.image} alt={FREE_KIT.name} fill sizes={compact ? "85px" : "(max-width: 640px) 100px, 130px"} className="object-cover" />
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded bg-[#f4f1ec]">
+        <Image
+          src={FREE_KIT.image}
+          alt={`${FREE_KIT.name}: ${FREE_KIT.includes}`}
+          fill
+          sizes={compact ? "110px" : "(max-width: 640px) 120px, 170px"}
+          className="object-cover"
+        />
       </div>
-      <div className="flex min-w-0 flex-col justify-between py-0.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[#C9B07A]">
-              <Gift className="size-3" /> Included with every frame
-            </span>
-            <h3 className={cn("font-semibold uppercase tracking-[0.06em] text-[#0F0F10] leading-snug", compact ? "text-[0.84rem]" : "text-sm sm:text-base")}>
-              {FREE_KIT.name}
-            </h3>
-            <p className="mt-0.5 text-[10.5px] text-neutral-500 leading-snug">{FREE_KIT.includes}</p>
-          </div>
-          <span className="shrink-0 text-[12px] font-bold uppercase tracking-[0.12em] text-[#2f7d4f]">Free</span>
-        </div>
-        <div className="mt-2 flex items-center justify-between border-t border-black/5 pt-2">
-          <span className="rounded border border-black/15 bg-neutral-50 px-2.5 py-1 text-[11px] font-semibold text-[#0F0F10]">
-            Qty {quantity}
-          </span>
-          <span className="text-[11px] font-semibold text-neutral-500">₹0</span>
-        </div>
+      <div className="min-w-0">
+        <h3
+          className={cn(
+            "font-medium uppercase text-[#0F0F10] leading-snug",
+            compact ? "text-[0.8rem] tracking-[0.08em]" : "text-sm sm:text-[15px] tracking-[0.16em]"
+          )}
+        >
+          {FREE_KIT.name}
+        </h3>
+        <p className={cn("mt-1 text-neutral-500 leading-snug", compact ? "text-[11px]" : "text-[12px] sm:text-[13px]")}>
+          Included with your order{quantity > 1 ? ` · Qty ${quantity}` : ""}
+        </p>
       </div>
+      <span className="self-center text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.14em] text-[#2f7d4f]">
+        Free
+      </span>
     </article>
   )
 }
