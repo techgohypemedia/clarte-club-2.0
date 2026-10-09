@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { ChevronDown, X } from "lucide-react"
-import { collectionProducts } from "@/components/collection/collectionData"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "motion/react"
 
@@ -52,22 +51,6 @@ export function CollectionHeader({
     setSelectedType(null)
     setTypeOpen(false)
   }
-
-  const filteredCount = collectionProducts.filter((product) => {
-    const matchesCategory =
-      selectedCategory === null ||
-      !product.category ||
-      product.category.toLowerCase() === selectedCategory.toLowerCase() ||
-      (selectedCategory.toLowerCase() === "noyer" && product.category.toLowerCase() === "noir") ||
-      (selectedCategory.toLowerCase() === "noir" && product.category.toLowerCase() === "noyer") ||
-      (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
-    const matchesType =
-      selectedType === null ||
-      !product.type ||
-      product.type.toLowerCase() === selectedType.toLowerCase() ||
-      (selectedType.toLowerCase() === "eyeglasses" && (product.type.toLowerCase() === "optical" || product.type.toLowerCase() === "eyeglasses"))
-    return matchesCategory && matchesType
-  }).length
 
   const sortOptions = [
     { value: "bestseller", label: "Bestseller" },
@@ -313,7 +296,8 @@ export function CollectionHeader({
 
         {/* Right-aligned Frames Counter */}
         <div className="flex justify-end text-[10px] font-semibold tracking-[0.18em] text-black/45 uppercase -mt-3.5">
-          ({typeof productCount === "number" ? productCount : filteredCount} {(typeof productCount === "number" ? productCount : filteredCount) === 1 ? 'Frame' : 'Frames'} Available)
+          {/* Hidden while the tab is loading (count undefined), so it never contradicts the grid */}
+          {typeof productCount === "number" ? `(${productCount} ${productCount === 1 ? "Frame" : "Frames"} Available)` : " "}
         </div>
       </div>
     </header>

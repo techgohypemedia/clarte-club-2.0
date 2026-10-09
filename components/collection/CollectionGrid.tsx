@@ -2,9 +2,44 @@
 
 import { useState, useEffect } from "react"
 import { ProductCardView } from "@/components/home/TrendingSection"
-import { collectionProducts } from "@/components/collection/collectionData"
 import type { ProductCard } from "@/components/product/productData"
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
+
+// Tabs backed by a Shopify collection of the same handle. For these the grid shows exactly the products in that
+// Shopify collection. (Each product also carries a single "category" label, but a frame can be in several
+// collections, e.g. every Edits frame is also in Noir/Crystal/Atelier/Heritage, so filtering by that label hid
+// all of Edits and part of Heritage.)
+const SHOPIFY_COLLECTIONS = ["edits", "heritage", "noir", "crystal", "atelier"]
+const ALL = "all"
+
+// Per-tab results, kept for the page session so switching tabs is instant after the first load
+const productCache = new Map<string, Promise<ProductCard[]>>()
+
+function loadProducts(key: string): Promise<ProductCard[]> {
+  let request = productCache.get(key)
+  if (!request) {
+    request = import("@/lib/shopify-adapter")
+      .then(({ getShopifyProducts, getShopifyCollectionProducts }) =>
+        key === ALL ? getShopifyProducts(50) : getShopifyCollectionProducts(key)
+      )
+      .then((products) => products ?? [])
+      .catch(() => [] as ProductCard[])
+    productCache.set(key, request)
+    // Don't keep a failed/empty result forever: allow a retry on the next visit to the tab
+    request.then((products) => {
+      if (products.length === 0) productCache.delete(key)
+    })
+  }
+  return request
+}
+
+function categoryKey(selectedCategory: string | null): string {
+  if (!selectedCategory) return ALL
+  const key = selectedCategory.toLowerCase()
+  if (key === "noyer") return "noir"
+  if (key === "curated" || key === "curations" || key === "curated-edits") return "edits"
+  return key
+}
 
 export function CollectionGrid({
   selectedCategory,
@@ -23,48 +58,36 @@ export function CollectionGrid({
   selectedGender?: string | null
   selectedColor?: string | null
   sortBy: string
-  onProductCountChange?: (count: number) => void
+  onProductCountChange?: (count: number | undefined) => void
 }) {
-  const [products, setProducts] = useState<ProductCard[]>([])
-  const [loading, setLoading] = useState(true)
+  const key = categoryKey(selectedCategory)
+  const isShopifyCollection = SHOPIFY_COLLECTIONS.includes(key)
+  // Which tab the loaded products belong to; anything else means the current tab is still loading
+  const [loaded, setLoaded] = useState<{ key: string; products: ProductCard[] } | null>(null)
+  const loading = loaded?.key !== key
 
   useEffect(() => {
     let isMounted = true
-    setLoading(true)
-    import("@/lib/shopify-adapter").then(({ getShopifyProducts, getShopifyCollectionProducts }) => {
-      const fetcher = selectedCategory
-        ? getShopifyCollectionProducts(selectedCategory.toLowerCase())
-        : getShopifyProducts(50)
-
-      fetcher.then((liveProducts) => {
-        if (!isMounted) return
-        if (liveProducts && liveProducts.length > 0) {
-          setProducts(liveProducts)
-        } else {
-          // If collection fetch returned empty, fetch all catalog products as fallback
-          getShopifyProducts(50).then((allProds) => {
-            if (isMounted && allProds && allProds.length > 0) {
-              setProducts(allProds)
-            }
-          })
-        }
-        setLoading(false)
-      })
+    // Known collections: the Shopify collection itself. Any other category (e.g. from an old link): the full
+    // catalogue, filtered by the product's label below.
+    loadProducts(isShopifyCollection || key === ALL ? key : ALL).then((products) => {
+      if (isMounted) setLoaded({ key, products })
+      // Warm the other tabs in the background so switching is instant
+      ;[ALL, ...SHOPIFY_COLLECTIONS].forEach((k) => void loadProducts(k))
     })
     return () => {
       isMounted = false
     }
-  }, [selectedCategory])
+  }, [key, isShopifyCollection])
 
-  // Filter products based on selected states
+  const products = loading ? [] : loaded?.products ?? []
+
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
-      selectedCategory === null ||
+      key === ALL ||
+      isShopifyCollection ||
       !product.category ||
-      product.category.toLowerCase() === selectedCategory.toLowerCase() ||
-      (selectedCategory.toLowerCase() === "noyer" && (product.category.toLowerCase() === "noir" || product.category.toLowerCase() === "noyer")) ||
-      (selectedCategory.toLowerCase() === "noir" && (product.category.toLowerCase() === "noyer" || product.category.toLowerCase() === "noir")) ||
-      (selectedCategory.toLowerCase() === "edits" && (product.category.toLowerCase() === "edits" || product.category.toLowerCase() === "curated"))
+      product.category.toLowerCase() === key
 
     const matchesType =
       selectedType === null ||
@@ -85,9 +108,11 @@ export function CollectionGrid({
     return matchesCategory && matchesType && matchesGender && matchesShape && matchesMaterial && matchesColor
   })
 
+  // No count while loading, so the header never says "6 frames" over an empty grid
+  const count = loading ? undefined : filteredProducts.length
   useEffect(() => {
-    onProductCountChange?.(filteredProducts.length)
-  }, [filteredProducts.length, onProductCountChange])
+    onProductCountChange?.(count)
+  }, [count, onProductCountChange])
 
   // Sort products based on selected sort order
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -113,9 +138,25 @@ export function CollectionGrid({
     return 0 // Preserve original order
   })
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6" aria-busy="true" aria-label="Loading frames">
+        {Array.from({ length: 8 }).map((_, idx) => (
+          <div key={idx} className="flex w-full flex-col animate-pulse">
+            <div className="relative aspect-square w-full rounded-[12px] sm:rounded-[14px] bg-neutral-100 border border-black/5" />
+            <div className="mt-2.5 space-y-1.5 px-0.5">
+              <div className="h-3.5 w-3/4 rounded-sm bg-neutral-100" />
+              <div className="h-3 w-1/3 rounded-sm bg-neutral-100" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   if (sortedProducts.length === 0) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex flex-col items-center justify-center border border-black/10 py-24 px-6 text-center bg-white shadow-sm"
@@ -130,26 +171,20 @@ export function CollectionGrid({
     )
   }
 
+  // Keyed by tab so a new tab's cards animate in fresh. Cards are visible from the first frame (slide only, no
+  // fade from transparent and no exit animation: those are what left the grid looking blank mid-switch).
   return (
-    <motion.div layout className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
-      <AnimatePresence mode="popLayout">
-        {sortedProducts.map((product, idx) => (
-          <motion.div
-            layout
-            key={product.id}
-            initial={{ opacity: 0, scale: 0.97, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: -16 }}
-            transition={{
-              duration: 0.45,
-              delay: (idx % 4) * 0.05,
-              ease: [0.16, 1, 0.3, 1], // easeOutExpo
-            }}
-          >
-            <ProductCardView product={product} index={idx} />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+    <div key={key} className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:grid-cols-4 gap-y-4 sm:gap-y-6">
+      {sortedProducts.map((product, idx) => (
+        <motion.div
+          key={product.id}
+          initial={{ y: 10 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.3, delay: Math.min(idx, 7) * 0.03, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <ProductCardView product={product} index={idx} />
+        </motion.div>
+      ))}
+    </div>
   )
 }

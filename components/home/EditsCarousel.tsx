@@ -145,16 +145,19 @@ export function EditsCarousel() {
 
   useEffect(() => {
     let isMounted = true
-    import("@/lib/shopify-adapter").then(({ getShopifyProducts }) => {
-      getShopifyProducts(16).then((liveProducts) => {
-        if (isMounted && liveProducts && liveProducts.length > 0) {
-          // Use products for curated edits
-          const curatedSlice = liveProducts.length > 4 ? liveProducts.slice(4) : liveProducts
-          if (curatedSlice.length > 0) {
-            setProducts(curatedSlice)
-          }
-        }
-      })
+    import("@/lib/shopify-adapter").then(async ({ getShopifyCollectionProducts, getShopifyProducts }) => {
+      // The Shopify "edits" collection, so this carousel and its "View all" (/collections?category=edits) match
+      const edits = await getShopifyCollectionProducts("edits", 16)
+      if (!isMounted) return
+      if (edits.length > 0) {
+        setProducts(edits)
+        return
+      }
+      // Fallback if the collection can't be loaded: part of the catalogue, as before
+      const liveProducts = await getShopifyProducts(16)
+      if (isMounted && liveProducts && liveProducts.length > 0) {
+        setProducts(liveProducts.length > 4 ? liveProducts.slice(4) : liveProducts)
+      }
     })
     return () => {
       isMounted = false

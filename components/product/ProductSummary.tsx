@@ -228,6 +228,70 @@ export function ProductSummary({
           </div>
         </div>
 
+        {/* PRIMARY CTA: above the description so it is visible without scrolling on phones */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={cartState !== "idle" || isBuying}
+              className={cn(
+                "flex h-12 flex-1 items-center justify-center border border-black text-[14px] sm:text-[16px] md:text-[17px] font-medium uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer",
+                cartState === "idle" && "bg-white text-black hover:bg-black hover:text-white",
+                cartState === "adding" && "bg-black/10 text-black/40 border-black/10 cursor-not-allowed",
+                cartState === "added" && "bg-[#5b8c38] text-white border-[#5b8c38]"
+              )}
+            >
+              {cartState === "idle" && "Add To Cart"}
+              {cartState === "adding" && "Adding..."}
+              {cartState === "added" && "Added To Bag ✓"}
+            </button>
+            <button
+              type="button"
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={() => {
+                toggleWishlist({
+                  id: product.id || product.slug,
+                  handle: product.slug,
+                  title: product.title || product.name || "Signature Frame",
+                  price: product.price,
+                  image: product.gallery?.[0]?.src || product.image || "/images/products/product1.png",
+                  alt: product.title || product.name || "Product image",
+                  inStock: product.inStock,
+                  merchandiseId: product.merchandiseId,
+                })
+              }}
+              className={cn(
+                "flex h-12 w-12 shrink-0 items-center justify-center border transition-all duration-200 cursor-pointer",
+                isWishlisted
+                  ? "border-[#C9B07A] bg-black text-[#C9B07A]"
+                  : "border-black/20 bg-white text-black hover:border-black"
+              )}
+            >
+              <Heart
+                className="size-5 transition-transform duration-200 active:scale-125"
+                style={{
+                  fill: isWishlisted ? "currentColor" : "none",
+                  strokeWidth: 1.8,
+                }}
+              />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleBuyNow}
+            disabled={isBuying}
+            className={cn(
+              "flex h-12 w-full items-center justify-center border border-black bg-black text-[14px] sm:text-[16px] md:text-[17px] font-semibold uppercase tracking-[0.14em] text-white transition-opacity duration-200 ease-out hover:bg-black/85 cursor-pointer shadow-sm active:scale-[0.99]",
+              isBuying && "opacity-50 pointer-events-none"
+            )}
+          >
+            Buy Now
+          </button>
+
+        </div>
+
         {/* DESCRIPTION */}
         <section>
           <p className="max-w-[38rem] font-sans text-[14px] sm:text-[15px] font-normal leading-[1.75] text-black/70">
@@ -412,70 +476,6 @@ export function ProductSummary({
         )}
 
 
-
-        {/* PRIMARY CTA */}
-        <div className="space-y-3 pt-4 border-t border-black/15">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={cartState !== "idle" || isBuying}
-              className={cn(
-                "flex h-12 flex-1 items-center justify-center border border-black text-[14px] sm:text-[16px] md:text-[17px] font-medium uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer",
-                cartState === "idle" && "bg-white text-black hover:bg-black hover:text-white",
-                cartState === "adding" && "bg-black/10 text-black/40 border-black/10 cursor-not-allowed",
-                cartState === "added" && "bg-[#5b8c38] text-white border-[#5b8c38]"
-              )}
-            >
-              {cartState === "idle" && "Add To Cart"}
-              {cartState === "adding" && "Adding..."}
-              {cartState === "added" && "Added To Bag ✓"}
-            </button>
-            <button
-              type="button"
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-              onClick={() => {
-                toggleWishlist({
-                  id: product.id || product.slug,
-                  handle: product.slug,
-                  title: product.title || product.name || "Signature Frame",
-                  price: product.price,
-                  image: product.gallery?.[0]?.src || product.image || "/images/products/product1.png",
-                  alt: product.title || product.name || "Product image",
-                  inStock: product.inStock,
-                  merchandiseId: product.merchandiseId,
-                })
-              }}
-              className={cn(
-                "flex h-12 w-12 shrink-0 items-center justify-center border transition-all duration-200 cursor-pointer",
-                isWishlisted
-                  ? "border-[#C9B07A] bg-black text-[#C9B07A]"
-                  : "border-black/20 bg-white text-black hover:border-black"
-              )}
-            >
-              <Heart
-                className="size-5 transition-transform duration-200 active:scale-125"
-                style={{
-                  fill: isWishlisted ? "currentColor" : "none",
-                  strokeWidth: 1.8,
-                }}
-              />
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            disabled={isBuying}
-            className={cn(
-              "flex h-12 w-full items-center justify-center border border-black bg-black text-[14px] sm:text-[16px] md:text-[17px] font-semibold uppercase tracking-[0.14em] text-white transition-opacity duration-200 ease-out hover:bg-black/85 cursor-pointer shadow-sm active:scale-[0.99]",
-              isBuying && "opacity-50 pointer-events-none"
-            )}
-          >
-            Buy Now
-          </button>
-
-        </div>
 
         {/* ACCORDIONS: product details live under Details & Care (no separate repeated block) */}
         <div className="border-t border-black/10">

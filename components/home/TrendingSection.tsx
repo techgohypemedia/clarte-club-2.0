@@ -243,9 +243,11 @@ export function ProductCardView({
   const productHref = product.href || (product.handle ? `/product/${product.handle}` : (product.id ? `/product/${product.id}` : "/products"))
 
   return (
+    // Slide-up only, never starts transparent: a fade from opacity 0 waits for the in-view check, which on slow
+    // phones / in-app browsers left grids looking empty under "N frames available"
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ y: 28 }}
+      whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{
         duration: 0.55,
