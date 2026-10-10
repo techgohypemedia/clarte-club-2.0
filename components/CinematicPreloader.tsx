@@ -138,7 +138,7 @@ export function CinematicPreloader() {
             <video
               ref={videoRef}
               key="preloader-desktop-video"
-              src="/video/use_black_and_gold_or_blac_gwr_video_mvp.mp4"
+              src="/video/clarte-intro.mp4"
               autoPlay
               muted
               playsInline

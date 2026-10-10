@@ -12,7 +12,9 @@ interface Footer3DCanvasProps {
 
 export function Footer3DCanvas({
   className = "",
-  modelPath = "https://cdn.shopify.com/3d/models/e596dbeec10409f4/untitled_2_.glb",
+  // Same bag model, optimised: fabric maps at 1024px WebP, logo texture lossless (5.8 MB -> 2.0 MB),
+  // served from our own domain with a 1-year cache (see next.config.ts)
+  modelPath = "/models/clarte-bag.glb",
 }: Footer3DCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -40,7 +42,9 @@ export function Footer3DCanvas({
       antialias: true,
       powerPreference: "high-performance",
     })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    // Full device density (phones are 3x). The canvas is small (~220px tall), so this stays cheap,
+    // and capping at 2x is what made the bag look soft on phones.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 3))
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.3
@@ -125,6 +129,9 @@ export function Footer3DCanvas({
         pivot.rotation.set(0, 0, 0)
 
         // Enhance materials
+        // Anisotropic filtering keeps the logo and fabric texture sharp when the bag is seen at an angle
+        // while it rotates (without it, angled textures blur heavily)
+        const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
         rawObject.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh
@@ -134,6 +141,12 @@ export function Footer3DCanvas({
                 m.side = THREE.DoubleSide
                 if (m instanceof THREE.MeshStandardMaterial || m instanceof THREE.MeshPhysicalMaterial) {
                   m.roughness = Math.min(m.roughness, 0.6)
+                  for (const texture of [m.map, m.normalMap, m.roughnessMap, m.metalnessMap, m.emissiveMap, m.aoMap]) {
+                    if (texture) {
+                      texture.anisotropy = maxAnisotropy
+                      texture.needsUpdate = true
+                    }
+                  }
                   m.needsUpdate = true
                 }
               })

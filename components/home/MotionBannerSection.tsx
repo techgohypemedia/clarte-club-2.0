@@ -14,7 +14,7 @@ export function MotionBannerSection() {
     >
       {/* Downloads/plays only near the viewport and pauses when scrolled away */}
       <ViewportVideo
-        src="/video/WhatsApp%20Video%202026-09-09%20at%2012.39.26%20PM.mp4"
+        src="/video/clarte-brand-film.mp4"
         rootMargin={400}
         className="absolute inset-0 size-full object-cover object-center"
       />
