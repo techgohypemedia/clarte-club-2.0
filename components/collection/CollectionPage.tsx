@@ -6,7 +6,7 @@ import { CollectionGrid } from "@/components/collection/CollectionGrid"
 import { CollectionBenefitsBar } from "@/components/collection/CollectionBenefitsBar"
 import { CollectionHeader } from "@/components/collection/CollectionHeader"
 
-function CollectionContent() {
+function CollectionContent({ initialCategory }: { initialCategory?: string }) {
   const searchParams = useSearchParams()
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -18,7 +18,13 @@ function CollectionContent() {
   const [sortBy, setSortBy] = useState<string>("bestseller")
 
   useEffect(() => {
-    const categoryParam = searchParams.get("category")
+    // ?category= wins; otherwise the collection in the URL path (/collections/noir)
+    // (only for the collections that have a tab; any other handle keeps showing the full catalogue)
+    const pathCategory =
+      initialCategory && ["edits", "heritage", "noir", "noyer", "crystal", "atelier"].includes(initialCategory.toLowerCase())
+        ? initialCategory
+        : null
+    const categoryParam = searchParams.get("category") || pathCategory
     const typeParam = searchParams.get("type")
     const shapeParam = searchParams.get("shape")
     const materialParam = searchParams.get("material")
@@ -79,7 +85,7 @@ function CollectionContent() {
     else setSelectedColor(null)
 
     if (filterParam === "bestseller") setSortBy("bestseller")
-  }, [searchParams])
+  }, [searchParams, initialCategory])
 
   const [productCount, setProductCount] = useState<number | undefined>(undefined)
 
@@ -115,10 +121,10 @@ function CollectionContent() {
   )
 }
 
-export function CollectionPage() {
+export function CollectionPage({ initialCategory }: { initialCategory?: string } = {}) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-white" />}>
-      <CollectionContent />
+      <CollectionContent initialCategory={initialCategory} />
     </Suspense>
   )
 }

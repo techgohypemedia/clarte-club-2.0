@@ -25,6 +25,8 @@ export async function generateMetadata({
   return {
     title: `${title} | Clarte Club`,
     description: product?.description || "Browse signature products at Clarte Club.",
+    // One canonical URL per product: /product/x and /products/x serve the same page
+    alternates: { canonical: `https://www.clarteclub.in/products/${handle}` },
   }
 }
 

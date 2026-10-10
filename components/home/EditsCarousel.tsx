@@ -14,131 +14,10 @@ import { ProductCardView } from "@/components/home/TrendingSection"
 import type { ProductCard } from "@/components/product/productData"
 import { motion } from "framer-motion"
 
-export const curatedEditsProducts: ProductCard[] = [
-  {
-    id: "edit-atelier-hexagon",
-    name: "Atelier Hexagon",
-    price: "₹ 12,500",
-    category: "Atelier",
-    type: "Sunglasses",
-    shape: "hexagon",
-    material: "titanium",
-    colorGroup: "monochrome",
-    image: "/images/products/product7.png",
-    alt: "Atelier Hexagon sculpted titanium frame in noir finish",
-    badge: "CURATED EDIT",
-    swatches: ["#111722", "#6f5639"],
-    gallery: [
-      "/images/products/product7.png",
-      "/images/products/product11.png",
-      "/images/products/product15.png",
-      "/images/products/product3.png",
-    ],
-  },
-  {
-    id: "edit-crystal-cateye",
-    name: "Crystal Cateye",
-    price: "₹ 9,800",
-    category: "Crystal",
-    type: "Sunglasses",
-    shape: "cat-eye",
-    material: "clear crystal",
-    colorGroup: "gold",
-    image: "/images/products/product6.png",
-    alt: "Crystal Cateye sunglasses in translucent smoke finish",
-    badge: "LIMITED RELEASE",
-    swatches: ["#ebe8e1", "#111722"],
-    gallery: [
-      "/images/products/product6.png",
-      "/images/products/product10.png",
-      "/images/products/product14.png",
-      "/images/products/product2.png",
-    ],
-  },
-  {
-    id: "edit-atelier-panto",
-    name: "Atelier Panto",
-    price: "₹ 13,000",
-    category: "Atelier",
-    type: "Optical",
-    shape: "round",
-    material: "titanium",
-    colorGroup: "monochrome",
-    image: "/images/products/product8.png",
-    alt: "Atelier Panto architectural titanium optical frames",
-    badge: "ATELIER PIECE",
-    swatches: ["#000000", "#ebe8e1"],
-    gallery: [
-      "/images/products/product8.png",
-      "/images/products/product12.png",
-      "/images/products/product4.png",
-      "/images/products/product1.png",
-    ],
-  },
-  {
-    id: "edit-crystal-round",
-    name: "Crystal Round",
-    price: "₹ 9,200",
-    category: "Crystal",
-    type: "Optical",
-    shape: "round",
-    material: "clear crystal",
-    colorGroup: "crystal",
-    image: "/images/products/product5.png",
-    alt: "Crystal Round transparent bio-acetate optical frames",
-    badge: "EDITORIAL EDIT",
-    swatches: ["#ebe8e1", "#5b82ab"],
-    gallery: [
-      "/images/products/product5.png",
-      "/images/products/product9.png",
-      "/images/products/product13.png",
-      "/images/products/product1.png",
-    ],
-  },
-  {
-    id: "edit-noir-dframe",
-    name: "Noir D-Frame",
-    price: "₹ 11,000",
-    category: "Noir",
-    type: "Sunglasses",
-    shape: "d-frame",
-    material: "acetate",
-    colorGroup: "tortoiseshell",
-    image: "/images/products/product4.png",
-    alt: "Noir D-Frame acetate sunglasses in tortoiseshell",
-    badge: "SIGNATURE",
-    swatches: ["#6f5639", "#000000"],
-    gallery: [
-      "/images/products/product4.png",
-      "/images/products/product8.png",
-      "/images/products/product12.png",
-      "/images/products/product5-white.png",
-    ],
-  },
-  {
-    id: "edit-heritage-aviator",
-    name: "Heritage Aviator",
-    price: "₹ 9,500",
-    category: "Heritage",
-    type: "Sunglasses",
-    shape: "aviator",
-    material: "titanium",
-    colorGroup: "blue",
-    image: "/images/products/product2.png",
-    alt: "Heritage Aviator sunglasses with dark metal frame",
-    badge: "COLLECTOR",
-    swatches: ["#5b82ab", "#111722"],
-    gallery: [
-      "/images/products/product2.png",
-      "/images/products/product6.png",
-      "/images/products/product10.png",
-      "/images/products/product14.png",
-    ],
-  },
-]
-
 export function EditsCarousel() {
-  const [products, setProducts] = useState<ProductCard[]>(curatedEditsProducts)
+  // Starts empty (placeholder cards below) and is filled only with real Shopify products. It used to start with
+  // six made-up sample products, which ended up in the page HTML and in Google as links to pages that 404.
+  const [products, setProducts] = useState<ProductCard[]>([])
   const [api, setApi] = useState<CarouselApi>()
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(true)
@@ -238,6 +117,23 @@ export function EditsCarousel() {
         aria-label="Curated Edits product carousel"
       >
         <CarouselContent className="-ml-3 sm:-ml-4">
+          {products.length === 0
+            ? Array.from({ length: 4 }).map((_, idx) => (
+                <CarouselItem
+                  key={`edits-skeleton-${idx}`}
+                  className="pl-3 sm:pl-4 basis-[74%] sm:basis-[48%] md:basis-[36%] lg:basis-[25%]"
+                  aria-hidden
+                >
+                  <div className="animate-pulse">
+                    <div className="aspect-square w-full rounded-[12px] sm:rounded-[14px] bg-white/[0.06]" />
+                    <div className="mt-2.5 space-y-1.5 px-0.5">
+                      <div className="h-3.5 w-3/4 rounded-sm bg-white/[0.06]" />
+                      <div className="h-3 w-1/3 rounded-sm bg-white/[0.06]" />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))
+            : null}
           {products.map((product, idx) => (
             <CarouselItem
               key={product.id}

@@ -12,3 +12,5 @@ Allow: /icon.svg
 Allow: /icon-192.png
 Allow: /icon-512.png
 Allow: /apple-touch-icon.png
+
+Sitemap: https://www.clarteclub.in/sitemap.xml
