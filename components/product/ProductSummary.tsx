@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import type { ProductDetail, ProductCoupon } from "@/components/product/productData"
 import { addToCart, buyNow } from "@/lib/cart"
 import { useWishlist } from "@/lib/wishlist"
+import { trackViewContent } from "@/lib/analytics"
 
 const deliveryIcons = {
   truck: Truck,
@@ -83,6 +84,11 @@ export function ProductSummary({
     : [product.editLabel, product.title]
   const collectionLabel = titleCollection || product.editLabel
   const frameName = titleFrame || product.title
+
+  // Meta Pixel / GA "product viewed", once per product
+  useEffect(() => {
+    trackViewContent({ merchandiseId: product.merchandiseId, title: product.title, price: product.price })
+  }, [product.merchandiseId, product.title, product.price])
 
   const [cartState, setCartState] = useState<"idle" | "adding" | "added">("idle")
   const [isBuying, setIsBuying] = useState(false)

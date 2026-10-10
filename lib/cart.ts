@@ -11,6 +11,7 @@ import {
   formatMoney,
 } from "./shopify"
 import { getOfferCode, isOfferCode, setVerifiedOfferCode } from "./cart-offers"
+import { trackAddToCart } from "./analytics"
 
 export type CartItem = {
   id: string
@@ -501,6 +502,7 @@ export function addToCart(
     items.push({ ...item, quantity: 1 })
   }
   saveCartItems(items)
+  trackAddToCart({ merchandiseId: item.merchandiseId, title: item.title, price: item.price, quantity: 1 })
 
   window.dispatchEvent(
     new CustomEvent("cart-updated", {
