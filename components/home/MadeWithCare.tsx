@@ -1,33 +1,13 @@
 import Image from "next/image"
 
-// Reassures new visitors about quality. Copy is deliberately collection-neutral (acetate and metal frames
-// across Noir, Heritage, Crystal and Atelier). Plain server-rendered markup: no client JS, no animation.
-const blocks = [
-  {
-    title: "Materials",
-    copy: "Premium-grade acetate and metal, chosen to last.",
-    image: "/images/craft/materials.webp",
-    alt: "Close-up of a tortoise acetate frame corner with a gold metal detail",
-  },
-  {
-    title: "Lenses",
-    copy: "UV 400 protection in every pair.",
-    image: "/images/craft/lenses.webp",
-    alt: "Close-up of gradient lenses and the frame bridge",
-  },
-  {
-    title: "Hinges",
-    copy: "Precise metal hinges with engraved detailing.",
-    image: "/images/craft/hinges.webp",
-    alt: "Close-up of an engraved gold hinge on a translucent frame",
-  },
-  {
-    title: "Packaging",
-    copy: "Arrives in the Clarté Club kit: case, cloth and pouch.",
-    image: "/images/craft/packaging.webp",
-    alt: "Clarté Club kit with gift box, hard case, cleaning cloth and pouch",
-  },
-]
+// Craftsmanship section: the client's frame-detail sheet (photos, measurements, hinge / lens / signature
+// close-ups). The sheet is a wide collage with small text baked in, so on phones it is shown as two stacked
+// parts at full width (photos, then measurements and details) to keep that text readable; desktop shows the
+// whole sheet. Files are pre-sized WebP, served as-is ("unoptimized") so the fine text is not re-compressed.
+const ALT_PHOTOS =
+  "Clarté Club round frame in translucent blue acetate with dark lenses, with close-ups of the engraved metal hinge and the CC logo on the temple tip"
+const ALT_SPECS =
+  "Frame dimensions in millimetres: lens width 49, bridge width 22, temple length 145, frame width 138, lens height 46. Details: precision hinge, UV 400 protection, signature CC detail"
 
 export function MadeWithCare() {
   return (
@@ -38,28 +18,42 @@ export function MadeWithCare() {
           <h2 className="font-heading text-[22px] font-semibold uppercase leading-none tracking-tight sm:text-3xl md:text-[40px]">
             Made with Care
           </h2>
-          <p className="mt-3 max-w-md text-[13px] leading-relaxed text-neutral-600 sm:text-[14px]">
-            Every Clarté Club frame is considered down to the smallest detail.
-          </p>
         </div>
 
-        <ul className="mt-8 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-4 md:mt-10 lg:grid-cols-4 lg:gap-x-5">
-          {blocks.map((block) => (
-            <li key={block.title}>
-              <div className="relative aspect-square w-full overflow-hidden rounded-[12px] bg-[#f4f4f4] sm:rounded-[14px]">
-                <Image
-                  src={block.image}
-                  alt={block.alt}
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="mt-3 text-[12px] font-semibold uppercase tracking-[0.18em] sm:text-[13px]">{block.title}</h3>
-              <p className="mt-1 text-[12px] leading-relaxed text-neutral-600 sm:text-[13px]">{block.copy}</p>
-            </li>
-          ))}
-        </ul>
+        {/* Phones and tablets: two stacked parts */}
+        <div className="mt-8 space-y-2 overflow-hidden rounded-[12px] sm:rounded-[14px] lg:hidden">
+          <Image
+            src="/images/craft/frame-details-photos.webp"
+            alt={ALT_PHOTOS}
+            width={838}
+            height={1024}
+            sizes="100vw"
+            unoptimized
+            className="h-auto w-full"
+          />
+          <Image
+            src="/images/craft/frame-details-specs.webp"
+            alt={ALT_SPECS}
+            width={698}
+            height={810}
+            sizes="100vw"
+            unoptimized
+            className="h-auto w-full"
+          />
+        </div>
+
+        {/* Desktop: the full sheet */}
+        <div className="mt-10 hidden overflow-hidden rounded-[14px] lg:block">
+          <Image
+            src="/images/craft/frame-details.webp"
+            alt={`${ALT_PHOTOS}. ${ALT_SPECS}`}
+            width={1536}
+            height={1024}
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            unoptimized
+            className="h-auto w-full"
+          />
+        </div>
       </div>
     </section>
   )

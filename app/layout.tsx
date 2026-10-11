@@ -112,7 +112,9 @@ export default function RootLayout({
           fetchPriority="high"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      {/* suppressHydrationWarning: browser extensions (Grammarly etc.) add attributes to <body> before React
+          loads. Only this element's own attributes are exempt; mismatches inside the page are still reported. */}
+      <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
         <Script id="onecheckout-config" strategy="beforeInteractive">
           {`window.__ONE_CHECKOUT_CONFIG__=${serializedOneCheckoutConfig};`}
         </Script>
