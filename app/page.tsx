@@ -4,12 +4,14 @@ import { MotionBannerSection } from "@/components/home/MotionBannerSection"
 import { LaunchOfferBar } from "@/components/home/LaunchOfferBar"
 import { TrendingSection } from "@/components/home/TrendingSection"
 import { MadeWithCare } from "@/components/home/MadeWithCare"
+import { LookbookCarousel } from "@/components/home/LookbookCarousel"
 import { InstagramSection } from "@/components/home/InstagramSection"
 import { TrustStrip } from "@/components/home/TrustStrip"
 
 export const dynamic = "force-dynamic"
 
-// Flow: hero -> offer -> products -> brand film -> collections -> quality reassurance -> social -> trust/payments
+// Flow: hero -> offer -> products -> brand film -> collections -> quality reassurance -> community ("As Seen On")
+// -> social -> trust/payments
 export default function Home() {
   return (
     <main className="flex-1 -mt-[var(--header-stack-height)] bg-black">
@@ -19,6 +21,7 @@ export default function Home() {
       <MotionBannerSection />
       <DenimCarousel />
       <MadeWithCare />
+      <LookbookCarousel />
       <InstagramSection />
       <TrustStrip />
     </main>
