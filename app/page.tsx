@@ -3,14 +3,13 @@ import { DenimCarousel } from "@/components/home/DenimCarousel"
 import { MotionBannerSection } from "@/components/home/MotionBannerSection"
 import { LaunchOfferBar } from "@/components/home/LaunchOfferBar"
 import { TrendingSection } from "@/components/home/TrendingSection"
-import { MadeWithCare } from "@/components/home/MadeWithCare"
 import { LookbookCarousel } from "@/components/home/LookbookCarousel"
 import { InstagramSection } from "@/components/home/InstagramSection"
 import { TrustStrip } from "@/components/home/TrustStrip"
 
 export const dynamic = "force-dynamic"
 
-// Flow: hero -> offer -> products -> brand film -> collections -> quality reassurance -> community ("As Seen On")
+// Flow: hero -> offer -> products -> brand film -> collections -> community ("As Seen On")
 // -> social -> trust/payments
 export default function Home() {
   return (
@@ -20,7 +19,6 @@ export default function Home() {
       <TrendingSection />
       <MotionBannerSection />
       <DenimCarousel />
-      <MadeWithCare />
       <LookbookCarousel />
       <InstagramSection />
       <TrustStrip />
